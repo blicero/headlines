@@ -1,0 +1,24 @@
+{# -*- mode: jinja2; coding: utf-8; -*-
+Time-stamp: <2025-05-06 18:55:26 krylon>
+%filename%
+created on %date%
+(c) %year% %author%
+ #}
+
+{% extends "main.jinja" %}
+
+{% block title %}
+{% endblock %}
+
+{% block intro %}
+{% endblock %}
+
+{% block menu %}
+{% endblock %}
+
+{% block content %}
+{% endblock %}
+
+{% block footer %}
+{% endblock %}
+
