@@ -1,4 +1,4 @@
-# Time-stamp: <2025-09-25 22:16:11 krylon>
+# Time-stamp: <2025-09-30 18:42:24 krylon>
 
 [project]
 name = "headlines"
@@ -8,14 +8,18 @@ authors = [
     {name = "Benjamin Walkenhorst", email = "walkenhorst.benjamin@gmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = "<4.0,>=3.11"
 dependencies = [
+             "requests (>=2.32.5)",
+             "rss-parser (>=2.1.1)",
 ]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.poetry]
+package-mode = false
 
 #
 # Analyse import fallback blocks. This can be used to support both Python 2 and 3
