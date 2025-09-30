@@ -1,0 +1,63 @@
+# -*- mode: org; fill-column: 78; -*-
+# Time-stamp: <2025-09-30 18:30:15 krylon>
+#
+#+TAGS: internals(i) ui(u) bug(b) feature(f)
+#+TAGS: database(d) design(e), meditation(m)
+#+TAGS: optimize(o) refactor(r) cleanup(c)
+#+TODO: TODO(t)  RESEARCH(r) IMPLEMENT(i) TEST(e) | DONE(d) FAILED(f) CANCELLED(c)
+#+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
+#+PRIORITIES: A G D
+
+* Headlines [0/0]
+  :PROPERTIES:
+  :COOKIE_DATA: todo recursive
+  :VISIBILITY: children
+  :END:
+** Clocktable
+   #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
+   #+CAPTION: Clock summary at [2025-09-26 Fr 22:03]
+   | Headline     | Time   |
+   |--------------+--------|
+   | *Total time* | *0:00* |
+   #+END:
+** Components [0/0]
+   :PROPERTIES:
+   :COOKIE_DATA: todo recursive
+   :VISIBILITY: children
+   :END:
+*** Model [0/0]
+    :PROPERTIES:
+    :COOKIE_DATA: todo recursive
+    :VISIBILITY: children
+    :END:
+*** Database [0/0]
+    :PROPERTIES:
+    :COOKIE_DATA: todo recursive
+    :VISIBILITY: children
+    :END:
+*** Web UI [0/0]
+    :PROPERTIES:
+    :COOKIE_DATA: todo recursive
+    :VISIBILITY: children
+    :END:
+*** Fetcher? [0/0]
+    :PROPERTIES:
+    :COOKIE_DATA: todo recursive
+    :VISIBILITY: children
+    :END:
+** Features [0/0]
+   :PROPERTIES:
+   :COOKIE_DATA: todo recursive
+   :VISIBILITY: children
+   :END:
+** Bugs [0/0]
+   :PROPERTIES:
+   :COOKIE_DATA: todo recursive
+   :VISIBILITY: children
+   :END:
+** Journal [0/0]
+   :PROPERTIES:
+   :COOKIE_DATA: todo recursive
+   :VISIBILITY: children
+   :END:
+
