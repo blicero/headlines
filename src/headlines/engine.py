@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-09-30 19:14:33 krylon>
+# Time-stamp: <2025-10-04 15:09:42 krylon>
 #
 # /data/code/python/headlines/src/headlines/engine.py
 # created on 30. 09. 2025
@@ -19,8 +19,8 @@ Engine implements the downloading and processing of RSS feeds.
 """
 
 
-class Engine:
-    pass
+class Engine:  # pylint: disable-msg=R0903
+    """Engine implements the fetching an processing of RSS feeds."""
 
 
 # Local Variables: #

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-09-30 18:02:30 krylon>
+# Time-stamp: <2025-10-04 14:51:23 krylon>
 #
 # /data/code/python/headlines/src/headlines/model.py
 # created on 30. 09. 2025
@@ -19,6 +19,7 @@ headlines.model
 
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Optional
 
 
 @dataclass(kw_only=True, slots=True)
@@ -27,9 +28,12 @@ class Feed:
 
     fid: int = 0
     url: str
+    homepage: str = ""
     name: str
     description: str = ""
     interval: int = 1800  # Interval in seconds to refresh the feed
+    last_update: Optional[datetime] = None
+    active: bool = True
 
 
 @dataclass(kw_only=True, slots=True)
