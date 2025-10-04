@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-09-30 19:26:20 krylon>
+# Time-stamp: <2025-10-04 15:09:14 krylon>
 #
 # /data/code/python/headlines/src/headlines/common.py
 # created on 30. 09. 2025
@@ -17,6 +17,7 @@ headlines.common
 """
 
 import logging
+import logging.handlers
 import os
 import sys
 from threading import Lock
