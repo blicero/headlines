@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-10-08 16:01:41 krylon>
+# Time-stamp: <2025-10-08 16:21:04 krylon>
 #
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
@@ -15,14 +15,14 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2025-10-08 Mi 16:01]
+   #+CAPTION: Clock summary at [2025-10-08 Mi 16:21]
    | Headline                    | Time   |        |      |
    |-----------------------------+--------+--------+------|
-   | *Total time*                | *8:01* |        |      |
+   | *Total time*                | *8:16* |        |      |
    |-----------------------------+--------+--------+------|
-   | *Headlines [0/0]*           | *8:01* |        |      |
-   | \_  /Components [0/0]/      |        | /7:35/ |      |
-   | \_    Database [0/0]        |        |        | 7:35 |
+   | *Headlines [0/0]*           | *8:16* |        |      |
+   | \_  /Components [0/0]/      |        | /7:50/ |      |
+   | \_    Database [0/0]        |        |        | 7:50 |
    | \_  /Journal [1/1]/         |        | /0:26/ |      |
    | \_    Wrestling with poetry |        |        | 0:26 |
    #+END:
@@ -42,6 +42,7 @@
     :VISIBILITY: children
     :END:
     :LOGBOOK:
+    CLOCK: [2025-10-08 Mi 16:05]--[2025-10-08 Mi 16:20] =>  0:15
     CLOCK: [2025-10-08 Mi 14:40]--[2025-10-08 Mi 15:30] =>  0:50
     CLOCK: [2025-10-04 Sa 14:12]--[2025-10-04 Sa 19:11] =>  4:59
     CLOCK: [2025-10-02 Do 17:52]--[2025-10-02 Do 19:38] =>  1:46
