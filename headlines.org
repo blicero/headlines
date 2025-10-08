@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-10-04 19:12:03 krylon>
+# Time-stamp: <2025-10-08 16:01:41 krylon>
 #
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
@@ -15,14 +15,16 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2025-10-04 Sa 19:11]
-   | Headline               | Time   |        |      |
-   |------------------------+--------+--------+------|
-   | *Total time*           | *6:45* |        |      |
-   |------------------------+--------+--------+------|
-   | *Headlines [0/0]*      | *6:45* |        |      |
-   | \_  /Components [0/0]/ |        | /6:45/ |      |
-   | \_    Database [0/0]   |        |        | 6:45 |
+   #+CAPTION: Clock summary at [2025-10-08 Mi 16:01]
+   | Headline                    | Time   |        |      |
+   |-----------------------------+--------+--------+------|
+   | *Total time*                | *8:01* |        |      |
+   |-----------------------------+--------+--------+------|
+   | *Headlines [0/0]*           | *8:01* |        |      |
+   | \_  /Components [0/0]/      |        | /7:35/ |      |
+   | \_    Database [0/0]        |        |        | 7:35 |
+   | \_  /Journal [1/1]/         |        | /0:26/ |      |
+   | \_    Wrestling with poetry |        |        | 0:26 |
    #+END:
 ** Components [0/0]
    :PROPERTIES:
@@ -40,6 +42,7 @@
     :VISIBILITY: children
     :END:
     :LOGBOOK:
+    CLOCK: [2025-10-08 Mi 14:40]--[2025-10-08 Mi 15:30] =>  0:50
     CLOCK: [2025-10-04 Sa 14:12]--[2025-10-04 Sa 19:11] =>  4:59
     CLOCK: [2025-10-02 Do 17:52]--[2025-10-02 Do 19:38] =>  1:46
     :END:
@@ -66,9 +69,16 @@
    :COOKIE_DATA: todo recursive
    :VISIBILITY: children
    :END:
-** Journal [0/0]
+** Journal [1/1]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: children
    :END:
+*** CANCELLED Wrestling with poetry
+    CLOSED: [2025-10-08 Mi 16:01]
+    :LOGBOOK:
+    CLOCK: [2025-10-08 Mi 15:35]--[2025-10-08 Mi 16:01] =>  0:26
+    :END:
+    I attempted to use poetry, but I find it is too complicated for my taste,
+    and the payoff is too small for my needs to warrant its further use. 
 
