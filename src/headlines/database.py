@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-04 16:01:16 krylon>
+# Time-stamp: <2025-10-08 15:03:02 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -323,11 +323,21 @@ class Database:
 
     def feed_set_last_update(self, feed: Feed, timestamp: datetime) -> None:
         """Update a Feed's last_update timestamp."""
-        assert timestamp > feed.last_update
+        if feed.last_update is not None:
+            assert timestamp > feed.last_update
 
         cur = self.db.cursor()
         cur.execute(qdb[Query.FeedSetLastUpdate], (timestamp.timestamp(), feed.fid))
         feed.last_update = timestamp
+
+    def feed_set_interval(self, feed: Feed, interval: int) -> None:
+        """Set a Feed's refresh interval."""
+        if interval <= 0:
+            raise ValueError(f"Invalid interval: {interval} (must be > 0)")
+
+        cur = self.db.cursor()
+        cur.execute(qdb[Query.FeedSetInterval], (interval, feed.fid))
+        feed.interval = interval
 
     def item_add(self, item: Item) -> None:
         """Add an Item to the database."""
@@ -340,6 +350,34 @@ class Database:
                      item.timestamp.timestamp()))
         row = cur.fetchone()
         item.item_id = row[0]
+
+    def item_get_recent(self, limit: int = 100, offset: int = 0) -> list[Item]:
+        """
+        Fetch the <limit> most recent Items from the database. Skip the first <offset> Items.
+
+        Pass limit = -1 to get all Items (use with great care!)
+        """
+        cur = self.db.cursor()
+        cur.execute(qdb[Query.ItemGetRecent], (limit, offset))
+
+        items: list[Item] = []
+
+        for row in cur:
+            item = Item(
+                item_id=row[0],
+                feed_id=row[1],
+                url=row[2],
+                headline=row[3],
+                body=row[4],
+                timestamp=datetime.fromtimestamp(row[5]),
+            )
+            items.append(item)
+
+        return items
+
+    def item_search(self, _query: str) -> list[Item]:
+        """Search the Items in the database for <query>."""
+        return []
 
 # Local Variables: #
 # python-indent: 4 #
