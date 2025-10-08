@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-08 15:03:02 krylon>
+# Time-stamp: <2025-10-08 16:20:02 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -32,8 +32,8 @@ from headlines.model import Feed, Item
 qinit: Final[list[str]] = [
     """
 CREATE TABLE feed (
-    id INTEGER PRIMARY KEY
-    url TEXT UNIQUE NOT NULL
+    id INTEGER PRIMARY KEY,
+    url TEXT UNIQUE NOT NULL,
     homepage TEXT NOT NULL DEFAULT '',
     name TEXT UNIQUE NOT NULL,
     description TEXT NOT NULL DEFAULT '',
@@ -41,7 +41,7 @@ CREATE TABLE feed (
     last_update INTEGER NOT NULL DEFAULT 0,
     active INTEGER NOT NULL DEFAULT 1,
     CHECK (last_update >= 0),
-    CHECK (interval > 0),
+    CHECK (interval > 0)
 ) STRICT
     """,
     "CREATE INDEX feed_up_idx ON feed (last_update)",
@@ -226,8 +226,15 @@ class Database:
         self.log.debug("Initialize fresh database at %s", self.path)
         with self.db:
             for query in qinit:
-                cur: sqlite3.Cursor = self.db.cursor()
-                cur.execute(query)
+                try:
+                    cur: sqlite3.Cursor = self.db.cursor()
+                    cur.execute(query)
+                except sqlite3.OperationalError as operr:
+                    self.log.debug("%s executing init query: %s\n%s\n",
+                                   operr.__class__.__name__,
+                                   operr,
+                                   query)
+                    raise
         self.log.debug("Database initialized successfully.")
 
     def __enter__(self) -> None:
