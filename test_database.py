@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-08 15:26:48 krylon>
+# Time-stamp: <2025-10-08 16:08:32 krylon>
 #
 # /data/code/python/headlines/tests/test_database.py
 # created on 08. 10. 2025
@@ -22,8 +22,8 @@ import unittest
 from datetime import datetime
 from typing import Final, Optional
 
-import common
-from database import Database
+from headlines import common
+from headlines.database import Database
 
 test_dir: Final[str] = os.path.join(
     "/tmp",
