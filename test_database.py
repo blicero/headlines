@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-08 16:08:32 krylon>
+# Time-stamp: <2025-10-09 16:13:12 krylon>
 #
 # /data/code/python/headlines/tests/test_database.py
 # created on 08. 10. 2025
@@ -24,6 +24,7 @@ from typing import Final, Optional
 
 from headlines import common
 from headlines.database import Database
+from headlines.model import Feed, Item
 
 test_dir: Final[str] = os.path.join(
     "/tmp",
@@ -62,6 +63,49 @@ class TestDatabase(unittest.TestCase):
         self.assertIsNotNone(db)
         self.assertIsInstance(db, Database)  # ???
         self.db(db)
+
+    def test_02_db_add_feed(self) -> None:
+        """Attempt to add a Feed."""
+        feed: Final[Feed] = Feed(
+            url="https://www.example.org/example.html",
+            name="Example News Feed",
+            homepage="https://www.example.org/",
+        )
+
+        db = self.db()
+        db.feed_add(feed)
+        self.assertGreater(feed.fid, 0)
+
+        feeds: list[Feed] = db.feed_get_all()
+
+        self.assertIsNotNone(feeds)
+        self.assertIsInstance(feeds, list)
+        self.assertEqual(len(feeds), 1)
+        self.assertEqual(feed, feeds[0])
+
+    def test_03_item_add(self) -> None:
+        """Attempt to add a few Items."""
+        db: Database = self.db()
+        feeds: list[Feed] = db.feed_get_all()
+
+        with db:
+            for feed in feeds:
+                for i in range(100):
+                    addr: str = os.path.join(
+                        feed.homepage,
+                        f"articles/article{i:03d}",
+                    )
+                    item: Item = Item(
+                        feed_id=feed.fid,
+                        url=addr,
+                        headline=f"Article {i:03d}",
+                        body="Bla Bla Bla",
+                        timestamp=datetime.now(),
+                    )
+
+                    db.item_add(item)
+                    self.assertGreater(item.item_id, 0)
+
 
 # Local Variables: #
 # python-indent: 4 #

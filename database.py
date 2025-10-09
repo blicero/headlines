@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-08 16:20:02 krylon>
+# Time-stamp: <2025-10-09 16:16:16 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -18,6 +18,7 @@ headlines.database
 
 
 import logging
+import math
 import sqlite3
 from datetime import datetime
 from enum import Enum, auto
@@ -38,7 +39,7 @@ CREATE TABLE feed (
     name TEXT UNIQUE NOT NULL,
     description TEXT NOT NULL DEFAULT '',
     interval INTEGER NOT NULL,
-    last_update INTEGER NOT NULL DEFAULT 0,
+    last_update INTEGER,
     active INTEGER NOT NULL DEFAULT 1,
     CHECK (last_update >= 0),
     CHECK (interval > 0)
@@ -117,8 +118,8 @@ class Query(Enum):
 
 qdb: Final[dict[Query, str]] = {
     Query.FeedAdd: """
-INSERT INTO feed (url, homepage, name, decscription, interval)
-          VALUES (  ?,        ?,    ?,            ?,        ?)
+INSERT INTO feed (url, homepage, name, description, interval)
+          VALUES (  ?,        ?,    ?,           ?,        ?)
 RETURNING id
     """,
     Query.FeedGetAll: """
@@ -262,6 +263,9 @@ class Database:
         feeds: list[Feed] = []
 
         for row in cur:
+            stamp: Optional[datetime] = datetime.fromtimestamp(row[6]) \
+                if row[6] is not None \
+                else None
             f: Feed = Feed(
                 fid=row[0],
                 url=row[1],
@@ -269,7 +273,7 @@ class Database:
                 name=row[3],
                 description=row[4],
                 interval=row[5],
-                last_update=datetime.fromtimestamp(row[6]),
+                last_update=stamp,
                 active=row[7],
             )
             feeds.append(f)
@@ -354,7 +358,7 @@ class Database:
                      item.url,
                      item.headline,
                      item.body,
-                     item.timestamp.timestamp()))
+                     math.floor(item.timestamp.timestamp())))
         row = cur.fetchone()
         item.item_id = row[0]
 
