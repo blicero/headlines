@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-09 16:16:16 krylon>
+# Time-stamp: <2025-10-10 17:41:24 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -104,6 +104,7 @@ class Query(Enum):
 
     ItemAdd = auto()
     ItemGetRecent = auto()
+    ItemGetByURL = auto()
     ItemSearch = auto()
 
     TagAdd = auto()
@@ -182,6 +183,16 @@ ORDER BY timestamp DESC
 LIMIT ?
 OFFSET ?
     """,
+    Query.ItemGetByURL: """
+SELECT
+    id,
+    feed_id,
+    headline,
+    body,
+    timestamp
+FROM item
+WHERE url = ?
+    """,
 }
 
 
@@ -237,6 +248,11 @@ class Database:
                                    query)
                     raise
         self.log.debug("Database initialized successfully.")
+
+    def close(self) -> None:
+        """Close the database connection."""
+        self.db.close()
+        self.db = None
 
     def __enter__(self) -> None:
         self.db.__enter__()
@@ -385,6 +401,9 @@ class Database:
             items.append(item)
 
         return items
+
+    def item_get_by_url(self, url: str) -> Optional[Item]:
+        """Load an Item by its URL"""
 
     def item_search(self, _query: str) -> list[Item]:
         """Search the Items in the database for <query>."""
