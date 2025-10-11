@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-04 15:09:14 krylon>
+# Time-stamp: <2025-10-11 16:16:01 krylon>
 #
 # /data/code/python/headlines/src/headlines/common.py
 # created on 30. 09. 2025
@@ -19,6 +19,7 @@ headlines.common
 import logging
 import logging.handlers
 import os
+import pathlib
 import sys
 from threading import Lock
 from typing import Final
@@ -41,7 +42,7 @@ class Path:
     def __init__(self, root: str = os.path.expanduser(f"~/.{AppName.lower()}.d")) -> None:  # noqa
         self.__base = root
 
-    def base(self, folder: str = "") -> str:
+    def base(self, folder: str = "") -> pathlib.Path:
         """
         Return the base directory for application specific files.
 
@@ -49,37 +50,37 @@ class Path:
         """
         if folder != "":
             self.__base = folder
-        return self.__base
+        return pathlib.Path(self.__base)
 
     @property
-    def window(self) -> str:
+    def window(self) -> pathlib.Path:
         """Return the path of the window state file"""
-        return os.path.join(self.__base, f"{AppName.lower()}.win")
+        return pathlib.Path(os.path.join(self.__base, f"{AppName.lower()}.win"))
 
     @property
-    def state(self) -> str:
+    def state(self) -> pathlib.Path:
         """Return the path of the file to save the state of the game."""
-        return os.path.join(self.__base, f"{AppName.lower()}.state")
+        return pathlib.Path(os.path.join(self.__base, f"{AppName.lower()}.state"))
 
     @property
-    def db(self) -> str:  # pylint: disable-msg=C0103
+    def db(self) -> pathlib.Path:  # pylint: disable-msg=C0103
         """Return the path to the database"""
-        return os.path.join(self.__base, f"{AppName.lower()}.db")
+        return pathlib.Path(os.path.join(self.__base, f"{AppName.lower()}.db"))
 
     @property
-    def log(self) -> str:
+    def log(self) -> pathlib.Path:
         """Return the path to the log file"""
-        return os.path.join(self.__base, f"{AppName.lower()}.log")
+        return pathlib.Path(os.path.join(self.__base, f"{AppName.lower()}.log"))
 
     @property
-    def spool(self) -> str:
+    def spool(self) -> pathlib.Path:
         """Return the path of the spool directory."""
-        return os.path.join(self.__base, "spool")
+        return pathlib.Path(os.path.join(self.__base, "spool"))
 
     @property
-    def config(self) -> str:
+    def config(self) -> pathlib.Path:
         """Return the path of the configuration file"""
-        return os.path.join(self.__base, f"{AppName.lower()}.toml")
+        return pathlib.Path(os.path.join(self.__base, f"{AppName.lower()}.toml"))
 
 
 path: Path = Path(os.path.expanduser(f"~/.{AppName.lower()}.d"))
