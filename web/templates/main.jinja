@@ -1,0 +1,82 @@
+{# -*- mode: jinja2; coding: utf-8; -*- #}
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Time-stamp: "2025-06-05 17:35:52 krylon" -->
+    <title>{% block title %}{% endblock %}</title>
+
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="/static/bootstrap.min.css" />
+    <link rel="stylesheet" href="/static/bootstrap-reboot.min.css" />
+    <link rel="stylesheet" href="/static/bootstrap-utilities.min.css" />
+
+    <link rel="stylesheet" href="/static/style.css" />
+
+    <script src="/static/jquery-3.7.1.min.js"></script>
+    <script src="/static/bootstrap.bundle.min.js"></script>
+    <script src="/static/underscore.js"></script>
+    <script src="/static/chart.umd.min.js"></script>
+    <script src="/static/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="/static/interact.js"></script>
+    <script src="/static/settings.js"></script>
+    <script>
+     $(document).ready(() => {
+       initSettings()
+       beaconLoop()
+     })
+    </script>
+  </head>
+
+  <body>
+    <div class="intro">
+      {% block intro %}
+      {% include "intro.jinja" %}
+      {% endblock %}
+    </div>
+
+    <div class="menu">
+      {% block menu %}
+      {% include "menu.jinja" %}
+      {% endblock %}
+    </div>
+
+    <div class="content">
+      {% block content %}
+      <h3>Hosts</h3>
+      <table class="table table-light table-striped">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>OS</th>
+            <th>Last Contact</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for host in hosts %}
+            <tr>
+              <td>{{ host.host_id }}</td>
+              <td>
+                <a href="/host/{{ host.host_id }}">
+                  {{ host.name }}
+                </a>
+              </td>
+              <td>{{ host.os }}</td>
+              <td>{{ host.contact_str }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endblock %}
+    </div>
+
+    {% block footer %}
+    <hr />
+    <div class="footer">
+      &copy; 2025{%- if year > 2025 %} - {{ year }}{% endif %}
+      Benjamin Walkenhorst
+    </div>
+    {% endblock %}
+  </body>
+</html>

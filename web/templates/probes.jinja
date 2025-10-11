@@ -1,0 +1,143 @@
+{# -*- mode: jinja2; coding: utf-8; -*-
+Time-stamp: <2025-06-05 19:23:32 krylon>
+/data/code/python/medusa/web/templates/probes.jinja
+created on 03. 06. 2025
+(c) 2025 Benjamin Walkenhorst
+ #}
+
+{% extends "main.jinja" %}
+
+{% block title %}
+  Data by Probe type
+{% endblock %}
+
+{% block content %}
+  <div class="container-fluid">
+    <script>
+      const chart_width = window.screen.width - 80
+      const chart_height = (chart_width / 16) * 9
+    </script>
+    {% for src in probes %}
+      <div class="row">
+        <h3>{{ src }}</h3>
+
+        <canvas id="{{ src }}_chart" width="1800" height="900"></canvas>
+        <script>
+          {#
+          window.screen.height;
+          window.screen.width;
+          #}
+
+          const {{src}}_canv = $("#{{ src }}_chart")[0]
+          {{src}}_canv.width = `${chart_width}px`
+          // {{src}}_canv.height = `${chart_height}px`
+
+          const {{ src }}_data = {
+          {% for hid, host in hlist.items() %}
+            "{{ host.name }}": [
+            {% for d in data[src][host.name] %}
+              {
+                  timestamp: new Date("{{ d.timestr() }}"),
+                  score: {{ d.score() }},
+              },
+            {% endfor %}
+            ],
+          {% endfor %}
+          }
+
+          let {{src}}_ctx = $("#{{ src }}_chart")
+          let {{src}}_chart = new Chart({{src}}_ctx, {
+            type: "line",
+            data: {
+              datasets: [
+              {% for hid, host in hlist.items() %}
+                {
+                  label: "{{ host.name }}",
+                  data: {{ src }}_data["{{ host.name }}"],
+                  backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                  ],
+                  borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                  ],
+                  borderWidth: 1,
+                  color: "rgba(0, 164, 33, 0)",
+                },
+              {% endfor %}
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: true,
+              locale: "de-DE",
+              parsing: {
+                xAxisKey: "timestamp",
+                yAxisKey: "score",
+              },
+              scales: {
+                x: {
+                  type: "time",
+                  time: {
+                    displayFormats: {
+                      minute: "HH:mm",
+                      hour: "HH:mm",
+                      day: "dd. MM. yyyy",
+                    },
+                 },
+              },
+           y: {
+              beginAtZero: true,
+              min: 0,
+              ticks: {
+                callback: ("{{ src }}" in formatters ? formatters["{{ src }}"] : fmtNumber),
+              },
+           },
+         },
+         layout: {
+           padding: {
+             left: 50,
+             right: 50,
+             top: 0,
+             bottom: 0,
+           },
+         },
+         plugins: {
+           tooltip: {
+             callbacks: {
+               title: (ctx) => {
+                 return ctx[0].dataset.data[ctx[0].dataIndex].timestamp.toLocaleString()
+               },
+               label: (context) => {
+                 let lbl = context.dataset.label || '';
+                 const note = context.dataset.data[context.dataIndex].note
+                 const score = context.dataset.data[context.dataIndex].score
+
+                 lbl += `: ${fmtNumber(score, "{{src}}")}`
+
+                 if (lbl && defined(note) && note != '') {
+                   lbl += ` (${note})`;
+                 }
+                 return lbl;
+               },
+             },
+           },
+          },
+              },
+              })
+        </script>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}
+
+

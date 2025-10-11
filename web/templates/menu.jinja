@@ -1,0 +1,155 @@
+{# -*- mode: jinja2; coding: utf-8; -*-
+Time-stamp: <2025-05-06 19:25:57 krylon>
+/data/code/python/medusa/web/templates/menu.jinja
+created on 06. 05. 2025
+(c) 2025 Benjamin Walkenhorst
+ #}
+<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #D4D4D4">
+  <div class="container-fluid">
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+      <ul class="navbar-nav">
+
+        <li class="nav-item">
+          <a class="nav-link" href="/main">Start</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="/probes">Probes</a>
+        </li>
+
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle"
+             data-bs-toggle="dropdown"
+             href="#"
+             role="button"
+             aria-expanded="false">
+             Hosts
+          </a>
+          <ul class="dropdown-menu">
+            {% for h in hosts %}
+              <li>
+                <a class="dropdown-item" href="/host/{{ h.host_id }}">
+                  {{ h.shortname }}
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        </li>
+
+        {#
+        <li class="nav-item">
+          <a class="nav-link" href="/items/100">Recent News</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="/tags/all">Tags</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="/feed/all">Feeds</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="/blacklist">Blacklist</a>
+        </li>
+
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle"
+             href="#"
+             id="subscribeMenuLink"
+             role="button"
+             data-bs-toggle="dropdown"
+             aria-expanded="false">
+            Subscribe
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="subscribeMenuLink">
+            <li>
+              <script>
+               function clear_form() {
+                 const form = $("#subscribeForm")[0]
+                 form.reset()
+               }
+
+               function get_subscribe_field(name) {
+                 const id = `#${name}`
+                 return $(id)[0].value
+               }
+
+               function subscribe() {
+                 let data = {
+                   "title": get_subscribe_field("name"),
+                   "url": get_subscribe_field("url"),
+                   "homepage": get_subscribe_field("homepage"),
+                   "interval": get_subscribe_field("interval"),
+                 }
+
+                 const req = $.post('/ajax/subscribe',
+                                    data,
+                                    (res) => {
+                   if (res.status) {
+                     clear_form()
+                   } else {
+                     const msg = `Failed to add Feed ${data.title}: ${res.message}`
+                     console.log(msg)
+                     alert(msg)
+                   }
+                 },
+                                    'json'
+                                    )
+               }
+              </script>
+              <form class="dropdown-item" action="/feed/subscribe" method="post" id="subscribeForm">
+                <table class="horizontal">
+                  <tr>
+                    <th>Name</th>
+                    <td>
+                      <input type="text" name="name" id="name" placeholder="Name" required />
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>URL</th>
+                    <td>
+                      <input
+                      type="url"
+                      name="url"
+                      id="url"
+                      placeholder="https://www.example.com/rss"
+                      required />
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>Homepage</th>
+                    <td>
+                      <input
+                      type="url"
+                      name="homepage"
+                      id="homepage"
+                      placeholder="https://www.example.com/"
+                      required />
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>Interval<br />(in seconds)</th>
+                    <td>
+                      <input type="number" name="interval" id="interval" value="900" min="0" max="10080" />
+                    </td>
+                  </tr>
+                  <tr>
+                    <th><input type="button" onclick="clear_form();" value="Reset" /></th>
+                    <td><input type="button" onclick="subscribe();" value="OK" /></td>
+                  </tr>
+                </table>
+              </form>
+            </li>
+          </ul>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="/search/main">Search</a>
+        </li>
+        #}
+
+      </ul>
+    </div>
+  </div>
+</nav>

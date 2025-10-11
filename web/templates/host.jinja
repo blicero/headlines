@@ -1,0 +1,80 @@
+{# -*- mode: jinja2; coding: utf-8; -*-
+Time-stamp: <2025-05-29 15:19:04 krylon>
+/data/code/python/medusa/web/templates/host.jinja
+created on 06. 05. 2025
+(c) 2025 Benjamin Walkenhorst
+ #}
+
+{% extends "main.jinja" %}
+
+{% block title %}
+  Details for Host {{ host.shortname }}
+{% endblock %}
+
+{% block content %}
+  <h2>{{ host.shortname }}</h2>
+
+  <div class="centered">
+    {{ host.os }}<br />
+    {{ host.contact_str }}
+  </div>
+
+  <hr />
+
+  <div class="centered">
+    <figure>
+      <embed type="image/svg+xml"
+             src="/graph/sysload/{{ host.host_id }}"
+             width="1000"
+             height="360" />
+    </figure>
+  </div>
+
+  <hr />
+
+  <div class="centered">
+    <figure>
+      <embed type="image/svg+xml"
+             src="/graph/sensor/{{ host.host_id }}"
+             width="1000"
+             height="360" />
+    </figure>
+  </div>
+
+  <hr />
+
+  <div class="centered">
+    <figure>
+      <embed type="image/svg+xml"
+             src="/graph/disk/{{ host.host_id }}"
+             width="1000"
+             height="360" />
+    </figure>
+  </div>
+
+  <hr />
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Time</th>
+        <th>Source</th>
+        <th>Data</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for row in data %}
+        <tr>
+          <td>{{ row.record_id }}</td>
+          <td>{{ row.timestamp.strftime(time_fmt) }}</td>{# Ob das das geht? 🫣 #}
+          <td>{{ row.source() }}</td>
+          <td>{{ row.payload() }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
+
+
