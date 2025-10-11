@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-10 16:46:11 krylon>
+# Time-stamp: <2025-10-11 18:41:42 krylon>
 #
 # /data/code/python/headlines/src/headlines/engine.py
 # created on 30. 09. 2025
@@ -26,7 +26,7 @@ from queue import Empty, SimpleQueue
 from threading import Lock, Thread
 from typing import Final, Union
 
-from easy_rss import EasyRSS
+from easy_rss import EasyRSS  # type: ignore # pylint: disable-msg=E0401
 
 from headlines import common
 from headlines.database import Database
@@ -96,6 +96,17 @@ class Engine:
         self.log.debug("Engine is starting.")
         self.active = True
 
+        iloop: Thread = Thread(name="Item Catcher", target=self._item_loop, daemon=True)
+        iloop.start()
+
+        for i in range(worker_count):
+            idx: int = i+1
+            w: Thread = Thread(name=f"Fetcher{idx:02d}",
+                               target=self._fetch_loop,
+                               args=(idx, ),
+                               daemon=True)
+            w.start()
+
         feeder: Thread = Thread(name="Feeder", target=self._feeder_loop, daemon=True)
         feeder.start()
 
@@ -106,6 +117,10 @@ class Engine:
             db: Database = Database()
             while self.active:
                 feeds: list[Feed] = db.feed_get_pending()
+                names = ", ".join([x.name for x in feeds])
+                self.log.debug("Feeder is about to dispatch %d feeds: %s",
+                               len(feeds),
+                               names)
                 for f in feeds:
                     self.feedq.put(f)
                 time.sleep(self.interval.total_seconds())
@@ -125,6 +140,10 @@ class Engine:
                                feed.fid,
                                feed.url)
                 rss = EasyRSS(feed.url)
+
+                db: Database = Database()
+                db.feed_set_last_update(feed, datetime.now())
+                db.close()
 
                 for art in rss.articles:
                     # For the love of Goat, why don't they use ISO 8601 like sane people?!?!?!
@@ -150,8 +169,17 @@ class Engine:
         while self.active:
             try:
                 item: Item = self.itemq.get(True, qtimeout)
+                with db:
+                    other = db.item_get_by_url(item.url)
+                    if other is not None:
+                        continue
+                    self.log.debug("Caught one item: %s (%s)",
+                                   item.headline,
+                                   item.url)
+                    db.item_add(item)
             except Empty:
                 continue
+        self.log.debug("Item catcher is done. Byeeeeeee")
 
 
 # Local Variables: #
