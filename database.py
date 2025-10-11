@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-10 17:41:24 krylon>
+# Time-stamp: <2025-10-11 18:43:24 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -22,13 +22,19 @@ import math
 import sqlite3
 from datetime import datetime
 from enum import Enum, auto
+from pathlib import Path
 from threading import Lock
-from typing import Final, Optional
+from typing import Final, Optional, Union
 
 import krylib
 
 from headlines import common
 from headlines.model import Feed, Item
+
+
+class DatabaseError(common.HeadlineError):
+    """Exception class for database-specific errors."""
+
 
 qinit: Final[list[str]] = [
     """
@@ -158,7 +164,7 @@ SELECT
     last_update,
     active
 FROM feed
-WHERE last_update + interval < ?
+WHERE COALESCE(last_update, 0) + interval < ?
     """,
     Query.FeedSetActive: "UPDATE feed SET active = ? WHERE id = ?",
     Query.FeedSetLastUpdate: "UPDATE feed SET last_update = ? WHERE id = ?",
@@ -210,20 +216,24 @@ class Database:
 
     log: logging.Logger
     db: sqlite3.Connection
-    path: str
+    path: Path
 
-    def __init__(self, path: Optional[str] = None) -> None:
+    def __init__(self, path: Optional[Union[Path, str]] = None) -> None:
         if path is None:
             self.path = common.path.db
         else:
-            self.path = path
+            match path:
+                case x if isinstance(x, Path):
+                    self.path = x
+                case x if isinstance(x, str):
+                    self.path = Path(x)
 
         self.log = common.get_logger("database")
         self.log.debug("Open database at %s", self.path)
 
         with open_lock:
-            exist: Final[bool] = krylib.fexist(self.path)
-            self.db = sqlite3.connect(self.path)
+            exist: Final[bool] = krylib.fexist(str(self.path))
+            self.db = sqlite3.connect(str(self.path))
             self.db.isolation_level = None
 
             cur: Final[sqlite3.Cursor] = self.db.cursor()
@@ -252,7 +262,8 @@ class Database:
     def close(self) -> None:
         """Close the database connection."""
         self.db.close()
-        self.db = None
+        # self.db = None
+        del self.db
 
     def __enter__(self) -> None:
         self.db.__enter__()
@@ -262,121 +273,174 @@ class Database:
 
     def feed_add(self, feed: Feed) -> None:
         """Add an RSS Feed to the database."""
-        cur = self.db.cursor()
-        cur.execute(qdb[Query.FeedAdd], (feed.url,
-                                         feed.homepage,
-                                         feed.name,
-                                         feed.description,
-                                         feed.interval))
-        row = cur.fetchone()
-        feed.fid = row[0]
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.FeedAdd], (feed.url,
+                                             feed.homepage,
+                                             feed.name,
+                                             feed.description,
+                                             feed.interval))
+            row = cur.fetchone()
+            feed.fid = row[0]
+        except sqlite3.Error as err:
+            msg: Final[str] = f"Error adding Feed {feed.name} ({feed.url}): {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
 
     def feed_get_all(self) -> list[Feed]:
         """Load all Feeds from the database."""
-        cur = self.db.cursor()
-        cur.execute(qdb[Query.FeedGetAll])
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.FeedGetAll])
 
-        feeds: list[Feed] = []
+            feeds: list[Feed] = []
 
-        for row in cur:
-            stamp: Optional[datetime] = datetime.fromtimestamp(row[6]) \
-                if row[6] is not None \
-                else None
-            f: Feed = Feed(
-                fid=row[0],
-                url=row[1],
-                homepage=row[2],
-                name=row[3],
-                description=row[4],
-                interval=row[5],
-                last_update=stamp,
-                active=row[7],
-            )
-            feeds.append(f)
+            for row in cur:
+                stamp: Optional[datetime] = datetime.fromtimestamp(row[6]) \
+                    if row[6] is not None \
+                    else None
+                f: Feed = Feed(
+                    fid=row[0],
+                    url=row[1],
+                    homepage=row[2],
+                    name=row[3],
+                    description=row[4],
+                    interval=row[5],
+                    last_update=stamp,
+                    active=row[7],
+                )
+                feeds.append(f)
 
-        return feeds
+            return feeds
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = f"{cname} trying to load all Feeds: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
 
     def feed_get_by_id(self, feed_id: int) -> Optional[Feed]:
         """Look up a Feed by its ID."""
-        cur = self.db.cursor()
-        cur.execute(qdb[Query.FeedGetByID], (feed_id, ))
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.FeedGetByID], (feed_id, ))
 
-        row = cur.fetchone()
-        if row is None:
-            return None
+            row = cur.fetchone()
+            if row is None:
+                return None
 
-        feed: Feed = Feed(
-            fid=feed_id,
-            url=row[0],
-            homepage=row[1],
-            name=row[2],
-            description=row[3],
-            interval=row[4],
-            last_update=datetime.fromtimestamp(row[5]),
-            active=row[6],
-        )
+            feed: Feed = Feed(
+                fid=feed_id,
+                url=row[0],
+                homepage=row[1],
+                name=row[2],
+                description=row[3],
+                interval=row[4],
+                last_update=datetime.fromtimestamp(row[5]),
+                active=row[6],
+            )
 
-        return feed
+            return feed
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = f"{cname} trying to load Feed {feed_id}: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
 
     def feed_get_pending(self) -> list[Feed]:
         """Load all Feeds that are due for an update."""
-        cur = self.db.cursor()
-        cur.execute(qdb[Query.FeedGetPending])
+        try:
+            now = math.floor(datetime.now().timestamp())
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.FeedGetPending], (now, ))
 
-        feeds: list[Feed] = []
+            feeds: list[Feed] = []
 
-        for row in cur:
-            f = Feed(
-                fid=row[0],
-                url=row[1],
-                homepage=row[2],
-                name=row[3],
-                description=row[4],
-                interval=row[5],
-                last_update=datetime.fromtimestamp(row[6]),
-                active=row[7],
-            )
-            feeds.append(f)
+            for row in cur:
+                up_stamp: Optional[datetime] = datetime.fromtimestamp(row[6]) \
+                    if row[6] is not None else None
+                f = Feed(
+                    fid=row[0],
+                    url=row[1],
+                    homepage=row[2],
+                    name=row[3],
+                    description=row[4],
+                    interval=row[5],
+                    last_update=up_stamp,
+                    active=row[7],
+                )
+                feeds.append(f)
 
-        return feeds
+            return feeds
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = f"{cname} trying to load pending Feeds: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
 
     def feed_set_active(self, feed: Feed, active: bool = True) -> None:
         """Set or clear a Feed's active flag."""
         assert feed.fid > 0
 
-        cur = self.db.cursor()
-        cur.execute(qdb[Query.FeedSetActive], (active, feed.fid))
-        feed.active = active
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.FeedSetActive], (active, feed.fid))
+            feed.active = active
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = f"{cname} trying to set Feed {feed.name}'s active flag: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
 
     def feed_set_last_update(self, feed: Feed, timestamp: datetime) -> None:
         """Update a Feed's last_update timestamp."""
         if feed.last_update is not None:
             assert timestamp > feed.last_update
 
-        cur = self.db.cursor()
-        cur.execute(qdb[Query.FeedSetLastUpdate], (timestamp.timestamp(), feed.fid))
-        feed.last_update = timestamp
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.FeedSetLastUpdate], (math.floor(timestamp.timestamp()), feed.fid))
+            feed.last_update = timestamp
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = f"{cname} trying to set Feed {feed.name}'s Update timestamp: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
 
     def feed_set_interval(self, feed: Feed, interval: int) -> None:
         """Set a Feed's refresh interval."""
         if interval <= 0:
             raise ValueError(f"Invalid interval: {interval} (must be > 0)")
 
-        cur = self.db.cursor()
-        cur.execute(qdb[Query.FeedSetInterval], (interval, feed.fid))
-        feed.interval = interval
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.FeedSetInterval], (interval, feed.fid))
+            feed.interval = interval
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = f"{cname} trying to set Feed {feed.name}'s refresh interval: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
 
     def item_add(self, item: Item) -> None:
         """Add an Item to the database."""
-        cur = self.db.cursor()
-        cur.execute(qdb[Query.ItemAdd],
-                    (item.feed_id,
-                     item.url,
-                     item.headline,
-                     item.body,
-                     math.floor(item.timestamp.timestamp())))
-        row = cur.fetchone()
-        item.item_id = row[0]
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.ItemAdd],
+                        (item.feed_id,
+                         item.url,
+                         item.headline,
+                         item.body,
+                         math.floor(item.timestamp.timestamp())))
+            row = cur.fetchone()
+            item.item_id = row[0]
+        except sqlite3.IntegrityError:
+            # This means - almost certainly - the Item already exists
+            pass
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg = f"{cname} trying to add Item {item.url}: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
 
     def item_get_recent(self, limit: int = 100, offset: int = 0) -> list[Item]:
         """
@@ -384,26 +448,58 @@ class Database:
 
         Pass limit = -1 to get all Items (use with great care!)
         """
-        cur = self.db.cursor()
-        cur.execute(qdb[Query.ItemGetRecent], (limit, offset))
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.ItemGetRecent], (limit, offset))
 
-        items: list[Item] = []
+            items: list[Item] = []
 
-        for row in cur:
-            item = Item(
-                item_id=row[0],
-                feed_id=row[1],
-                url=row[2],
-                headline=row[3],
-                body=row[4],
-                timestamp=datetime.fromtimestamp(row[5]),
-            )
-            items.append(item)
+            for row in cur:
+                item = Item(
+                    item_id=row[0],
+                    feed_id=row[1],
+                    url=row[2],
+                    headline=row[3],
+                    body=row[4],
+                    timestamp=datetime.fromtimestamp(row[5]),
+                )
+                items.append(item)
 
-        return items
+            return items
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to load recent items (offset {offset} / limit {limit}: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
 
     def item_get_by_url(self, url: str) -> Optional[Item]:
         """Load an Item by its URL"""
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.ItemGetByURL], (url, ))
+
+            row = cur.fetchone()
+            if row is None:
+                self.log.debug("Item %s was not found in database", url)
+                return None
+
+            item: Item = Item(
+                item_id=row[0],
+                feed_id=row[1],
+                url=url,
+                headline=row[2],
+                body=row[3],
+                timestamp=datetime.fromtimestamp(row[4]),
+            )
+
+            return item
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to load Item by URL {url}: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
 
     def item_search(self, _query: str) -> list[Item]:
         """Search the Items in the database for <query>."""
