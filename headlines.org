@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-10-10 20:26:14 krylon>
+# Time-stamp: <2025-10-11 18:49:34 krylon>
 #
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
@@ -15,23 +15,36 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2025-10-10 Fr 20:26]
-   | Headline                    | Time    |         |       |
-   |-----------------------------+---------+---------+-------|
-   | *Total time*                | *19:02* |         |       |
-   |-----------------------------+---------+---------+-------|
-   | *Headlines [0/0]*           | *19:02* |         |       |
-   | \_  /Components [0/0]/      |         | /18:36/ |       |
-   | \_    Database [0/0]        |         |         |  8:22 |
-   | \_    Engine [0/0]          |         |         | 10:14 |
-   | \_  /Journal [1/1]/         |         | /0:26/  |       |
-   | \_    Wrestling with poetry |         |         |  0:26 |
+   #+CAPTION: Clock summary at [2025-10-11 Sa 18:49]
+   | Headline                                 | Time    |         |       |      |
+   |------------------------------------------+---------+---------+-------+------|
+   | *Total time*                             | *22:28* |         |       |      |
+   |------------------------------------------+---------+---------+-------+------|
+   | *Headlines [0/0]*                        | *22:28* |         |       |      |
+   | \_  /Components [0/0]/                   |         | /22:02/ |       |      |
+   | \_    Common [1/1]                       |         |         |  0:08 |      |
+   | \_      Down the rabbit hole for pathlib |         |         |       | 0:08 |
+   | \_    Database [0/0]                     |         |         |  8:25 |      |
+   | \_    Engine [0/0]                       |         |         | 11:36 |      |
+   | \_    Main [0/0]                         |         |         |  1:53 |      |
+   | \_  /Journal [1/1]/                      |         | /0:26/  |       |      |
+   | \_    Wrestling with poetry              |         |         |  0:26 |      |
    #+END:
 ** Components [0/0]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: children
    :END:
+*** Common [1/1]
+    :PROPERTIES:
+    :COOKIE_DATA: todo recursive
+    :VISIBILITY: children
+    :END:
+**** DONE Down the rabbit hole for pathlib
+     CLOSED: [2025-10-11 Sa 16:21]
+     :LOGBOOK:
+     CLOCK: [2025-10-11 Sa 16:13]--[2025-10-11 Sa 16:21] =>  0:08
+     :END:
 *** Model [0/0]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
@@ -43,6 +56,7 @@
     :VISIBILITY: children
     :END:
     :LOGBOOK:
+    CLOCK: [2025-10-11 Sa 18:23]--[2025-10-11 Sa 18:26] =>  0:03
     CLOCK: [2025-10-09 Do 15:53]--[2025-10-09 Do 16:25] =>  0:32
     CLOCK: [2025-10-08 Mi 16:05]--[2025-10-08 Mi 16:20] =>  0:15
     CLOCK: [2025-10-08 Mi 14:40]--[2025-10-08 Mi 15:30] =>  0:50
@@ -52,17 +66,15 @@
     I'm going to use SQLite3, /again/. But I want to try SQLAlchemy this
     time. Let's see what that is like.
     (30 minutes later) No, SQLAlchemy is too complicated for my humble needs.
-*** Web UI [0/0]
-    :PROPERTIES:
-    :COOKIE_DATA: todo recursive
-    :VISIBILITY: children
-    :END:
 *** Engine [0/0]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: children
     :END:
     :LOGBOOK:
+    CLOCK: [2025-10-11 Sa 18:26]--[2025-10-11 Sa 18:49] =>  0:23
+    CLOCK: [2025-10-11 Sa 18:10]--[2025-10-11 Sa 18:23] =>  0:13
+    CLOCK: [2025-10-11 Sa 15:20]--[2025-10-11 Sa 16:06] =>  0:46
     CLOCK: [2025-10-10 Fr 14:18]--[2025-10-10 Fr 17:50] =>  3:32
     CLOCK: [2025-10-09 Do 16:26]--[2025-10-09 Do 23:08] =>  6:42
     :END:
@@ -76,6 +88,20 @@
     asyncio under the hood these days anyway.
     (The Internet says Twisted does not use asyncio, but still.)
     So Twisted it is!
+*** Web UI [0/0]
+    :PROPERTIES:
+    :COOKIE_DATA: todo recursive
+    :VISIBILITY: children
+    :END:
+*** Main [0/0]
+    :PROPERTIES:
+    :COOKIE_DATA: todo recursive
+    :VISIBILITY: children
+    :END:
+    :LOGBOOK:
+    CLOCK: [2025-10-11 Sa 16:22]--[2025-10-11 Sa 18:10] =>  1:48
+    CLOCK: [2025-10-11 Sa 16:07]--[2025-10-11 Sa 16:12] =>  0:05
+    :END:
 ** Features [0/0]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
