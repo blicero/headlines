@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-04 14:51:23 krylon>
+# Time-stamp: <2025-10-13 23:07:31 krylon>
 #
 # /data/code/python/headlines/src/headlines/model.py
 # created on 30. 09. 2025
@@ -21,6 +21,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
 
+from headlines import common
+
 
 @dataclass(kw_only=True, slots=True)
 class Feed:
@@ -35,6 +37,21 @@ class Feed:
     last_update: Optional[datetime] = None
     active: bool = True
 
+    @property
+    def interval_str(self) -> str:
+        """Return a human-readable representation of the Feed's refresh interval."""
+        seconds: int = self.interval
+        minutes: int = 0
+        hours: int = 0
+
+        if seconds > 3600:
+            hours, seconds = divmod(seconds, 3600)
+
+        if seconds > 60:
+            minutes, seconds = divmod(seconds, 60)
+
+        return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+
 
 @dataclass(kw_only=True, slots=True)
 class Item:
@@ -46,6 +63,11 @@ class Item:
     headline: str
     body: str
     timestamp: datetime
+
+    @property
+    def stamp_str(self) -> str:
+        """Return the Item's timestamp as a properly formatted string."""
+        return self.timestamp.strftime(common.TimeFmt)
 
 
 @dataclass(kw_only=True, slots=True)
