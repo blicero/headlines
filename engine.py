@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-11 18:41:42 krylon>
+# Time-stamp: <2025-10-13 19:46:25 krylon>
 #
 # /data/code/python/headlines/src/headlines/engine.py
 # created on 30. 09. 2025
@@ -117,10 +117,11 @@ class Engine:
             db: Database = Database()
             while self.active:
                 feeds: list[Feed] = db.feed_get_pending()
-                names = ", ".join([x.name for x in feeds])
-                self.log.debug("Feeder is about to dispatch %d feeds: %s",
-                               len(feeds),
-                               names)
+                if len(feeds) > 0:
+                    names = ", ".join([x.name for x in feeds])
+                    self.log.debug("Feeder is about to dispatch %d feeds: %s",
+                                   len(feeds),
+                                   names)
                 for f in feeds:
                     self.feedq.put(f)
                 time.sleep(self.interval.total_seconds())
