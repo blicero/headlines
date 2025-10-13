@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-10-11 23:30:56 krylon>
+# Time-stamp: <2025-10-13 23:41:29 krylon>
 #
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
@@ -15,18 +15,18 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2025-10-11 Sa 23:30]
+   #+CAPTION: Clock summary at [2025-10-13 Mo 23:41]
    | Headline                                 | Time      |           |       |      |
    |------------------------------------------+-----------+-----------+-------+------|
-   | *Total time*                             | *1d 2:27* |           |       |      |
+   | *Total time*                             | *1d 8:21* |           |       |      |
    |------------------------------------------+-----------+-----------+-------+------|
-   | *Headlines [0/0]*                        | *1d 2:27* |           |       |      |
-   | \_  /Components [0/0]/                   |           | /1d 2:01/ |       |      |
+   | *Headlines [0/0]*                        | *1d 8:21* |           |       |      |
+   | \_  /Components [0/0]/                   |           | /1d 7:55/ |       |      |
    | \_    Common [1/1]                       |           |           |  0:08 |      |
    | \_      Down the rabbit hole for pathlib |           |           |       | 0:08 |
    | \_    Database [0/0]                     |           |           |  8:25 |      |
    | \_    Engine [0/0]                       |           |           | 11:36 |      |
-   | \_    Web UI [0/0]                       |           |           |  3:59 |      |
+   | \_    Web UI [0/0]                       |           |           |  9:53 |      |
    | \_    Main [0/0]                         |           |           |  1:53 |      |
    | \_  /Journal [1/1]/                      |           | /0:26/    |       |      |
    | \_    Wrestling with poetry              |           |           |  0:26 |      |
@@ -95,6 +95,7 @@
     :VISIBILITY: children
     :END:
     :LOGBOOK:
+    CLOCK: [2025-10-13 Mo 17:47]--[2025-10-13 Mo 23:41] =>  5:54
     CLOCK: [2025-10-11 Sa 19:31]--[2025-10-11 Sa 23:30] =>  3:59
     :END:
 *** Main [0/0]
