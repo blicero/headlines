@@ -1,10 +1,10 @@
-// Time-stamp: <2024-10-31 20:19:54 krylon>
+// Time-stamp: <2025-10-13 16:46:29 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2020 Benjamin Walkenhorst <krylon@gmx.net>
 
 "use strict";
 
-var settings = {
+let settings = {
     "beacon": {
         "active": false,
         "interval": 1000,
@@ -22,7 +22,7 @@ var settings = {
 };
 
 function initSettings() {
-    var item;
+    let item;
     
     settings.beacon.active =
         JSON.parse(localStorage.getItem("beacon.active")) ? true : false;

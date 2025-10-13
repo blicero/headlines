@@ -2,8 +2,8 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <!-- Time-stamp: "2025-06-05 17:35:52 krylon" -->
-    <title>{% block title %}{% endblock %}</title>
+    <!-- Time-stamp: "2025-10-13 19:51:11 krylon" -->
+    <title>{% block title %}{{ title }}{% endblock %}</title>
 
     <meta charset="utf-8" />
     <link rel="stylesheet" href="/static/bootstrap.min.css" />
@@ -42,32 +42,26 @@
 
     <div class="content">
       {% block content %}
-      <h3>Hosts</h3>
-      <table class="table table-light table-striped">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>OS</th>
-            <th>Last Contact</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {% for host in hosts %}
+        <table class="table table-primary table-striped">
+          <thead>
             <tr>
-              <td>{{ host.host_id }}</td>
-              <td>
-                <a href="/host/{{ host.host_id }}">
-                  {{ host.name }}
-                </a>
-              </td>
-              <td>{{ host.os }}</td>
-              <td>{{ host.contact_str }}</td>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Homepage</th>
+              <th>Refresh Interval</th>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {% for feed in feeds %}
+              <tr>
+                <td>{{ feed.fid }}</td>
+                <td>{{ feed.name }}</td>
+                <td><a href="{{ feed.homepage }}">{{ feed.homepage }}</a></td>
+                <td>{{ feed.interval_str }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       {% endblock %}
     </div>
 

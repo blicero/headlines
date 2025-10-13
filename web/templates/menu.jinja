@@ -1,5 +1,5 @@
 {# -*- mode: jinja2; coding: utf-8; -*-
-Time-stamp: <2025-05-06 19:25:57 krylon>
+Time-stamp: <2025-10-13 20:00:19 krylon>
 /data/code/python/medusa/web/templates/menu.jinja
 created on 06. 05. 2025
 (c) 2025 Benjamin Walkenhorst
@@ -14,43 +14,11 @@ created on 06. 05. 2025
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" href="/probes">Probes</a>
-        </li>
-
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle"
-             data-bs-toggle="dropdown"
-             href="#"
-             role="button"
-             aria-expanded="false">
-             Hosts
-          </a>
-          <ul class="dropdown-menu">
-            {% for h in hosts %}
-              <li>
-                <a class="dropdown-item" href="/host/{{ h.host_id }}">
-                  {{ h.shortname }}
-                </a>
-              </li>
-            {% endfor %}
-          </ul>
-        </li>
-
-        {#
-        <li class="nav-item">
-          <a class="nav-link" href="/items/100">Recent News</a>
+          <a class="nav-link" href="/feeds">Feeds</a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" href="/tags/all">Tags</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="/feed/all">Feeds</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="/blacklist">Blacklist</a>
+          <a class="nav-link" href="/items">Items</a>
         </li>
 
         <li class="nav-item dropdown">
@@ -143,11 +111,6 @@ created on 06. 05. 2025
             </li>
           </ul>
         </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="/search/main">Search</a>
-        </li>
-        #}
 
       </ul>
     </div>
