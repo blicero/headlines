@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-11 16:42:35 krylon>
+# Time-stamp: <2025-10-13 19:18:58 krylon>
 #
 # /data/code/python/headlines/main.py
 # created on 11. 10. 2025
@@ -24,6 +24,7 @@ from threading import Thread
 
 from headlines import common
 from headlines.engine import Engine
+from headlines.web import WebUI
 
 
 def main() -> None:
@@ -32,6 +33,16 @@ def main() -> None:
     argp.add_argument("-e", "--engine",
                       action="store_true",
                       help="Run the RSS fetcher engine")
+    argp.add_argument("-w", "--web",
+                      action="store_true",
+                      help="Run the web server")
+    argp.add_argument("-a", "--address",
+                      default="localhost",
+                      help="The IP address(es) or hostname to listen on")
+    argp.add_argument("-p", "--port",
+                      type=int,
+                      default=4107,
+                      help="The port for the web interface to listen on")
     argp.add_argument("-b", "--basedir",
                       type=pathlib.Path,
                       default=common.path.base(),
@@ -48,6 +59,13 @@ def main() -> None:
         t = Thread(target=eng.start, daemon=False)
         t.start()
         threads.append(t)
+
+    # I need to figure out how to stop the server in an orderly fashion.
+    if args.web:
+        srv = WebUI()
+        t = Thread(target=srv.run, daemon=True)
+        t.start()
+        # threads.append(t)
 
     # ...
 
