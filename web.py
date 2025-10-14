@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-14 15:17:29 krylon>
+# Time-stamp: <2025-10-14 18:13:12 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -25,7 +25,7 @@ import re
 import socket
 from datetime import datetime
 from threading import Lock
-from typing import Any, Final, Union
+from typing import Any, Final, Optional, Union
 
 import bottle
 from bottle import response, route, run
@@ -176,6 +176,24 @@ class WebUI:
         response.set_header("Cache-Control", "no-store, max-age=0")
 
         return json.dumps(jdata)
+
+    def _handle_rate_item(self, item_id: int, rating: int) -> Union[str, bytes]:
+        """Store an Item's Rating in the database."""
+        db: Database = Database()
+        try:
+            item: Optional[Item] = db.item_get_by_id()
+            res: dict = {}
+
+            if item is None:
+                res["status"] = False
+                res["message"] = f"Item {item_id} was not found in database"
+                res["timestamp"] = datetime.now().strftime(common.TimeFmt)
+                response.set_header("Content-Type", "application/json")
+                response.set_header("Cache-Control", "no-store, max-age=0")
+                body = json.dumps(res)
+                return body
+        finally:
+            db.close()
 
     # Static files
 

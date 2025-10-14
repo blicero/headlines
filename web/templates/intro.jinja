@@ -1,5 +1,5 @@
 {# -*- mode: jinja2; coding: utf-8; -*-
-Time-stamp: <2025-05-06 18:55:36 krylon>
+Time-stamp: <2025-10-14 18:16:07 krylon>
 /data/code/python/medusa/web/templates/intro.jinja
 created on 06. 05. 2025
 (c) 2025 Benjamin Walkenhorst
@@ -28,7 +28,23 @@ created on 06. 05. 2025
       </div>
     </td>
     <td>
-      {# {{ template "msg" . }} #}
+      <div class="messages">
+        <table class="tbl tbl-striped">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Level</th>
+              <th>Message</th>
+              <th>
+                <input type="button" class="btn btn-warning" onclick="msg_clear();" value="Delete" />
+              </th>
+            </tr>
+          </thead>
+          <tbody id="msg_tbl">
+
+          </tbody>
+        </table>
+      </div>
     </td>
   </tr>
 </table>

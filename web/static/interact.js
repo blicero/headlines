@@ -1,4 +1,4 @@
-// Time-stamp: <2025-06-05 18:41:55 krylon>
+// Time-stamp: <2025-10-14 17:02:02 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -218,3 +218,54 @@ const formatters = {
     "sysload": fmtNumber,
     "disk": fmtBytes,
 }
+
+function rate_item(item_id, rating) {
+    const url = `/ajax/item_rate/${item_id}/${rating}`
+
+    const req = $.post(url,
+                       { "item": item_id,
+                         "rating": rating },
+                       (res) => {
+                           if (res.status) {
+                               var icon = '';
+                               switch (rating) {
+                               case -1:
+                                   icon = 'face-tired'
+                                   break
+                               case 1:
+                                   icon = 'face-glasses'
+                                   break
+                               default:
+                                   const msg = `Invalid rating: ${rating}`
+                                   console.log(msg)
+                                   alert(msg)
+                                   return
+                               }
+
+                               const src = `/static/${icon}.png`
+                               const cell = $(`#item_rating_${item_id}`)[0]
+
+                               cell.innerHTML = `<img src="${src}" onclick="unrate_item(${item_id});" />`
+                           } else {
+                               msg_add(res.message)
+                           }
+                       },
+                       'json')
+} // function rate_item(item_id, rating)
+
+function unrate_item(item_id) {
+    const url = `/ajax/item_unrate/${id}`
+
+    const req = $.get(url,
+                      {},
+                      (res) => {
+                          if (!res.status) {
+                              console.log(res.message)
+                              msg_add(res.message, 2)
+                              return
+                          }
+
+                          $(`#item_rating_${id}`)[0].innerHTML = res.payload.cell
+                      },
+                      'json')
+} // function rate_item(item_id, rating)
