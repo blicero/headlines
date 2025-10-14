@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-13 23:16:04 krylon>
+# Time-stamp: <2025-10-14 15:17:29 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -105,7 +105,8 @@ class WebUI:
 
         bottle.debug(common.Debug)
         route("/main", callback=self._handle_main)
-        # route("/news" 
+        route("/news", callback=self._handle_news)
+        route("/news/<cnt:int>/<offset:int>", callback=self._handle_news)
 
         route("/ajax/beacon", callback=self._handle_beacon)
 

@@ -1,5 +1,5 @@
 {# -*- mode: jinja2; coding: utf-8; -*-
-Time-stamp: <2025-10-13 23:16:59 krylon>
+Time-stamp: <2025-10-14 15:24:31 krylon>
 /data/code/python/headlines/web/templates/news.jinja
 created on 13. 10. 2025
 (c) 2025 Benjamin Walkenhorst
@@ -41,7 +41,21 @@ created on 13. 10. 2025
               {{ feeds[item.feed_id].name }}
             </a>
           </td>
-          
+          <td><a href="{{ item.url }}">{{ item.headline }}</a></td>
+          <td></td>
+          <td></td>
+          <td>
+            <button class="btn btn-primary"
+                    data-bs-toggle="collapse"
+                    href="#collapse_item_{{ item.item_id }}"
+                    aria-expanded="false"
+                    aria-controls="#collapse_item_{{ item.item_id }}">
+                    Description
+            </button>
+            <div class="collapse" id="collapse_item_{{ item.item_id }}">
+              {{ item.body }}
+            </div>
+          </td>
         </tr>
       {% endfor %}
     </tbody>
