@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-11 18:43:24 krylon>
+# Time-stamp: <2025-10-14 16:53:43 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -29,7 +29,7 @@ from typing import Final, Optional, Union
 import krylib
 
 from headlines import common
-from headlines.model import Feed, Item
+from headlines.model import Feed, Item, Rating
 
 
 class DatabaseError(common.HeadlineError):
@@ -60,14 +60,17 @@ CREATE TABLE item (
     headline TEXT NOT NULL,
     body TEXT NOT NULL DEFAULT '',
     timestamp INTEGER NOT NULL,
+    rating INTEGER NOT NULL DEFAULT -1,
     FOREIGN KEY (feed_id) REFERENCES feed (id)
         ON UPDATE RESTRICT
         ON DELETE CASCADE
-    CHECK (timestamp >= 0)
+    CHECK (timestamp >= 0),
+    CHECK (rating IN (-1, 0, 1))
 ) STRICT
     """,
     "CREATE INDEX item_feed_idx ON item (feed_id)",
     "CREATE INDEX item_time_idx ON item (timestamp)",
+    "CREATE INDEX item_rated_idx ON item (rating = -1)",
     """
 CREATE TABLE tag (
     id INTEGER PRIMARY KEY,
@@ -110,8 +113,11 @@ class Query(Enum):
 
     ItemAdd = auto()
     ItemGetRecent = auto()
+    ItemGetRated = auto()
+    ItemGetByID = auto()
     ItemGetByURL = auto()
     ItemSearch = auto()
+    ItemRate = auto()
 
     TagAdd = auto()
     TagGetAll = auto()
@@ -183,11 +189,35 @@ SELECT
     url,
     headline,
     body,
-    timestamp
+    timestamp,
+    rating
 FROM item
 ORDER BY timestamp DESC
 LIMIT ?
 OFFSET ?
+    """,
+    Query.ItemGetRated: """
+SELECT
+    id,
+    feed_id,
+    url,
+    headline,
+    body,
+    timestamp,
+    rating
+FROM item
+WHERE rating <> -1
+    """,
+    Query.ItemGetByID: """
+SELECT
+    feed_id,
+    url,
+    headline,
+    body,
+    timestamp,
+    rating
+FROM item
+WHERE url = ?
     """,
     Query.ItemGetByURL: """
 SELECT
@@ -195,10 +225,12 @@ SELECT
     feed_id,
     headline,
     body,
-    timestamp
+    timestamp,
+    rating
 FROM item
 WHERE url = ?
     """,
+    Query.ItemRate: "UPDATE item SET rating = ? WHERE id = ?",
 }
 
 
@@ -462,6 +494,7 @@ class Database:
                     headline=row[3],
                     body=row[4],
                     timestamp=datetime.fromtimestamp(row[5]),
+                    rating=Rating(row[6]),
                 )
                 items.append(item)
 
@@ -470,6 +503,34 @@ class Database:
             cname: Final[str] = err.__class__.__name__
             msg: Final[str] = \
                 f"{cname} trying to load recent items (offset {offset} / limit {limit}: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
+    def item_get_rated(self) -> list[Item]:
+        """Fetch all rated Items from the database."""
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.ItemGetRecent])
+
+            items: list[Item] = []
+
+            for row in cur:
+                item = Item(
+                    item_id=row[0],
+                    feed_id=row[1],
+                    url=row[2],
+                    headline=row[3],
+                    body=row[4],
+                    timestamp=datetime.fromtimestamp(row[5]),
+                    rating=Rating(row[6]),
+                )
+                items.append(item)
+
+            return items
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to load rated items: {err}"
             self.log.error(msg)
             raise DatabaseError(msg) from err
 
@@ -491,6 +552,7 @@ class Database:
                 headline=row[2],
                 body=row[3],
                 timestamp=datetime.fromtimestamp(row[4]),
+                rating=Rating(row[5]),
             )
 
             return item
@@ -501,9 +563,50 @@ class Database:
             self.log.error(msg)
             raise DatabaseError(msg) from err
 
+    def item_get_by_id(self, item_id: int) -> Optional[Item]:
+        """Load an Item by its ID"""
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.ItemGetByURL], (item_id, ))
+
+            row = cur.fetchone()
+            if row is None:
+                self.log.debug("Item %d was not found in database", item_id)
+                return None
+
+            item: Item = Item(
+                item_id=item_id,
+                feed_id=row[0],
+                url=row[1],
+                headline=row[2],
+                body=row[3],
+                timestamp=datetime.fromtimestamp(row[4]),
+                rating=Rating(row[5]),
+            )
+
+            return item
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to load Item by ID {item_id}: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
     def item_search(self, _query: str) -> list[Item]:
         """Search the Items in the database for <query>."""
         return []
+
+    def item_rate(self, item: Item, rating: Rating) -> None:
+        """Set an Item's Rating in the database."""
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.ItemRate], (rating, item.item_id))
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to rate Item {item.item_id} ({item.headline}): {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
 
 # Local Variables: #
 # python-indent: 4 #

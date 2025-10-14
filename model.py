@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-13 23:07:31 krylon>
+# Time-stamp: <2025-10-14 16:10:51 krylon>
 #
 # /data/code/python/headlines/src/headlines/model.py
 # created on 30. 09. 2025
@@ -19,6 +19,7 @@ headlines.model
 
 from dataclasses import dataclass
 from datetime import datetime
+from enum import IntEnum
 from typing import Optional
 
 from headlines import common
@@ -53,6 +54,14 @@ class Feed:
         return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
 
+class Rating(IntEnum):
+    """Rating describes the rating for a news Item."""
+
+    Unrated = -1
+    Boring = 0
+    Interesting = 1
+
+
 @dataclass(kw_only=True, slots=True)
 class Item:
     """Item is a news item from an RSS feed."""
@@ -63,6 +72,22 @@ class Item:
     headline: str
     body: str
     timestamp: datetime
+    rating: Rating = Rating.Unrated
+    _cached_rating: Optional[tuple[Rating, float]] = None
+
+    @property
+    def is_rated(self) -> bool:
+        """Return True if the Item has been rated by the user."""
+        return self.rating != Rating.Unrated
+
+    @property
+    def effective_rating(self) -> Rating:
+        """Return the manual or cached Rating for the news Item."""
+        if self.rating != Rating.Unrated:
+            return self.rating
+        if self._cached_rating is not None:
+            return self._cached_rating[0]
+        return Rating.Unrated
 
     @property
     def stamp_str(self) -> str:
