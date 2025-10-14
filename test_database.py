@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-09 16:13:12 krylon>
+# Time-stamp: <2025-10-14 16:14:30 krylon>
 #
 # /data/code/python/headlines/tests/test_database.py
 # created on 08. 10. 2025
@@ -24,7 +24,7 @@ from typing import Final, Optional
 
 from headlines import common
 from headlines.database import Database
-from headlines.model import Feed, Item
+from headlines.model import Feed, Item, Rating
 
 test_dir: Final[str] = os.path.join(
     "/tmp",
@@ -105,6 +105,16 @@ class TestDatabase(unittest.TestCase):
 
                     db.item_add(item)
                     self.assertGreater(item.item_id, 0)
+
+    def test_04_item_get_recent(self) -> None:
+        """Attempt to load recent Items from the Database."""
+        db: Database = self.db()
+        items: list[Item] = db.item_get_recent()
+
+        self.assertIsNotNone(items)
+        self.assertEqual(len(items), 100)
+        for i in items:
+            self.assertEqual(i.rating, Rating.Unrated)
 
 
 # Local Variables: #
