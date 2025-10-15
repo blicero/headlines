@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-14 16:10:51 krylon>
+# Time-stamp: <2025-10-15 15:05:12 krylon>
 #
 # /data/code/python/headlines/src/headlines/model.py
 # created on 30. 09. 2025
@@ -93,6 +93,17 @@ class Item:
     def stamp_str(self) -> str:
         """Return the Item's timestamp as a properly formatted string."""
         return self.timestamp.strftime(common.TimeFmt)
+
+    @property
+    def string(self) -> str:
+        """Return a minimal string representation of the Item."""
+        # pylint: disable-msg=C0209
+        return "Item(item_id={}, url='{}', headline='{}', timestamp='{}')".format(
+            self.item_id,
+            self.url,
+            self.headline,
+            self.stamp_str,
+        )
 
 
 @dataclass(kw_only=True, slots=True)
