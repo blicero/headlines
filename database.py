@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-14 16:53:43 krylon>
+# Time-stamp: <2025-10-15 15:07:48 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -217,7 +217,7 @@ SELECT
     timestamp,
     rating
 FROM item
-WHERE url = ?
+WHERE id = ?
     """,
     Query.ItemGetByURL: """
 SELECT
@@ -567,7 +567,7 @@ class Database:
         """Load an Item by its ID"""
         try:
             cur = self.db.cursor()
-            cur.execute(qdb[Query.ItemGetByURL], (item_id, ))
+            cur.execute(qdb[Query.ItemGetByID], (item_id, ))
 
             row = cur.fetchone()
             if row is None:

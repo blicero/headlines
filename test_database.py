@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-14 16:14:30 krylon>
+# Time-stamp: <2025-10-15 15:15:55 krylon>
 #
 # /data/code/python/headlines/tests/test_database.py
 # created on 08. 10. 2025
@@ -116,6 +116,20 @@ class TestDatabase(unittest.TestCase):
         for i in items:
             self.assertEqual(i.rating, Rating.Unrated)
 
+    def test_05_item_get_by_id(self) -> None:
+        """Attempt to load Items by their IDs."""
+        db: Database = self.db()
+        items: list[Item] = db.item_get_recent()
+
+        self.assertIsNotNone(items)
+        self.assertIsInstance(items, list)
+        self.assertEqual(len(items), 100)
+
+        for i1 in items:
+            i2: Optional[Item] = db.item_get_by_id(i1.item_id)
+            self.assertIsNotNone(i2)
+            assert i2 is not None  # to appease the type checker
+            self.assertEqual(i1, i2)
 
 # Local Variables: #
 # python-indent: 4 #
