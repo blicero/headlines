@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-14 18:13:12 krylon>
+# Time-stamp: <2025-10-15 15:15:43 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -33,7 +33,7 @@ from jinja2 import Environment, FileSystemLoader
 
 from headlines import common
 from headlines.database import Database
-from headlines.model import Feed, Item
+from headlines.model import Feed, Item, Rating
 
 mime_types: Final[dict[str, str]] = {
     ".css":  "text/css",
@@ -102,6 +102,11 @@ class WebUI:
 
         self.tmpl_root = self.root.joinpath("templates")
         self.env = Environment(loader=FileSystemLoader(str(self.tmpl_root)))
+        self.env.globals = {
+            "dbg": common.Debug,
+            "app_string": f"{common.AppName} {common.AppVersion}",
+            "hostname": socket.gethostname(),
+        }
 
         bottle.debug(common.Debug)
         route("/main", callback=self._handle_main)
@@ -109,6 +114,12 @@ class WebUI:
         route("/news/<cnt:int>/<offset:int>", callback=self._handle_news)
 
         route("/ajax/beacon", callback=self._handle_beacon)
+        route("/ajax/item_rate/<item_id:int>/<rating:int>",
+              method="POST",
+              callback=self._handle_rate_item)
+        route("/ajax/item_unrate/<item_id:int>",
+              method="POST",
+              callback=self._handle_unrate_item)
 
         route("/static/<path>", callback=self._handle_static)
         route("/favicon.ico", callback=self._handle_favicon)
@@ -181,17 +192,68 @@ class WebUI:
         """Store an Item's Rating in the database."""
         db: Database = Database()
         try:
-            item: Optional[Item] = db.item_get_by_id()
+            item: Optional[Item] = db.item_get_by_id(item_id)
             res: dict = {}
 
             if item is None:
                 res["status"] = False
                 res["message"] = f"Item {item_id} was not found in database"
                 res["timestamp"] = datetime.now().strftime(common.TimeFmt)
-                response.set_header("Content-Type", "application/json")
-                response.set_header("Cache-Control", "no-store, max-age=0")
-                body = json.dumps(res)
-                return body
+                self.log.error(res["message"])
+            else:
+                with db:
+                    db.item_rate(item, Rating(rating))
+                    res = {
+                        "status": True,
+                        "message": "ACK",
+                        "timestamp": datetime.now().strftime(common.TimeFmt),
+                    }
+
+            body = json.dumps(res)
+            response.set_header("Content-Type", "application/json")
+            response.set_header("Cache-Control", "no-store, max-age=0")
+            return body
+        finally:
+            db.close()
+
+    def _handle_unrate_item(self, item_id: int) -> Union[str, bytes]:
+        """Remove an Item's rating."""
+        db: Database = Database()
+        try:
+            item: Optional[Item] = db.item_get_by_id(item_id)
+            res: dict = {}
+
+            if item is None:
+                res = {
+                    "status": False,
+                    "message": f"Item {item_id} was not found in database",
+                    "timestamp": datetime.now().strftime(common.TimeFmt),
+                }
+            else:
+                with db:
+                    db.item_rate(item, Rating.Unrated)
+                res = {
+                    "status": True,
+                    "message": "ACK",
+                    "timestamp": datetime.now().strftime(common.TimeFmt),
+                    "content": f"""
+              <button type="button"
+                      class="btn btn-primary"
+                      onclick="rate_item({item.item_id}, 1);">
+                      Interesting
+              </button>
+              <button type="button"
+                      class="btn btn-secondary"
+                      onclick="rate_item({item.item_id}, 0);">
+                      Boring
+              </button>
+                    """,
+                }
+
+            body = json.dumps(res)
+            response.set_header("Content-Type", "application/json")
+            response.set_header("Cache-Control", "no-store, max-age=0")
+            return body
         finally:
             db.close()
 
