@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-15 15:15:43 krylon>
+# Time-stamp: <2025-10-15 16:54:08 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -28,11 +28,11 @@ from threading import Lock
 from typing import Any, Final, Optional, Union
 
 import bottle
-from bottle import response, route, run
+from bottle import request, response, route, run
 from jinja2 import Environment, FileSystemLoader
 
 from headlines import common
-from headlines.database import Database
+from headlines.database import Database, DatabaseError
 from headlines.model import Feed, Item, Rating
 
 mime_types: Final[dict[str, str]] = {
@@ -120,6 +120,9 @@ class WebUI:
         route("/ajax/item_unrate/<item_id:int>",
               method="POST",
               callback=self._handle_unrate_item)
+        route("/ajax/subscribe",
+              method="POST",
+              callback=self._handle_subscribe)
 
         route("/static/<path>", callback=self._handle_static)
         route("/favicon.ico", callback=self._handle_favicon)
@@ -187,6 +190,44 @@ class WebUI:
         response.set_header("Cache-Control", "no-store, max-age=0")
 
         return json.dumps(jdata)
+
+    def _handle_subscribe(self) -> Union[str, bytes]:
+        """Handle an attempt to subscribe to an RSS feed."""
+        feed: Feed = Feed(
+            url=request.forms["url"],
+            homepage=request.forms["homepage"],
+            name=request.forms["title"],
+            interval=request.forms["interval"],
+        )
+
+        self.log.debug("Adding Feed %s (%s - %s)",
+                       feed.name,
+                       feed.url,
+                       feed.homepage)
+        db: Database = Database()
+        res: dict = {"timestamp": datetime.now().strftime(common.TimeFmt)}
+
+        try:
+            with db:
+                db.feed_add(feed)
+                if feed.fid != 0:
+                    res["status"] = True
+                    res["message"] = "ACK"
+                else:
+                    res["status"] = False
+                    res["message"] = "Unknown error"
+        except DatabaseError as err:
+            cname: Final[str] = err.__class__.__name__
+            res["status"] = False
+            res["message"] = f"{cname} trying to add Feed {feed.name}: {err}"
+            self.log.error(res["message"])
+        finally:
+            db.close()
+
+        body = json.dumps(res)
+        response.set_header("Content-Type", "application/json")
+        response.set_header("Cache-Control", "no-store, max-age=0")
+        return body
 
     def _handle_rate_item(self, item_id: int, rating: int) -> Union[str, bytes]:
         """Store an Item's Rating in the database."""

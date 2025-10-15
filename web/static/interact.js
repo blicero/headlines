@@ -1,4 +1,4 @@
-// Time-stamp: <2025-10-15 15:20:26 krylon>
+// Time-stamp: <2025-10-15 16:12:22 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -269,3 +269,36 @@ function unrate_item(item_id) {
                       },
                       'json')
 } // function rate_item(item_id, rating)
+
+function clear_form() {
+    const form = $("#subscribeForm")[0]
+    form.reset()
+}
+
+function get_subscribe_field(name) {
+    const id = `#${name}`
+    return $(id)[0].value
+}
+
+function subscribe() {
+    let data = {
+        "title": get_subscribe_field("name"),
+        "url": get_subscribe_field("url"),
+        "homepage": get_subscribe_field("homepage"),
+        "interval": get_subscribe_field("interval"),
+    }
+
+    const req = $.post('/ajax/subscribe',
+                       data,
+                       (res) => {
+                           if (res.status) {
+                               clear_form()
+                           } else {
+                               const msg = `Failed to add Feed ${data.title}: ${res.message}`
+                               console.log(msg)
+                               alert(msg)
+                           }
+                       },
+                       'json'
+                      )
+}

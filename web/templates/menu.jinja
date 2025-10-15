@@ -1,5 +1,5 @@
 {# -*- mode: jinja2; coding: utf-8; -*-
-Time-stamp: <2025-10-14 15:17:53 krylon>
+Time-stamp: <2025-10-15 16:12:20 krylon>
 /data/code/python/medusa/web/templates/menu.jinja
 created on 06. 05. 2025
 (c) 2025 Benjamin Walkenhorst
@@ -32,40 +32,6 @@ created on 06. 05. 2025
           </a>
           <ul class="dropdown-menu" aria-labelledby="subscribeMenuLink">
             <li>
-              <script>
-               function clear_form() {
-                 const form = $("#subscribeForm")[0]
-                 form.reset()
-               }
-
-               function get_subscribe_field(name) {
-                 const id = `#${name}`
-                 return $(id)[0].value
-               }
-
-               function subscribe() {
-                 let data = {
-                   "title": get_subscribe_field("name"),
-                   "url": get_subscribe_field("url"),
-                   "homepage": get_subscribe_field("homepage"),
-                   "interval": get_subscribe_field("interval"),
-                 }
-
-                 const req = $.post('/ajax/subscribe',
-                                    data,
-                                    (res) => {
-                   if (res.status) {
-                     clear_form()
-                   } else {
-                     const msg = `Failed to add Feed ${data.title}: ${res.message}`
-                     console.log(msg)
-                     alert(msg)
-                   }
-                 },
-                                    'json'
-                                    )
-               }
-              </script>
               <form class="dropdown-item" action="/feed/subscribe" method="post" id="subscribeForm">
                 <table class="horizontal">
                   <tr>
