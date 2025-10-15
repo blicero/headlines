@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-10-15 15:22:35 krylon>
+# Time-stamp: <2025-10-15 18:57:48 krylon>
 #
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
@@ -15,26 +15,28 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2025-10-15 Mi 15:22]
-   | Headline                                 | Time       |           |       |      |
-   |------------------------------------------+------------+-----------+-------+------|
-   | *Total time*                             | *1d 11:41* |           |       |      |
-   |------------------------------------------+------------+-----------+-------+------|
-   | *Headlines [0/0]*                        | *1d 11:41* |           |       |      |
-   | \_  /Components [0/0]/                   |            | /1d 9:18/ |       |      |
-   | \_    Common [1/1]                       |            |           |  0:08 |      |
-   | \_      Down the rabbit hole for pathlib |            |           |       | 0:08 |
-   | \_    Model [0/1]                        |            |           |  0:11 |      |
-   | \_      Rating and Tagging [0/0]         |            |           |       | 0:10 |
-   | \_    Database [0/1]                     |            |           |  9:17 |      |
-   | \_      Rating and Tagging [0/0]         |            |           |       | 0:35 |
-   | \_    Engine [0/0]                       |            |           | 11:36 |      |
-   | \_    Web UI [0/0]                       |            |           | 10:13 |      |
-   | \_    Main [0/0]                         |            |           |  1:53 |      |
-   | \_  /Features [0/0]/                     |            | /1:57/    |       |      |
-   | \_    Rating [0/0]                       |            |           |  1:57 |      |
-   | \_  /Journal [1/1]/                      |            | /0:26/    |       |      |
-   | \_    Wrestling with poetry              |            |           |  0:26 |      |
+   #+CAPTION: Clock summary at [2025-10-15 Mi 18:57]
+   | Headline                                 | Time       |            |       |      |
+   |------------------------------------------+------------+------------+-------+------|
+   | *Total time*                             | *1d 14:58* |            |       |      |
+   |------------------------------------------+------------+------------+-------+------|
+   | *Headlines [0/0]*                        | *1d 14:58* |            |       |      |
+   | \_  /Components [0/0]/                   |            | /1d 12:15/ |       |      |
+   | \_    Common [1/1]                       |            |            |  0:08 |      |
+   | \_      Down the rabbit hole for pathlib |            |            |       | 0:08 |
+   | \_    Model [0/1]                        |            |            |  0:11 |      |
+   | \_      Rating and Tagging [0/0]         |            |            |       | 0:10 |
+   | \_    Database [0/1]                     |            |            |  9:17 |      |
+   | \_      Rating and Tagging [0/0]         |            |            |       | 0:35 |
+   | \_    Engine [0/0]                       |            |            | 11:36 |      |
+   | \_    Web UI [0/0]                       |            |            | 13:10 |      |
+   | \_    Main [0/0]                         |            |            |  1:53 |      |
+   | \_  /Features [0/0]/                     |            | /1:57/     |       |      |
+   | \_    Rating [0/0]                       |            |            |  1:57 |      |
+   | \_  /Bugs [0/1]/                         |            | /0:20/     |       |      |
+   | \_    The case of the failing refresh    |            |            |  0:20 |      |
+   | \_  /Journal [1/1]/                      |            | /0:26/     |       |      |
+   | \_    Wrestling with poetry              |            |            |  0:26 |      |
    #+END:
 ** Components [0/0]
    :PROPERTIES:
@@ -120,6 +122,7 @@
     :VISIBILITY: children
     :END:
     :LOGBOOK:
+    CLOCK: [2025-10-15 Mi 16:00]--[2025-10-15 Mi 18:57] =>  2:57
     CLOCK: [2025-10-15 Mi 15:15]--[2025-10-15 Mi 15:22] =>  0:07
     CLOCK: [2025-10-14 Di 15:15]--[2025-10-14 Di 15:28] =>  0:13
     CLOCK: [2025-10-13 Mo 17:47]--[2025-10-13 Mo 23:41] =>  5:54
@@ -152,11 +155,16 @@
     :LOGBOOK:
     CLOCK: [2025-10-14 Di 16:16]--[2025-10-14 Di 18:13] =>  1:57
     :END:
-** Bugs [0/0]
+** Bugs [0/1]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: children
    :END:
+*** TODO The case of the failing refresh
+    :LOGBOOK:
+    CLOCK: [2025-10-15 Mi 15:35]--[2025-10-15 Mi 15:55] =>  0:20
+    :END:
+    
 ** Journal [1/1]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
