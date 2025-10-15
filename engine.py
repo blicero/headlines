@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-13 19:46:25 krylon>
+# Time-stamp: <2025-10-15 15:59:45 krylon>
 #
 # /data/code/python/headlines/src/headlines/engine.py
 # created on 30. 09. 2025
@@ -146,8 +146,17 @@ class Engine:
                 db.feed_set_last_update(feed, datetime.now())
                 db.close()
 
+                self.log.debug("Fetch worker %02d got %d items from %s",
+                               num,
+                               len(rss.articles),
+                               feed.name)
                 for art in rss.articles:
                     # For the love of Goat, why don't they use ISO 8601 like sane people?!?!?!
+                    # Sample: Oct 14, 2025 11:25AM
+                    self.log.debug("Fetch worker %02d: Item '%s' was published %s",
+                                   num,
+                                   art.title,
+                                   art.pubDate)
                     timestamp: datetime = datetime.strptime(art.pubDate,
                                                             "%b %d, %Y %I:%M%p")
                     item: Item = Item(
@@ -174,9 +183,10 @@ class Engine:
                     other = db.item_get_by_url(item.url)
                     if other is not None:
                         continue
-                    self.log.debug("Caught one item: %s (%s)",
+                    self.log.debug("Caught one item: %s - %s (%s)",
                                    item.headline,
-                                   item.url)
+                                   item.stamp_str,
+                                   item.url,)
                     db.item_add(item)
             except Empty:
                 continue

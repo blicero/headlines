@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-15 15:07:48 krylon>
+# Time-stamp: <2025-10-15 16:05:52 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -60,6 +60,7 @@ CREATE TABLE item (
     headline TEXT NOT NULL,
     body TEXT NOT NULL DEFAULT '',
     timestamp INTEGER NOT NULL,
+    time_added INTEGER NOT NULL,
     rating INTEGER NOT NULL DEFAULT -1,
     FOREIGN KEY (feed_id) REFERENCES feed (id)
         ON UPDATE RESTRICT
@@ -178,8 +179,8 @@ WHERE COALESCE(last_update, 0) + interval < ?
     Query.FeedDelete: "DELETE FROM feed WHERE id = ?",
 
     Query.ItemAdd: """
-INSERT INTO item (feed_id, url, headline, body, timestamp)
-          VALUES (      ?,   ?,        ?,    ?,         ?)
+INSERT INTO item (feed_id, url, headline, body, timestamp, time_added)
+          VALUES (      ?,   ?,        ?,    ?,         ?,          ?)
 RETURNING id
     """,
     Query.ItemGetRecent: """
@@ -190,6 +191,7 @@ SELECT
     headline,
     body,
     timestamp,
+    time_added,
     rating
 FROM item
 ORDER BY timestamp DESC
@@ -204,6 +206,7 @@ SELECT
     headline,
     body,
     timestamp,
+    time_added,
     rating
 FROM item
 WHERE rating <> -1
@@ -215,6 +218,7 @@ SELECT
     headline,
     body,
     timestamp,
+    time_added,
     rating
 FROM item
 WHERE id = ?
@@ -226,6 +230,7 @@ SELECT
     headline,
     body,
     timestamp,
+    time_added,
     rating
 FROM item
 WHERE url = ?
@@ -462,7 +467,8 @@ class Database:
                          item.url,
                          item.headline,
                          item.body,
-                         math.floor(item.timestamp.timestamp())))
+                         math.floor(item.timestamp.timestamp()),
+                         math.floor(item.time_added.timestamp())))
             row = cur.fetchone()
             item.item_id = row[0]
         except sqlite3.IntegrityError:
@@ -494,7 +500,8 @@ class Database:
                     headline=row[3],
                     body=row[4],
                     timestamp=datetime.fromtimestamp(row[5]),
-                    rating=Rating(row[6]),
+                    time_added=datetime.fromtimestamp(row[6]),
+                    rating=Rating(row[7]),
                 )
                 items.append(item)
 
@@ -522,7 +529,8 @@ class Database:
                     headline=row[3],
                     body=row[4],
                     timestamp=datetime.fromtimestamp(row[5]),
-                    rating=Rating(row[6]),
+                    time_added=datetime.fromtimestamp(row[6]),
+                    rating=Rating(row[7]),
                 )
                 items.append(item)
 
@@ -552,7 +560,8 @@ class Database:
                 headline=row[2],
                 body=row[3],
                 timestamp=datetime.fromtimestamp(row[4]),
-                rating=Rating(row[5]),
+                time_added=datetime.fromtimestamp(row[5]),
+                rating=Rating(row[6]),
             )
 
             return item
@@ -581,7 +590,8 @@ class Database:
                 headline=row[2],
                 body=row[3],
                 timestamp=datetime.fromtimestamp(row[4]),
-                rating=Rating(row[5]),
+                time_added=datetime.fromtimestamp(row[5]),
+                rating=Rating(row[6]),
             )
 
             return item

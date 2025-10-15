@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-15 15:05:12 krylon>
+# Time-stamp: <2025-10-15 16:02:07 krylon>
 #
 # /data/code/python/headlines/src/headlines/model.py
 # created on 30. 09. 2025
@@ -17,7 +17,7 @@ headlines.model
 """
 
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from enum import IntEnum
 from typing import Optional
@@ -72,6 +72,7 @@ class Item:
     headline: str
     body: str
     timestamp: datetime
+    time_added: datetime = field(default_factory=datetime.now)
     rating: Rating = Rating.Unrated
     _cached_rating: Optional[tuple[Rating, float]] = None
 
