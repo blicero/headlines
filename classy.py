@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-16 16:31:27 krylon>
+# Time-stamp: <2025-10-16 19:08:50 krylon>
 #
 # /data/code/python/headlines/classy.py
 # created on 15. 10. 2025
@@ -18,6 +18,7 @@ headlines.classy
 
 
 import logging
+import os
 from dataclasses import dataclass, field
 from threading import Lock
 from typing import Final
@@ -38,11 +39,18 @@ class Karl:
 
     log: logging.Logger = field(default_factory=lambda: common.get_logger("Karl"))
     lock: Lock = field(default_factory=Lock)
-    bayes: SimpleBayes = field(default_factory=lambda: SimpleBayes(cache_path=common.path.spool))
+    bayes: SimpleBayes = \
+        field(default_factory=lambda: SimpleBayes(cache_path=str(common.path.spool)))
 
     def __post_init(self) -> None:  # pylint: disable-msg=W0238
         if not self.bayes.cache_train():
             self.log.error("Failed to train classifier")
+
+    def has_cache(self) -> bool:
+        """Return True if a file with cached training data exists."""
+        # full_path = common.path.spool.joinpath(self.bayes.cache_file)
+        # return full_path.exists()
+        return os.path.exists(self.bayes.get_cache_location())
 
     def item_text(self, item: Item) -> str:
         """Return the plain text from an Item."""
@@ -60,12 +68,28 @@ class Karl:
             item.cache_rating(rating)
             return rating
 
-    def rate(self, item: Item, rating: Rating) -> None:
+    def train_bulk(self, items: list[Item]) -> None:
+        """Train the classifier on a list of Items."""
+        with self.lock:
+            self.bayes.flush()
+            for item in items:
+                if item.rating == Rating.Unrated:
+                    continue
+                plain: str = self.item_text(item)
+                self.bayes.train(item.rating.name, plain)
+            self.bayes.cache_persist()
+
+    def learn(self, item: Item, rating: Rating) -> None:
         """Add an Item and its Rating to the training data."""
         with self.lock:
             try:
                 plain = self.item_text(item)
-                self.bayes.train(rating.name, plain)
+                match rating:
+                    case Rating.Boring | Rating.Interesting:
+                        self.bayes.train(rating.name, plain)
+                    case Rating.Unrated:
+                        assert item.rating != Rating.Unrated
+                        self.bayes.untrain(item.rating, plain)  # ???
             except Exception as err:  # pylint: disable-msg=W0718
                 cname: Final[str] = err.__class__.__name__
                 self.log.error("%s trying to train on Item %d (%s): %s",
@@ -74,6 +98,7 @@ class Karl:
                                item.headline,
                                err)
             else:
+                item.rating = rating
                 self.bayes.cache_persist()
 
 

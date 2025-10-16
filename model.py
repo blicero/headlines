@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-16 16:31:31 krylon>
+# Time-stamp: <2025-10-16 18:27:56 krylon>
 #
 # /data/code/python/headlines/src/headlines/model.py
 # created on 30. 09. 2025
@@ -62,8 +62,10 @@ class Rating(IntEnum):
     Interesting = 1
 
     @classmethod
-    def from_str(cls, name: str) -> 'Rating':
+    def from_str(cls, name: Optional[str]) -> 'Rating':
         """Create a Rating from its string value."""
+        if name is None:
+            return cls.Unrated
         match name.lower():
             case "unrated":
                 return cls.Unrated
