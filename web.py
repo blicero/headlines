@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-15 16:54:08 krylon>
+# Time-stamp: <2025-10-16 19:16:21 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -32,6 +32,7 @@ from bottle import request, response, route, run
 from jinja2 import Environment, FileSystemLoader
 
 from headlines import common
+from headlines.classy import Karl
 from headlines.database import Database, DatabaseError
 from headlines.model import Feed, Item, Rating
 
@@ -73,6 +74,7 @@ class WebUI:
         "env",
         "host",
         "port",
+        "karl",
     ]
 
     log: logging.Logger
@@ -82,6 +84,7 @@ class WebUI:
     env: Environment
     host: str
     port: int
+    karl: Karl
 
     def __init__(self, root: Union[str, pathlib.Path] = "") -> None:
         self.log = common.get_logger("WebUI")
@@ -100,6 +103,12 @@ class WebUI:
             case _:
                 raise TypeError("Invalid type for root (must be str or pathlib.Path)")
 
+        self.karl = Karl()
+        if not self.karl.has_cache():
+            db: Database = Database()
+            items: list[Item] = db.item_get_rated()
+            self.karl.train_bulk(items)
+
         self.tmpl_root = self.root.joinpath("templates")
         self.env = Environment(loader=FileSystemLoader(str(self.tmpl_root)))
         self.env.globals = {
@@ -114,7 +123,7 @@ class WebUI:
         route("/news/<cnt:int>/<offset:int>", callback=self._handle_news)
 
         route("/ajax/beacon", callback=self._handle_beacon)
-        route("/ajax/item_rate/<item_id:int>/<rating:int>",
+        route("/ajax/item_rate/<item_id:int>/<score:int>",
               method="POST",
               callback=self._handle_rate_item)
         route("/ajax/item_unrate/<item_id:int>",
@@ -163,6 +172,14 @@ class WebUI:
         try:
             items: list[Item] = db.item_get_recent(cnt, offset)
             feeds: list[Feed] = db.feed_get_all()
+
+            for item in items:
+                if item.is_rated:
+                    continue
+
+                rating: Rating = self.karl.classify(item)
+                item.cache_rating(rating, 0.75)
+
             response.set_header("Cache-Control", "no-store, max-age=0")
             tmpl = self.env.get_template("news.jinja")
             tmpl_vars = self._tmpl_vars()
@@ -229,8 +246,9 @@ class WebUI:
         response.set_header("Cache-Control", "no-store, max-age=0")
         return body
 
-    def _handle_rate_item(self, item_id: int, rating: int) -> Union[str, bytes]:
+    def _handle_rate_item(self, item_id: int, score: int) -> Union[str, bytes]:
         """Store an Item's Rating in the database."""
+        #  self.log.debug("Handle rating Item %d with a %d", item_id, score)
         db: Database = Database()
         try:
             item: Optional[Item] = db.item_get_by_id(item_id)
@@ -242,14 +260,16 @@ class WebUI:
                 res["timestamp"] = datetime.now().strftime(common.TimeFmt)
                 self.log.error(res["message"])
             else:
+                rating: Final[Rating] = Rating(score)
                 with db:
-                    db.item_rate(item, Rating(rating))
+                    db.item_rate(item, rating)
+
                     res = {
                         "status": True,
                         "message": "ACK",
                         "timestamp": datetime.now().strftime(common.TimeFmt),
                     }
-
+                self.karl.learn(item, rating)
             body = json.dumps(res)
             response.set_header("Content-Type", "application/json")
             response.set_header("Cache-Control", "no-store, max-age=0")
@@ -273,6 +293,7 @@ class WebUI:
             else:
                 with db:
                     db.item_rate(item, Rating.Unrated)
+                self.karl.learn(item, Rating.Unrated)
                 res = {
                     "status": True,
                     "message": "ACK",

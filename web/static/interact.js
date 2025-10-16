@@ -1,4 +1,4 @@
-// Time-stamp: <2025-10-15 16:12:22 krylon>
+// Time-stamp: <2025-10-16 18:40:05 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -229,7 +229,7 @@ function rate_item(item_id, rating) {
                            if (res.status) {
                                var icon = '';
                                switch (rating) {
-                               case -1:
+                               case 0:
                                    icon = 'face-tired'
                                    break
                                case 1:
