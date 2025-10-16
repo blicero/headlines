@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-15 16:05:52 krylon>
+# Time-stamp: <2025-10-16 18:25:01 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -517,7 +517,7 @@ class Database:
         """Fetch all rated Items from the database."""
         try:
             cur = self.db.cursor()
-            cur.execute(qdb[Query.ItemGetRecent])
+            cur.execute(qdb[Query.ItemGetRated])
 
             items: list[Item] = []
 
