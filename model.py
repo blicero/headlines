@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-15 16:02:07 krylon>
+# Time-stamp: <2025-10-16 16:31:31 krylon>
 #
 # /data/code/python/headlines/src/headlines/model.py
 # created on 30. 09. 2025
@@ -61,6 +61,19 @@ class Rating(IntEnum):
     Boring = 0
     Interesting = 1
 
+    @classmethod
+    def from_str(cls, name: str) -> 'Rating':
+        """Create a Rating from its string value."""
+        match name.lower():
+            case "unrated":
+                return cls.Unrated
+            case "boring":
+                return cls.Boring
+            case "interesting":
+                return cls.Interesting
+            case _:
+                raise ValueError(f"Invalid Rating name '{name}'")
+
 
 @dataclass(kw_only=True, slots=True)
 class Item:
@@ -89,6 +102,11 @@ class Item:
         if self._cached_rating is not None:
             return self._cached_rating[0]
         return Rating.Unrated
+
+    def cache_rating(self, rating: Rating, score: Optional[float] = None) -> None:
+        """Cache a generated Rating for the Item."""
+        self._cached_rating = (rating,
+                               score if score is not None else 1.0)
 
     @property
     def stamp_str(self) -> str:
