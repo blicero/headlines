@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-11 16:16:01 krylon>
+# Time-stamp: <2025-10-17 15:35:25 krylon>
 #
 # /data/code/python/headlines/src/headlines/common.py
 # created on 30. 09. 2025
@@ -73,9 +73,9 @@ class Path:
         return pathlib.Path(os.path.join(self.__base, f"{AppName.lower()}.log"))
 
     @property
-    def spool(self) -> pathlib.Path:
+    def cache(self) -> pathlib.Path:
         """Return the path of the spool directory."""
-        return pathlib.Path(os.path.join(self.__base, "spool"))
+        return pathlib.Path(os.path.join(self.__base, "cache"))
 
     @property
     def config(self) -> pathlib.Path:
@@ -100,8 +100,8 @@ def init_app() -> None:
     if not os.path.isdir(path.base()):
         print(f"Create base directory {path.base()}")
         os.mkdir(path.base())
-    if not os.path.isdir(path.spool):
-        os.mkdir(path.spool)
+    if not os.path.isdir(path.cache):
+        os.mkdir(path.cache)
 
 
 def get_logger(name: str, terminal: bool = True) -> logging.Logger:

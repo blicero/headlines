@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-16 19:08:50 krylon>
+# Time-stamp: <2025-10-17 16:29:38 krylon>
 #
 # /data/code/python/headlines/classy.py
 # created on 15. 10. 2025
@@ -40,7 +40,7 @@ class Karl:
     log: logging.Logger = field(default_factory=lambda: common.get_logger("Karl"))
     lock: Lock = field(default_factory=Lock)
     bayes: SimpleBayes = \
-        field(default_factory=lambda: SimpleBayes(cache_path=str(common.path.spool)))
+        field(default_factory=lambda: SimpleBayes(cache_path=str(common.path.cache)))
 
     def __post_init(self) -> None:  # pylint: disable-msg=W0238
         if not self.bayes.cache_train():
