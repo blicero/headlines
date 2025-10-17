@@ -1,5 +1,5 @@
 {# -*- mode: jinja2; coding: utf-8; -*-
-Time-stamp: <2025-10-16 19:12:41 krylon>
+Time-stamp: <2025-10-16 20:29:26 krylon>
 /data/code/python/headlines/web/templates/news.jinja
 created on 13. 10. 2025
 (c) 2025 Benjamin Walkenhorst
@@ -41,7 +41,7 @@ created on 13. 10. 2025
               {{ feeds[item.feed_id].name }}
             </a>
           </td>
-          <td><a href="{{ item.url }}">{{ item.headline }}</a></td>
+          <td><a target="_blank" href="{{ item.url }}">{{ item.headline }}</a></td>
           <td id="item_rating_{{ item.item_id }}"> {# Rating #}
             {% if item.is_rated %}
               {% if item.rating == 0 %}
