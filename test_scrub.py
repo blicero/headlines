@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-17 16:41:42 krylon>
+# Time-stamp: <2025-10-17 19:11:51 krylon>
 #
 # /data/code/python/headlines/test_scrub.py
 # created on 17. 10. 2025
@@ -46,7 +46,7 @@ class TestScrubber(unittest.TestCase):
     def test_01_simple(self) -> None:
         """Test the simple cases first."""
         sample = """
-        <i>Hello World</i><br />
+        <i>Hello World</i><br/>
         """
         scrubber = self.scrubber()
 
