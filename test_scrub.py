@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-17 19:11:51 krylon>
+# Time-stamp: <2025-10-18 14:06:50 krylon>
 #
 # /data/code/python/headlines/test_scrub.py
 # created on 17. 10. 2025
@@ -54,6 +54,19 @@ class TestScrubber(unittest.TestCase):
 
         self.assertIsNotNone(output)
         self.assertEqual(sample.strip(), output.strip())
+
+        sample = """
+        <h1>¡Hola, Mundo!</h1>
+        <script>
+        console.log("¡Ay Caramba!");
+        </script>
+        <h2>Español es una lengua muy bonita</h2>
+        """
+
+        output = scrubber.scrub_html(sample)
+
+        self.assertNotRegex(output, r"\<script>")
+        self.assertNotRegex(output, "Caramba")
 
 
 # Local Variables: #
