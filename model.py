@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-16 18:27:56 krylon>
+# Time-stamp: <2025-10-18 14:48:22 krylon>
 #
 # /data/code/python/headlines/src/headlines/model.py
 # created on 30. 09. 2025
@@ -23,6 +23,7 @@ from enum import IntEnum
 from typing import Optional
 
 from headlines import common
+from headlines.scrub import Scrubber
 
 
 @dataclass(kw_only=True, slots=True)
@@ -125,6 +126,12 @@ class Item:
             self.headline,
             self.stamp_str,
         )
+
+    @property
+    def clean_body(self) -> str:
+        """Return a sanitized copy of the Item's body."""
+        scrubber: Scrubber = Scrubber()
+        return scrubber.scrub_html(self.body, self.item_id)
 
 
 @dataclass(kw_only=True, slots=True)
