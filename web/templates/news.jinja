@@ -1,5 +1,5 @@
 {# -*- mode: jinja2; coding: utf-8; -*-
-Time-stamp: <2025-10-16 20:29:26 krylon>
+Time-stamp: <2025-10-18 15:29:49 krylon>
 /data/code/python/headlines/web/templates/news.jinja
 created on 13. 10. 2025
 (c) 2025 Benjamin Walkenhorst
@@ -20,6 +20,12 @@ created on 13. 10. 2025
 #}
 
 {% block content %}
+  <script>
+    $(document).ready(() => {
+        scale_images()
+    })
+  </script>
+
   <table class="table table-secondary table-striped">
     <thead>
       <tr>
@@ -32,7 +38,7 @@ created on 13. 10. 2025
       </tr>
     </thead>
 
-    <tbody>
+    <tbody class="items">
       {% for item in items %}
         <tr>
           <td>{{ item.stamp_str }}</td>
