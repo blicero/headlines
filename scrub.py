@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-17 16:30:14 krylon>
+# Time-stamp: <2025-10-18 15:32:12 krylon>
 #
 # /data/code/python/headlines/scrub.py
 # created on 17. 10. 2025
@@ -20,30 +20,36 @@ This module implements the sanitizing of Item bodies, and the caching of the res
 
 
 import logging
+from threading import Lock
 
 from bs4 import BeautifulSoup
+from krylib import Singleton
 
 from headlines import common
 
+# TODO Caching!!!
 
-class Scrubber:
+
+class Scrubber(metaclass=Singleton):
     """Scrubber sanitizes the HTML of RSS Items:
 
     - Remove Javascript
     - Change links to open in new tabs/windows
-    - Resize image tags
     """
 
     __slots__ = [
         "log",
+        "lock",
         # "db",
     ]
 
     log: logging.Logger
+    lock: Lock
     #  db: lmdb.Environment
 
     def __init__(self) -> None:
         self.log = common.get_logger("scrubber")
+        self.lock = Lock()
         # self.db = lmdb.Environment(
         #     common.path.cache.joinpath("scrub").as_posix(),
         #     subdir=True,
