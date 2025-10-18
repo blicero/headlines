@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-10-18 15:29:32 krylon>
+# Time-stamp: <2025-10-18 15:43:46 krylon>
 #
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
@@ -8,20 +8,20 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Headlines [5/9]
+* Headlines [6/9]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: children
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2025-10-18 Sa 15:28]
+   #+CAPTION: Clock summary at [2025-10-18 Sa 15:43]
    | Headline                                 | Time       |            |       |      |
    |------------------------------------------+------------+------------+-------+------|
-   | *Total time*                             | *1d 22:22* |            |       |      |
+   | *Total time*                             | *1d 22:27* |            |       |      |
    |------------------------------------------+------------+------------+-------+------|
-   | *Headlines [5/9]*                        | *1d 22:22* |            |       |      |
-   | \_  /Components [0/0]/                   |            | /1d 15:20/ |       |      |
+   | *Headlines [6/9]*                        | *1d 22:27* |            |       |      |
+   | \_  /Components [2/4]/                   |            | /1d 15:25/ |       |      |
    | \_    Common [1/1]                       |            |            |  0:08 |      |
    | \_      Down the rabbit hole for pathlib |            |            |       | 0:08 |
    | \_    Model [0/1]                        |            |            |  0:38 |      |
@@ -31,8 +31,8 @@
    | \_    Database [0/1]                     |            |            |  9:17 |      |
    | \_      Rating and Tagging [0/0]         |            |            |       | 0:35 |
    | \_    Engine [0/0]                       |            |            | 11:36 |      |
-   | \_    Web UI [0/1]                       |            |            | 14:39 |      |
-   | \_      Rating                           |            |            |       | 0:01 |
+   | \_    Web UI [1/1]                       |            |            | 14:44 |      |
+   | \_      Rating                           |            |            |       | 0:06 |
    | \_    Main [0/0]                         |            |            |  1:53 |      |
    | \_  /Features [3/3]/                     |            | /6:16/     |       |      |
    | \_    Sanitize [3/3]                     |            |            |  4:19 |      |
@@ -42,7 +42,7 @@
    | \_  /Journal [1/1]/                      |            | /0:26/     |       |      |
    | \_    Wrestling with poetry              |            |            |  0:26 |      |
    #+END:
-** Components [1/4]
+** Components [2/4]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: children
@@ -133,7 +133,7 @@
     asyncio under the hood these days anyway.
     (The Internet says Twisted does not use asyncio, but still.)
     So Twisted it is!
-*** Web UI [0/1]
+*** Web UI [1/1]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: children
@@ -146,8 +146,10 @@
     CLOCK: [2025-10-13 Mo 17:47]--[2025-10-13 Mo 23:41] =>  5:54
     CLOCK: [2025-10-11 Sa 19:31]--[2025-10-11 Sa 23:30] =>  3:59
     :END:
-**** TODO Rating
+**** DONE Rating
+     CLOSED: [2025-10-18 Sa 15:43]
      :LOGBOOK:
+     CLOCK: [2025-10-18 Sa 15:38]--[2025-10-18 Sa 15:43] =>  0:05
      CLOCK: [2025-10-16 Do 17:47]--[2025-10-16 Do 17:48] =>  0:01
      :END:
 *** Main [0/0]
