@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-16 18:25:01 krylon>
+# Time-stamp: <2025-10-18 17:52:38 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -29,7 +29,7 @@ from typing import Final, Optional, Union
 import krylib
 
 from headlines import common
-from headlines.model import Feed, Item, Rating
+from headlines.model import Feed, Item, Rating, Tag
 
 
 class DatabaseError(common.HeadlineError):
@@ -122,7 +122,9 @@ class Query(Enum):
 
     TagAdd = auto()
     TagGetAll = auto()
+    TagGetChildren = auto()
     TagDelete = auto()
+    TagSetParent = auto()
 
     TagLinkAdd = auto()
     TagLinkGetByTag = auto()
@@ -236,6 +238,59 @@ FROM item
 WHERE url = ?
     """,
     Query.ItemRate: "UPDATE item SET rating = ? WHERE id = ?",
+    Query.TagAdd: """
+INSERT INTO tag (parent, name, description)
+         VALUES (?,         ?,           ?)
+RETURNING id
+    """,
+    Query.TagGetAll: """
+SELECT
+    id,
+    parent,
+    name,
+    description
+FROM tag
+    """,
+    Query.TagGetChildren: """
+WITH RECURSIVE children(id, name, lvl, root, parent, full_name) AS (
+    SELECT
+        id,
+        name,
+        0 AS lvl,
+        id AS root,
+        COALESCE(parent, 0) AS parent,
+        name AS full_name
+    FROM tag WHERE parent = ?
+    UNION ALL
+    SELECT
+        tag.id,
+        tag.name,
+        lvl + 1 AS lvl,
+        children.root,
+        tag.parent,
+        full_name || '/' || tag.name AS full_name
+    FROM tag, children
+    WHERE tag.parent = children.id
+)
+
+SELECT
+        id,
+        name,
+        parent,
+        lvl,
+        full_name
+FROM children
+ORDER BY full_name
+    """,
+    Query.TagDelete: "DELETE FROM tag WHERE id = ?",
+    Query.TagSetParent: "UPDATE tag SET parent = ? WHERE id = ?",
+    Query.TagLinkAdd: "INSERT INTO tag_link (tag_id, item_id) VALUES (?, ?)",
+    Query.TagLinkGetByItem: """
+    """,
+    Query.TagLinkGetByTag: """
+    """,
+    Query.TagLinkDelete: """
+    """,
 }
 
 
@@ -615,6 +670,101 @@ class Database:
             cname: Final[str] = err.__class__.__name__
             msg: Final[str] = \
                 f"{cname} trying to rate Item {item.item_id} ({item.headline}): {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
+    def tag_add(self, tag: Tag) -> None:
+        """Add a Tag to the database."""
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.TagAdd], (tag.parent, tag.name, tag.description))
+
+            row = cur.fetchone()
+            tag.tag_id = row[0]
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = f"{cname} trying to add Tag {tag.name}: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
+    def tag_get_all(self) -> list[Tag]:
+        """Load all Tags from the database."""
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.TagGetAll])
+            tags: list[Tag] = []
+
+            for row in cur:
+                t: Tag = Tag(
+                    tag_id=row[0],
+                    parent=row[1],
+                    name=row[2],
+                    description=row[3],
+                )
+                tags.append(t)
+            return t
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = f"{cname} trying to load all tags: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
+    def tag_get_children(self, root: Tag) -> list[Tag]:
+        """Load all tags that are children of <root>"""
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.TagGetChildren], (root.tag_id, ))
+
+            children: list[Tag] = []
+
+            for row in cur:
+                t = Tag(tag_id=row[0],
+                        name=row[1],
+                        parent=row[2])
+                children.append(t)
+
+            return children
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = f"{cname} trying to load children of {root.name}: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
+    def tag_set_parent(self, tag: Tag, parent: Tag) -> None:
+        """Update a Tag's parent link."""
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.TagSetParent], (parent.tag_id, tag.tag_id))
+            tag.parent = parent.tag_id
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to set the parent of Tag {tag.name} to {parent.name}: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
+    def tag_remove(self, tag: Tag) -> None:
+        """Delete a Tag from the database."""
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.TagDelete], (tag.tag_id, ))
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to delete Tag {tag.name}: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
+    def tag_link_add(self, item: Item, tag: Tag) -> None:
+        """Attach <tag> to <item>."""
+        try:
+            pass
+            # cur = self.db.cursor()
+            # cur.execute(qdb[Query.TagLinkAdd], (
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to delete Tag {tag.name}: {err}"
             self.log.error(msg)
             raise DatabaseError(msg) from err
 

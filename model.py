@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-18 14:48:22 krylon>
+# Time-stamp: <2025-10-18 15:47:06 krylon>
 #
 # /data/code/python/headlines/src/headlines/model.py
 # created on 30. 09. 2025
@@ -139,6 +139,7 @@ class Tag:
     """Tag is a short piece of text attached to Items."""
 
     tag_id: int = 0
+    parent: Optional[int] = None
     name: str
     description: str = ""
 
