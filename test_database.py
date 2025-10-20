@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-20 10:31:00 krylon>
+# Time-stamp: <2025-10-20 11:18:29 krylon>
 #
 # /data/code/python/headlines/tests/test_database.py
 # created on 08. 10. 2025
@@ -24,12 +24,13 @@ from typing import Final, Optional
 
 from headlines import common
 from headlines.database import Database
-from headlines.model import Feed, Item, Rating, Tag
+from headlines.model import Feed, Item, Rating, Tag, TagLink
 
 test_dir: Final[str] = os.path.join(
     "/tmp",
     datetime.now().strftime("snoopy_test_database_%Y%m%d_%H%M%S"))
 
+item_cnt: Final[int] = 100
 tag_cnt: Final[int] = 10
 
 
@@ -92,7 +93,7 @@ class TestDatabase(unittest.TestCase):
 
         with db:
             for feed in feeds:
-                for i in range(100):
+                for i in range(item_cnt):
                     addr: str = os.path.join(
                         feed.homepage,
                         f"articles/article{i:03d}",
@@ -114,7 +115,7 @@ class TestDatabase(unittest.TestCase):
         items: list[Item] = db.item_get_recent()
 
         self.assertIsNotNone(items)
-        self.assertEqual(len(items), 100)
+        self.assertEqual(len(items), item_cnt)
         for i in items:
             self.assertEqual(i.rating, Rating.Unrated)
 
@@ -125,7 +126,7 @@ class TestDatabase(unittest.TestCase):
 
         self.assertIsNotNone(items)
         self.assertIsInstance(items, list)
-        self.assertEqual(len(items), 100)
+        self.assertEqual(len(items), item_cnt)
 
         for i1 in items:
             i2: Optional[Item] = db.item_get_by_id(i1.item_id)
@@ -144,7 +145,7 @@ class TestDatabase(unittest.TestCase):
                     db.tag_add(t)
                     self.assertGreater(t.tag_id, 0)
 
-    def test_07_test_tag_get_all(self) -> None:
+    def test_07_tag_get_all(self) -> None:
         """Test getting all Tags."""
         db: Database = self.db()
         tags = db.tag_get_all()
@@ -155,6 +156,29 @@ class TestDatabase(unittest.TestCase):
         for i, t in zip(range(len(tags)), tags):
             with self.subTest(i=i):
                 self.assertIsInstance(t, Tag)
+
+    def test_08_tag_link_add(self) -> None:
+        """Test attaching TagLinks to Items."""
+        db: Database = self.db()
+        items: list[Item] = db.item_get_recent(item_cnt)
+        tags: list[Tag] = db.tag_get_all()
+
+        self.assertIsInstance(items, list)
+        self.assertEqual(len(items), item_cnt)
+        self.assertIsInstance(tags, list)
+        self.assertEqual(len(tags), tag_cnt)
+
+        with db:
+            for i, item in zip(range(item_cnt), items):
+                with self.subTest(i=i):
+                    for tag in tags:
+                        link: TagLink = db.tag_link_add(item, tag)
+                        self.assertIsNotNone(link)
+                        self.assertIsInstance(link, TagLink)
+                        self.assertGreater(link.lid, 0)
+                        self.assertEqual(link.item_id, item.item_id)
+                        self.assertEqual(link.tag_id, tag.tag_id)
+
 
 # Local Variables: #
 # python-indent: 4 #
