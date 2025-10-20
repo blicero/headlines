@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-16 19:16:21 krylon>
+# Time-stamp: <2025-10-20 13:05:19 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -34,7 +34,7 @@ from jinja2 import Environment, FileSystemLoader
 from headlines import common
 from headlines.classy import Karl
 from headlines.database import Database, DatabaseError
-from headlines.model import Feed, Item, Rating
+from headlines.model import Feed, Item, Rating, Tag
 
 mime_types: Final[dict[str, str]] = {
     ".css":  "text/css",
@@ -172,8 +172,13 @@ class WebUI:
         try:
             items: list[Item] = db.item_get_recent(cnt, offset)
             feeds: list[Feed] = db.feed_get_all()
+            tags: list[Tag] = db.tag_get_all()
+            item_tags: dict[int, set[Tag]] = {}
+
+            tags.sort(key=lambda x: x.name)
 
             for item in items:
+                item_tags[item.item_id] = set(db.tag_link_get_by_item(item))
                 if item.is_rated:
                     continue
 
@@ -187,6 +192,8 @@ class WebUI:
             tmpl_vars["year"] = datetime.now().year
             tmpl_vars["feeds"] = {f.fid: f for f in feeds}
             tmpl_vars["items"] = items
+            tmpl_vars["tags"] = tags
+            tmpl_vars["item_tags"] = item_tags
 
             return tmpl.render(tmpl_vars)
         finally:
