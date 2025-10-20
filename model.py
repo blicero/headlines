@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-20 13:31:20 krylon>
+# Time-stamp: <2025-10-20 17:13:44 krylon>
 #
 # /data/code/python/headlines/src/headlines/model.py
 # created on 30. 09. 2025
@@ -142,6 +142,8 @@ class Tag:
     parent: Optional[int] = None
     name: str
     description: str = ""
+    lvl: int = 0
+    full_name: str = ""
 
 
 @dataclass(kw_only=True, slots=True)

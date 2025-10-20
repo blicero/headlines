@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-20 10:12:37 krylon>
+# Time-stamp: <2025-10-20 17:17:08 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -97,6 +97,42 @@ CREATE TABLE tag_link (
     """,
     "CREATE INDEX tag_link_item_idx ON tag_link (item_id)",
     "CREATE INDEX tag_link_tag_idx ON tag_link (tag_id)",
+    """
+CREATE VIEW IF NOT EXISTS tag_sorted AS
+WITH RECURSIVE children(id, name, description, lvl, root, parent, full_name) AS (
+    SELECT
+        id,
+        name,
+        description,
+        0 AS lvl,
+        id AS root,
+        COALESCE(parent, 0) AS parent,
+        name AS full_name
+    FROM tag
+    WHERE COALESCE(parent, 0) = 0
+    UNION ALL
+    SELECT
+        tag.id,
+        tag.name,
+        tag.description,
+        lvl + 1 AS lvl,
+        children.root,
+        tag.parent,
+        full_name || '/' || tag.name AS full_name
+    FROM tag, children
+    WHERE tag.parent = children.id
+)
+
+SELECT
+        id,
+        name,
+        description,
+        parent,
+        lvl,
+        full_name
+FROM children
+ORDER BY full_name
+    """,
 ]
 
 
@@ -248,8 +284,10 @@ SELECT
     id,
     parent,
     name,
-    description
-FROM tag
+    description,
+    lvl,
+    full_name
+FROM tag_sorted
     """,
     Query.TagGetChildren: """
 WITH RECURSIVE children(id, name, lvl, root, parent, full_name) AS (
@@ -723,6 +761,8 @@ class Database:
                     parent=row[1],
                     name=row[2],
                     description=row[3],
+                    lvl=row[4],
+                    full_name=row[5],
                 )
                 tags.append(t)
             return tags
