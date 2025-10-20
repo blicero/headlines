@@ -1,5 +1,5 @@
 {# -*- mode: jinja2; coding: utf-8; -*-
-Time-stamp: <2025-10-20 17:21:43 krylon>
+Time-stamp: <2025-10-20 19:16:54 krylon>
 /data/code/python/headlines/web/templates/news.jinja
 created on 13. 10. 2025
 (c) 2025 Benjamin Walkenhorst
@@ -38,7 +38,7 @@ created on 13. 10. 2025
       </tr>
     </thead>
 
-    <tbody class="items">
+    <tbody class="items" id="items">
       {% for item in items %}
         <tr>
           <td>{{ item.stamp_str }}</td>
@@ -72,9 +72,7 @@ created on 13. 10. 2025
           </td>
           <td> {# Tags #}
             <div id="tags_{{ item.item_id }}">
-              {% for tag in item_tags %}
-                <b>{{ tag.name }}</b>&nbsp;
-              {% endfor %}
+
             </div>
             <div id="tag_suggestions_{{ item.item_id }}">
             </div>

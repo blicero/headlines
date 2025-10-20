@@ -1,4 +1,4 @@
-// Time-stamp: <2025-10-16 18:40:05 krylon>
+// Time-stamp: <2025-10-20 19:17:14 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -197,11 +197,11 @@ function fmtNumber(n, kind = "") {
     } else {
         return fmtDefault(n)
     }
-}
+} // function fmtNumber(n, kind = "")
 
 function fmtDefault(n) {
     return n.toPrecision(3).toString()
-}
+} // function fmtDefault(n)
 
 function fmtBytes(n) {
     const units = ["KB", "MB", "GB", "TB", "PB"]
@@ -212,7 +212,7 @@ function fmtBytes(n) {
     }
 
     return `${n.toPrecision(3)} ${units[idx]}`
-}
+} // function fmtBytes(n)
 
 const formatters = {
     "sysload": fmtNumber,
@@ -273,12 +273,12 @@ function unrate_item(item_id) {
 function clear_form() {
     const form = $("#subscribeForm")[0]
     form.reset()
-}
+} // function clear_form()
 
 function get_subscribe_field(name) {
     const id = `#${name}`
     return $(id)[0].value
-}
+} // function get_subscribe_field(name)
 
 function subscribe() {
     let data = {
@@ -301,4 +301,50 @@ function subscribe() {
                        },
                        'json'
                       )
-}
+} // function subscribe()
+
+function add_tag(item_id) {
+    const url = '/ajax/add_tag_link'
+
+    const tag_sel_id = `#item_tag_sel_${item_id}`
+    const tag_sel = $(tag_form_id)[0]
+    const tag_id = tag_sel.selectedOptions[0].value
+
+    const data = {
+        "item_id": item_id,
+        "tag_id": tag_id,
+    }
+
+    const req = $.post(
+        url,
+        (res) => {
+            if (res.status) {
+                tag_sel.disabled = true
+                const label = `<span id="tag_link_${item_id}_${tag_id}">
+<a href="/tags/${tag_id}">${tag_sel.label}</a>
+<img src="/static/delete.png"
+     onclick="remove_tag_link(${item_id}, ${tag_id});" />
+</span>`
+                const tags = $(`#item_tags_${item_id}`)[0]
+                tags.innerHTML += label
+            } else {
+                const msg = res.message
+                console.error(msg)
+                alert(msg)
+            }
+        },
+        'json'
+    ).fail(function () {
+        const msg = `Error adding Tag ${tag_id} to Item ${item_id}`
+        console.error(msg)
+        postMessage(new Date(), 'ERROR', msg)
+        alert(msg)
+    })
+} // function add_tag(item_id)
+
+function remove_tag_link(item_id, tag_id) {
+    const msg = "IMPLEMENTME: remove_tag_link(item_id, tag_id)"
+    console.error(msg)
+    alert(msg)
+    postMessage(new Date(), 'ERROR', msg)
+} // function remove_tag(item_id, tag_id)
