@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-15 15:59:45 krylon>
+# Time-stamp: <2025-10-18 21:21:39 krylon>
 #
 # /data/code/python/headlines/src/headlines/engine.py
 # created on 30. 09. 2025
@@ -153,10 +153,10 @@ class Engine:
                 for art in rss.articles:
                     # For the love of Goat, why don't they use ISO 8601 like sane people?!?!?!
                     # Sample: Oct 14, 2025 11:25AM
-                    self.log.debug("Fetch worker %02d: Item '%s' was published %s",
-                                   num,
-                                   art.title,
-                                   art.pubDate)
+                    # self.log.debug("Fetch worker %02d: Item '%s' was published %s",
+                    #                num,
+                    #                art.title,
+                    #                art.pubDate)
                     timestamp: datetime = datetime.strptime(art.pubDate,
                                                             "%b %d, %Y %I:%M%p")
                     item: Item = Item(
