@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-20 17:17:08 krylon>
+# Time-stamp: <2025-10-20 18:39:30 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -158,6 +158,7 @@ class Query(Enum):
 
     TagAdd = auto()
     TagGetAll = auto()
+    TagGetByID = auto()
     TagGetChildren = auto()
     TagDelete = auto()
     TagSetParent = auto()
@@ -288,6 +289,14 @@ SELECT
     lvl,
     full_name
 FROM tag_sorted
+    """,
+    Query.TagGetByID: """
+SELECT
+    parent,
+    name,
+    description
+FROM tag
+WHERE id = ?
     """,
     Query.TagGetChildren: """
 WITH RECURSIVE children(id, name, lvl, root, parent, full_name) AS (
@@ -769,6 +778,28 @@ class Database:
         except sqlite3.Error as err:
             cname: Final[str] = err.__class__.__name__
             msg: Final[str] = f"{cname} trying to load all tags: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
+    def tag_get_by_id(self, tag_id: int) -> Optional[Tag]:
+        """Load a Tag by its ID."""
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.TagGetByID], (tag_id, ))
+            row = cur.fetchone()
+            tag: Optional[Tag] = None
+            if row is not None:
+                tag = Tag(
+                    tag_id=tag_id,
+                    parent=row[0],
+                    name=row[1],
+                    description=row[2],
+                )
+            return tag
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to lookup Tag {tag_id}: {err}"
             self.log.error(msg)
             raise DatabaseError(msg) from err
 
