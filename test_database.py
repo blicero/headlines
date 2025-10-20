@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-15 15:15:55 krylon>
+# Time-stamp: <2025-10-20 10:31:00 krylon>
 #
 # /data/code/python/headlines/tests/test_database.py
 # created on 08. 10. 2025
@@ -24,11 +24,13 @@ from typing import Final, Optional
 
 from headlines import common
 from headlines.database import Database
-from headlines.model import Feed, Item, Rating
+from headlines.model import Feed, Item, Rating, Tag
 
 test_dir: Final[str] = os.path.join(
     "/tmp",
     datetime.now().strftime("snoopy_test_database_%Y%m%d_%H%M%S"))
+
+tag_cnt: Final[int] = 10
 
 
 class TestDatabase(unittest.TestCase):
@@ -130,6 +132,29 @@ class TestDatabase(unittest.TestCase):
             self.assertIsNotNone(i2)
             assert i2 is not None  # to appease the type checker
             self.assertEqual(i1, i2)
+
+    def test_06_tag_add(self) -> None:
+        """Test adding tags."""
+        tags: list[Tag] = [Tag(name=f"Tag {i:03d}") for i in range(1, tag_cnt+1)]
+        db: Database = self.db()
+
+        with db:
+            for i, t in zip(range(len(tags)), tags):
+                with self.subTest(i=i):
+                    db.tag_add(t)
+                    self.assertGreater(t.tag_id, 0)
+
+    def test_07_test_tag_get_all(self) -> None:
+        """Test getting all Tags."""
+        db: Database = self.db()
+        tags = db.tag_get_all()
+
+        self.assertIsNotNone(tags)
+        self.assertIsInstance(tags, list)
+        self.assertEqual(len(tags), tag_cnt)
+        for i, t in zip(range(len(tags)), tags):
+            with self.subTest(i=i):
+                self.assertIsInstance(t, Tag)
 
 # Local Variables: #
 # python-indent: 4 #

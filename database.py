@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-18 17:52:38 krylon>
+# Time-stamp: <2025-10-20 10:12:37 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -29,7 +29,7 @@ from typing import Final, Optional, Union
 import krylib
 
 from headlines import common
-from headlines.model import Feed, Item, Rating, Tag
+from headlines.model import Feed, Item, Rating, Tag, TagLink
 
 
 class DatabaseError(common.HeadlineError):
@@ -284,13 +284,36 @@ ORDER BY full_name
     """,
     Query.TagDelete: "DELETE FROM tag WHERE id = ?",
     Query.TagSetParent: "UPDATE tag SET parent = ? WHERE id = ?",
-    Query.TagLinkAdd: "INSERT INTO tag_link (tag_id, item_id) VALUES (?, ?)",
+    Query.TagLinkAdd: """
+INSERT INTO tag_link (tag_id, item_id)
+              VALUES (     ?,       ?)
+RETURNING id
+    """,
     Query.TagLinkGetByItem: """
+SELECT
+    t.id,
+    t.parent,
+    t.name,
+    t.description
+FROM tag_link l
+INNER JOIN tag t ON l.tag_id = t.id
+WHERE l.item_id = ?
     """,
     Query.TagLinkGetByTag: """
+SELECT
+    i.id,
+    i.feed_id,
+    i.url,
+    i.headline,
+    i.body,
+    i.timestamp,
+    i.time_added,
+    i.rating
+FROM tag_link l
+INNER JOIN item i ON l.item_id = i.id
+WHERE l.tag_id = ?
     """,
-    Query.TagLinkDelete: """
-    """,
+    Query.TagLinkDelete: "DELETE FROM tag_link WHERE tag_id = ? AND item_id = ?",
 }
 
 
@@ -702,7 +725,7 @@ class Database:
                     description=row[3],
                 )
                 tags.append(t)
-            return t
+            return tags
         except sqlite3.Error as err:
             cname: Final[str] = err.__class__.__name__
             msg: Final[str] = f"{cname} trying to load all tags: {err}"
@@ -755,16 +778,83 @@ class Database:
             self.log.error(msg)
             raise DatabaseError(msg) from err
 
-    def tag_link_add(self, item: Item, tag: Tag) -> None:
+    def tag_link_add(self, item: Item, tag: Tag) -> TagLink:
         """Attach <tag> to <item>."""
         try:
-            pass
-            # cur = self.db.cursor()
-            # cur.execute(qdb[Query.TagLinkAdd], (
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.TagLinkAdd], (tag.tag_id, item.item_id))
+
+            row = cur.fetchone()
+            return TagLink(lid=row[0],
+                           tag_id=tag.tag_id,
+                           item_id=item.item_id)
         except sqlite3.Error as err:
             cname: Final[str] = err.__class__.__name__
             msg: Final[str] = \
-                f"{cname} trying to delete Tag {tag.name}: {err}"
+                f"{cname} trying to link Tag {tag.name} to Item {item.item_id}: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
+    def tag_link_get_by_tag(self, tag: Tag) -> list[Item]:
+        """Return all Items with a given Tag."""
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.TagLinkGetByTag], (tag.tag_id, ))
+
+            items: list[Item] = []
+            for row in cur:
+                item: Item = Item(
+                    item_id=row[0],
+                    feed_id=row[1],
+                    url=row[2],
+                    headline=row[3],
+                    body=row[4],
+                    timestamp=datetime.fromtimestamp(row[5]),
+                    time_added=datetime.fromtimestamp(row[6]),
+                    rating=Rating(row[7]),
+                )
+                items.append(item)
+            return items
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to get Items by Tag {tag.name}: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
+    def tag_link_get_by_item(self, item: Item) -> list[Tag]:
+        """Return all Tags linked to <item>."""
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.TagLinkGetByItem], (item.item_id, ))
+
+            tags: list[Tag] = []
+
+            for row in cur:
+                tag: Tag = Tag(
+                    tag_id=row[0],
+                    parent=row[1],
+                    name=row[2],
+                )
+
+                tags.append(tag)
+            return tags
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to get Tags for Item {item.item_id}: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
+    def tag_link_delete(self, tag: Tag, item: Item) -> None:
+        """Detach <tag> from <item>."""
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.TagLinkDelete], (tag.tag_id, item.item_id))
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to detach Tag {tag.name} from Item {item.item_id}: {err}"
             self.log.error(msg)
             raise DatabaseError(msg) from err
 
