@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-18 15:47:06 krylon>
+# Time-stamp: <2025-10-20 13:31:20 krylon>
 #
 # /data/code/python/headlines/src/headlines/model.py
 # created on 30. 09. 2025
@@ -134,7 +134,7 @@ class Item:
         return scrubber.scrub_html(self.body, self.item_id)
 
 
-@dataclass(kw_only=True, slots=True)
+@dataclass(kw_only=True, slots=True, eq=True, unsafe_hash=True)
 class Tag:
     """Tag is a short piece of text attached to Items."""
 
