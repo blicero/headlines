@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-20 13:05:19 krylon>
+# Time-stamp: <2025-10-20 17:21:10 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -174,8 +174,6 @@ class WebUI:
             feeds: list[Feed] = db.feed_get_all()
             tags: list[Tag] = db.tag_get_all()
             item_tags: dict[int, set[Tag]] = {}
-
-            tags.sort(key=lambda x: x.name)
 
             for item in items:
                 item_tags[item.item_id] = set(db.tag_link_get_by_item(item))
