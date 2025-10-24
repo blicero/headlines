@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-10-24 14:50:22 krylon>
+# Time-stamp: <2025-10-24 19:52:26 krylon>
 #
 #+TAGS: internals(i) ui(u) database(d) design(e)
 #+TAGS: meditation(m) optimize(o) refactor(r) cleanup(c)
@@ -273,11 +273,20 @@
     caching. Premature optimization and all that.
     But when the time comes, performance is probably going to be not super
     great, at which point we will re-visit this topic.
-** Bugs [2/2]
+** Bugs [2/3]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: children
    :END:
+*** TODO The mysterious case of the missing link
+    :LOGBOOK:
+    CLOCK: [2025-10-24 Fr 19:27]
+    :END:
+    In The Register's feed, there is another oddity, the Items do have a field
+    named "url", but it is just an empty string.
+    [2025-10-24 Fr 19:51] I have come to the conclusion that easy_rss just
+    doesn't handle Atom very well; when I look at the raw XML, there are
+    links. So I am going to give [[https://github.com/kagisearch/fastfeedparser][FastFeedParser]] a try.
 *** DONE Missing pubDate
     CLOSED: [2025-10-24 Fr 14:50]
     :LOGBOOK:
