@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-24 14:39:17 krylon>
+# Time-stamp: <2025-10-24 20:45:38 krylon>
 #
 # /data/code/python/headlines/src/headlines/engine.py
 # created on 30. 09. 2025
@@ -27,13 +27,13 @@ from queue import Empty, SimpleQueue
 from threading import Lock, Thread
 from typing import Final, Optional, Union
 
-from easy_rss import EasyRSS  # type: ignore # pylint: disable-msg=E0401
+import fastfeedparser as ffp  # type: ignore # pylint: disable-msg=E0401
 
 from headlines import common
 from headlines.database import Database
 from headlines.model import Feed, Item
 
-timepat: Final[str] = "%b %d, %Y %I:%M%p"
+timepat: Final[str] = "%Y-%m-%dT%H:%M:%S%z"
 qtimeout: Final[int] = 5
 worker_count: int = 8
 
@@ -142,7 +142,8 @@ class Engine:
                                feed.name,
                                feed.fid,
                                feed.url)
-                rss = EasyRSS(feed.url)
+                # rss = EasyRSS(feed.url)
+                rss = ffp.parse(feed.url)
 
                 db: Database = Database()
                 db.feed_set_last_update(feed, datetime.now())
@@ -150,9 +151,9 @@ class Engine:
 
                 self.log.debug("Fetch worker %02d got %d items from %s",
                                num,
-                               len(rss.articles),
+                               len(rss.entries),
                                feed.name)
-                for art in rss.articles:
+                for art in rss.entries:
                     # For the love of Goat, why don't they use ISO 8601 like sane people?!?!?!
                     # Sample: Oct 14, 2025 11:25AM
                     # self.log.debug("Fetch worker %02d: Item '%s' was published %s",
@@ -165,12 +166,20 @@ class Engine:
                     try:
                         # timestamp: datetime = datetime.strptime(art.pubDate,
                         #                                         "%b %d, %Y %I:%M%p")
+                        timestamp: datetime = datetime.strptime(art.published, timepat)
+
+                        # if not isinstance(art.content, str):
+                        #     self.log.info("Content of article '%s' is not a string, but %s\n%s",
+                        #                   art.title,
+                        #                   art.content.__class__.__name__,
+                        #                   art.content)
+
                         item: Item = Item(
                             feed_id=feed.fid,
                             url=art.link,
                             headline=art.title,
                             body=self._item_description(art),
-                            timestamp=self._item_timestamp(art),
+                            timestamp=timestamp,
                         )
 
                         self.itemq.put(item)
@@ -211,8 +220,8 @@ class Engine:
         desc: str = ""
         if hasattr(article, 'description'):
             desc = article.description
-        elif hasattr(article, 'summary'):
-            desc = article.summary
+        elif hasattr(article, 'content'):
+            desc = article.content[0]['value']
         else:
             self.log.info("Did not find description or summary in article \"%s\"",
                           article.title)
