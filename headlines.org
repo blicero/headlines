@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-10-20 21:38:29 krylon>
+# Time-stamp: <2025-10-24 14:50:22 krylon>
 #
 #+TAGS: internals(i) ui(u) database(d) design(e)
 #+TAGS: meditation(m) optimize(o) refactor(r) cleanup(c)
@@ -8,19 +8,19 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Headlines [8/17]
+* Headlines [9/18]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: children
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2025-10-20 Mo 21:38]
+   #+CAPTION: Clock summary at [2025-10-24 Fr 14:50]
    | Headline                                 | Time      |            |       |      |      |
    |------------------------------------------+-----------+------------+-------+------+------|
-   | *Total time*                             | *2d 5:46* |            |       |      |      |
+   | *Total time*                             | *2d 6:57* |            |       |      |      |
    |------------------------------------------+-----------+------------+-------+------+------|
-   | *Headlines [8/17]*                       | *2d 5:46* |            |       |      |      |
+   | *Headlines [9/18]*                       | *2d 6:57* |            |       |      |      |
    | \_  /Components [3/10]/                  |           | /1d 19:55/ |       |      |      |
    | \_    Common [1/1]                       |           |            |  0:08 |      |      |
    | \_      Down the rabbit hole for pathlib |           |            |       | 0:08 |      |
@@ -43,7 +43,8 @@
    | \_    Sanitize [3/3]                     |           |            |  4:19 |      |      |
    | \_    Tagging [0/0]                      |           |            |  2:49 |      |      |
    | \_    Rating [0/1]                       |           |            |  1:57 |      |      |
-   | \_  /Bugs [1/1]/                         |           | /0:20/     |       |      |      |
+   | \_  /Bugs [2/2]/                         |           | /1:31/     |       |      |      |
+   | \_    Missing pubDate                    |           |            |  1:11 |      |      |
    | \_    The case of the failing refresh    |           |            |  0:20 |      |      |
    | \_  /Journal [1/1]/                      |           | /0:26/     |       |      |      |
    | \_    Wrestling with poetry              |           |            |  0:26 |      |      |
@@ -272,11 +273,18 @@
     caching. Premature optimization and all that.
     But when the time comes, performance is probably going to be not super
     great, at which point we will re-visit this topic.
-** Bugs [1/1]
+** Bugs [2/2]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: children
    :END:
+*** DONE Missing pubDate
+    CLOSED: [2025-10-24 Fr 14:50]
+    :LOGBOOK:
+    CLOCK: [2025-10-24 Fr 13:38]--[2025-10-24 Fr 14:49] =>  1:11
+    :END:
+    The Register's Atom feed apparently has no pubDate field. I assume there
+    is a timestamp under a different name. Let's take a look.
 *** DONE The case of the failing refresh
     CLOSED: [2025-10-20 Mo 09:23]
     :LOGBOOK:
