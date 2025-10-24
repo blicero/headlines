@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-18 21:21:39 krylon>
+# Time-stamp: <2025-10-24 14:39:17 krylon>
 #
 # /data/code/python/headlines/src/headlines/engine.py
 # created on 30. 09. 2025
@@ -19,12 +19,13 @@ Engine implements the downloading and processing of RSS feeds.
 """
 
 
+import inspect
 import logging
 import time
 from datetime import datetime, timedelta
 from queue import Empty, SimpleQueue
 from threading import Lock, Thread
-from typing import Final, Union
+from typing import Final, Optional, Union
 
 from easy_rss import EasyRSS  # type: ignore # pylint: disable-msg=E0401
 
@@ -32,6 +33,7 @@ from headlines import common
 from headlines.database import Database
 from headlines.model import Feed, Item
 
+timepat: Final[str] = "%b %d, %Y %I:%M%p"
 qtimeout: Final[int] = 5
 worker_count: int = 8
 
@@ -157,17 +159,29 @@ class Engine:
                     #                num,
                     #                art.title,
                     #                art.pubDate)
-                    timestamp: datetime = datetime.strptime(art.pubDate,
-                                                            "%b %d, %Y %I:%M%p")
-                    item: Item = Item(
-                        feed_id=feed.fid,
-                        url=art.link,
-                        headline=art.title,
-                        body=art.description,
-                        timestamp=timestamp,
-                    )
+                    # 24. 10. 2025
+                    # Apparently, The Register's Atom feed has no pubDate. I don't know if this
+                    # a just their feed or if it's Atom in general.
+                    try:
+                        # timestamp: datetime = datetime.strptime(art.pubDate,
+                        #                                         "%b %d, %Y %I:%M%p")
+                        item: Item = Item(
+                            feed_id=feed.fid,
+                            url=art.link,
+                            headline=art.title,
+                            body=self._item_description(art),
+                            timestamp=self._item_timestamp(art),
+                        )
 
-                    self.itemq.put(item)
+                        self.itemq.put(item)
+                    except AttributeError as err:
+                        members: str = ", ".join([f"{x[0]} = {x[1]}"
+                                                  for x in inspect.getmembers(art)
+                                                  if not x[0].startswith("_")])
+                        self.log.error("AttributeError: in Item from %s: %s\n\n%s",
+                                       feed.name,
+                                       err,
+                                       members)
             except Empty:
                 continue
         self.log.debug("Fetch worker %02d is quitting.", num)
@@ -191,6 +205,36 @@ class Engine:
             except Empty:
                 continue
         self.log.debug("Item catcher is done. Byeeeeeee")
+
+    def _item_description(self, article) -> str:
+        """Try to get a description/summary from an Atom/RSS item."""
+        desc: str = ""
+        if hasattr(article, 'description'):
+            desc = article.description
+        elif hasattr(article, 'summary'):
+            desc = article.summary
+        else:
+            self.log.info("Did not find description or summary in article \"%s\"",
+                          article.title)
+
+        return desc
+
+    def _item_timestamp(self, article) -> datetime:
+        """Try to get a timestamp from an Atom or RSS item."""
+        stamp: Optional[datetime] = None
+        timestr: str = ""
+        if hasattr(article, 'pubDate'):
+            timestr = article.pubDate
+        elif hasattr(article, 'published'):
+            timestr = article.published
+
+        if timestr != "":
+            stamp = datetime.strptime(timestr, timepat)
+        else:
+            self.log.info("Did not find timestamp in Item, using current time.")
+            stamp = datetime.now()
+
+        return stamp
 
 
 # Local Variables: #
