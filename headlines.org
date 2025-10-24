@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-10-24 19:52:26 krylon>
+# Time-stamp: <2025-10-24 20:46:24 krylon>
 #
 #+TAGS: internals(i) ui(u) database(d) design(e)
 #+TAGS: meditation(m) optimize(o) refactor(r) cleanup(c)
@@ -8,46 +8,47 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Headlines [9/18]
+* Headlines [10/19]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: children
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2025-10-24 Fr 14:50]
-   | Headline                                 | Time      |            |       |      |      |
-   |------------------------------------------+-----------+------------+-------+------+------|
-   | *Total time*                             | *2d 6:57* |            |       |      |      |
-   |------------------------------------------+-----------+------------+-------+------+------|
-   | *Headlines [9/18]*                       | *2d 6:57* |            |       |      |      |
-   | \_  /Components [3/10]/                  |           | /1d 19:55/ |       |      |      |
-   | \_    Common [1/1]                       |           |            |  0:08 |      |      |
-   | \_      Down the rabbit hole for pathlib |           |            |       | 0:08 |      |
-   | \_    Model [0/1]                        |           |            |  0:38 |      |      |
-   | \_      Testing                          |           |            |       | 0:27 |      |
-   | \_      Rating and Tagging [0/0]         |           |            |       | 0:10 |      |
-   | \_    Classifier [0/0]                   |           |            |  1:09 |      |      |
-   | \_    Database [1/3]                     |           |            | 10:53 |      |      |
-   | \_      Rating and Tagging [1/2]         |           |            |       | 1:21 |      |
-   | \_        Tagging [0/0]                  |           |            |       |      | 0:46 |
-   | \_      Testing                          |           |            |       | 0:50 |      |
-   | \_    Engine [0/0]                       |           |            | 11:36 |      |      |
-   | \_    Web UI [1/5]                       |           |            | 17:38 |      |      |
-   | \_      Rating                           |           |            |       | 0:06 |      |
-   | \_      Tagging [0/3]                    |           |            |       | 2:54 |      |
-   | \_        Displaying Tags                |           |            |       |      | 0:48 |
-   | \_        Adding and removing Tags [1/2] |           |            |       |      | 2:06 |
-   | \_    Main [0/0]                         |           |            |  1:53 |      |      |
-   | \_  /Features [3/5]/                     |           | /9:05/     |       |      |      |
-   | \_    Sanitize [3/3]                     |           |            |  4:19 |      |      |
-   | \_    Tagging [0/0]                      |           |            |  2:49 |      |      |
-   | \_    Rating [0/1]                       |           |            |  1:57 |      |      |
-   | \_  /Bugs [2/2]/                         |           | /1:31/     |       |      |      |
-   | \_    Missing pubDate                    |           |            |  1:11 |      |      |
-   | \_    The case of the failing refresh    |           |            |  0:20 |      |      |
-   | \_  /Journal [1/1]/                      |           | /0:26/     |       |      |      |
-   | \_    Wrestling with poetry              |           |            |  0:26 |      |      |
+   #+CAPTION: Clock summary at [2025-10-24 Fr 20:46]
+   | Headline                                      | Time      |            |       |      |      |
+   |-----------------------------------------------+-----------+------------+-------+------+------|
+   | *Total time*                                  | *2d 8:16* |            |       |      |      |
+   |-----------------------------------------------+-----------+------------+-------+------+------|
+   | *Headlines [10/19]*                           | *2d 8:16* |            |       |      |      |
+   | \_  /Components [3/10]/                       |           | /1d 19:55/ |       |      |      |
+   | \_    Common [1/1]                            |           |            |  0:08 |      |      |
+   | \_      Down the rabbit hole for pathlib      |           |            |       | 0:08 |      |
+   | \_    Model [0/1]                             |           |            |  0:38 |      |      |
+   | \_      Testing                               |           |            |       | 0:27 |      |
+   | \_      Rating and Tagging [0/0]              |           |            |       | 0:10 |      |
+   | \_    Classifier [0/0]                        |           |            |  1:09 |      |      |
+   | \_    Database [1/3]                          |           |            | 10:53 |      |      |
+   | \_      Rating and Tagging [1/2]              |           |            |       | 1:21 |      |
+   | \_        Tagging [0/0]                       |           |            |       |      | 0:46 |
+   | \_      Testing                               |           |            |       | 0:50 |      |
+   | \_    Engine [0/0]                            |           |            | 11:36 |      |      |
+   | \_    Web UI [1/5]                            |           |            | 17:38 |      |      |
+   | \_      Rating                                |           |            |       | 0:06 |      |
+   | \_      Tagging [0/3]                         |           |            |       | 2:54 |      |
+   | \_        Displaying Tags                     |           |            |       |      | 0:48 |
+   | \_        Adding and removing Tags [1/2]      |           |            |       |      | 2:06 |
+   | \_    Main [0/0]                              |           |            |  1:53 |      |      |
+   | \_  /Features [3/5]/                          |           | /9:05/     |       |      |      |
+   | \_    Sanitize [3/3]                          |           |            |  4:19 |      |      |
+   | \_    Tagging [0/0]                           |           |            |  2:49 |      |      |
+   | \_    Rating [0/1]                            |           |            |  1:57 |      |      |
+   | \_  /Bugs [3/3]/                              |           | /2:50/     |       |      |      |
+   | \_    The mysterious case of the missing link |           |            |  1:19 |      |      |
+   | \_    Missing pubDate                         |           |            |  1:11 |      |      |
+   | \_    The case of the failing refresh         |           |            |  0:20 |      |      |
+   | \_  /Journal [1/1]/                           |           | /0:26/     |       |      |      |
+   | \_    Wrestling with poetry                   |           |            |  0:26 |      |      |
    #+END:
 ** Components [3/10]
    :PROPERTIES:
@@ -273,20 +274,24 @@
     caching. Premature optimization and all that.
     But when the time comes, performance is probably going to be not super
     great, at which point we will re-visit this topic.
-** Bugs [2/3]
+** Bugs [3/3]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: children
    :END:
-*** TODO The mysterious case of the missing link
+*** DONE The mysterious case of the missing link
+    CLOSED: [2025-10-24 Fr 20:46]
     :LOGBOOK:
-    CLOCK: [2025-10-24 Fr 19:27]
+    CLOCK: [2025-10-24 Fr 19:27]--[2025-10-24 Fr 20:46] =>  1:19
     :END:
     In The Register's feed, there is another oddity, the Items do have a field
     named "url", but it is just an empty string.
     [2025-10-24 Fr 19:51] I have come to the conclusion that easy_rss just
     doesn't handle Atom very well; when I look at the raw XML, there are
     links. So I am going to give [[https://github.com/kagisearch/fastfeedparser][FastFeedParser]] a try.
+    ...
+    [2025-10-24 Fr 20:45] There were a few hickups, but it appears to be
+    working now.
 *** DONE Missing pubDate
     CLOSED: [2025-10-24 Fr 14:50]
     :LOGBOOK:
