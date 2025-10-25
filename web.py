@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-20 19:02:05 krylon>
+# Time-stamp: <2025-10-25 15:42:31 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -132,6 +132,9 @@ class WebUI:
         route("/ajax/subscribe",
               method="POST",
               callback=self._handle_subscribe)
+        route("/ajax/add_tag_link",
+              method="POST",
+              callback=self._handle_add_tag_link)
 
         route("/static/<path>", callback=self._handle_static)
         route("/favicon.ico", callback=self._handle_favicon)
@@ -328,8 +331,12 @@ class WebUI:
         """Attach a Tag to an Item"""
         db: Database = Database()
         try:
-            item_id: Final[int] = int(request.forms["item_id"])
-            tag_id: Final[int] = int(request.forms["tag_id"])
+            params: Final[str] = ", ".join([f"{x} => {y}" for x, y in request.params.items()])
+            self.log.debug("%s - request.params = %s",
+                           request.fullpath,
+                           params)
+            item_id: Final[int] = int(request.params["item_id"])
+            tag_id: Final[int] = int(request.params["tag_id"])
             item: Final[Optional[Item]] = db.item_get_by_id(item_id)
             tag: Final[Optional[Tag]] = db.tag_get_by_id(tag_id)
             res = {

@@ -1,4 +1,4 @@
-// Time-stamp: <2025-10-20 19:17:14 krylon>
+// Time-stamp: <2025-10-25 15:36:58 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -131,18 +131,18 @@ function db_maintenance() {
         function (res) {
             if (!res.Status) {
                 console.log(res.Message)
-                postMessage(new Date(), 'ERROR', res.Message)
+                msg_add(new Date(), 'ERROR', res.Message)
             } else {
                 const msg = 'Database Maintenance performed without errors'
                 console.log(msg)
-                postMessage(new Date(), 'INFO', msg)
+                msg_add(new Date(), 'INFO', msg)
             }
         },
         'json'
     ).fail(function () {
         const msg = 'Error performing DB maintenance'
         console.log(msg)
-        postMessage(new Date(), 'ERROR', msg)
+        msg_add(new Date(), 'ERROR', msg)
     })
 } // function db_maintenance()
 
@@ -307,7 +307,7 @@ function add_tag(item_id) {
     const url = '/ajax/add_tag_link'
 
     const tag_sel_id = `#item_tag_sel_${item_id}`
-    const tag_sel = $(tag_form_id)[0]
+    const tag_sel = $(tag_sel_id)[0]
     const tag_id = tag_sel.selectedOptions[0].value
 
     const data = {
@@ -317,6 +317,7 @@ function add_tag(item_id) {
 
     const req = $.post(
         url,
+        data,
         (res) => {
             if (res.status) {
                 tag_sel.disabled = true
@@ -337,7 +338,7 @@ function add_tag(item_id) {
     ).fail(function () {
         const msg = `Error adding Tag ${tag_id} to Item ${item_id}`
         console.error(msg)
-        postMessage(new Date(), 'ERROR', msg)
+        msg_add(new Date(), 'ERROR', msg)
         alert(msg)
     })
 } // function add_tag(item_id)
@@ -346,5 +347,5 @@ function remove_tag_link(item_id, tag_id) {
     const msg = "IMPLEMENTME: remove_tag_link(item_id, tag_id)"
     console.error(msg)
     alert(msg)
-    postMessage(new Date(), 'ERROR', msg)
+    msg_add(new Date(), 'ERROR', msg)
 } // function remove_tag(item_id, tag_id)

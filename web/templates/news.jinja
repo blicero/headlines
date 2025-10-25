@@ -1,5 +1,5 @@
 {# -*- mode: jinja2; coding: utf-8; -*-
-Time-stamp: <2025-10-20 19:16:54 krylon>
+Time-stamp: <2025-10-25 15:47:11 krylon>
 /data/code/python/headlines/web/templates/news.jinja
 created on 13. 10. 2025
 (c) 2025 Benjamin Walkenhorst
@@ -71,8 +71,10 @@ created on 13. 10. 2025
             {% endif %}
           </td>
           <td> {# Tags #}
-            <div id="tags_{{ item.item_id }}">
-
+            <div id="item_tags_{{ item.item_id }}">
+              {% for tag in item_tags[item.item_id] %}
+               {{ tag.name }} &nbsp;
+              {% endfor %}
             </div>
             <div id="tag_suggestions_{{ item.item_id }}">
             </div>
