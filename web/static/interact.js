@@ -1,4 +1,4 @@
-// Time-stamp: <2025-10-25 15:36:58 krylon>
+// Time-stamp: <2025-10-26 15:01:50 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -309,6 +309,7 @@ function add_tag(item_id) {
     const tag_sel_id = `#item_tag_sel_${item_id}`
     const tag_sel = $(tag_sel_id)[0]
     const tag_id = tag_sel.selectedOptions[0].value
+    const tag_label = tag_sel.selectedOptions[0].label.trim()
 
     const data = {
         "item_id": item_id,
@@ -322,10 +323,10 @@ function add_tag(item_id) {
             if (res.status) {
                 tag_sel.disabled = true
                 const label = `<span id="tag_link_${item_id}_${tag_id}">
-<a href="/tags/${tag_id}">${tag_sel.label}</a>
+<a href="/tags/${tag_id}">${tag_label}</a>
 <img src="/static/delete.png"
      onclick="remove_tag_link(${item_id}, ${tag_id});" />
-</span>`
+</span> &nbsp;`
                 const tags = $(`#item_tags_${item_id}`)[0]
                 tags.innerHTML += label
             } else {
