@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-10-25 15:57:04 krylon>
+# Time-stamp: <2025-10-26 15:05:35 krylon>
 #
 #+TAGS: internals(i) ui(u) database(d) design(e)
 #+TAGS: meditation(m) optimize(o) refactor(r) cleanup(c)
@@ -8,20 +8,20 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Headlines [10/19]
+* Headlines [11/19]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: children
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2025-10-25 Sa 15:57]
+   #+CAPTION: Clock summary at [2025-10-26 So 15:05]
    | Headline                                      | Time       |            |       |      |      |
    |-----------------------------------------------+------------+------------+-------+------+------|
-   | *Total time*                                  | *2d 10:27* |            |       |      |      |
+   | *Total time*                                  | *2d 11:43* |            |       |      |      |
    |-----------------------------------------------+------------+------------+-------+------+------|
-   | *Headlines [10/19]*                           | *2d 10:27* |            |       |      |      |
-   | \_  /Components [3/10]/                       |            | /1d 22:06/ |       |      |      |
+   | *Headlines [11/19]*                           | *2d 11:43* |            |       |      |      |
+   | \_  /Components [4/10]/                       |            | /1d 23:22/ |       |      |      |
    | \_    Common [1/1]                            |            |            |  0:08 |      |      |
    | \_      Down the rabbit hole for pathlib      |            |            |       | 0:08 |      |
    | \_    Model [0/1]                             |            |            |  0:38 |      |      |
@@ -33,11 +33,11 @@
    | \_        Tagging [0/0]                       |            |            |       |      | 0:46 |
    | \_      Testing                               |            |            |       | 0:50 |      |
    | \_    Engine [0/0]                            |            |            | 11:36 |      |      |
-   | \_    Web UI [1/5]                            |            |            | 19:49 |      |      |
+   | \_    Web UI [2/5]                            |            |            | 21:05 |      |      |
    | \_      Rating                                |            |            |       | 0:06 |      |
-   | \_      Tagging [0/3]                         |            |            |       | 5:05 |      |
-   | \_        Displaying Tags                     |            |            |       |      | 0:48 |
-   | \_        Adding and removing Tags [1/2]      |            |            |       |      | 4:17 |
+   | \_      Tagging [1/3]                         |            |            |       | 6:21 |      |
+   | \_        Displaying Tags                     |            |            |       |      | 2:04 |
+   | \_        Adding and removing Tags [2/3]      |            |            |       |      | 4:17 |
    | \_    Main [0/0]                              |            |            |  1:53 |      |      |
    | \_  /Features [3/5]/                          |            | /9:05/     |       |      |      |
    | \_    Sanitize [3/3]                          |            |            |  4:19 |      |      |
@@ -50,7 +50,7 @@
    | \_  /Journal [1/1]/                           |            | /0:26/     |       |      |      |
    | \_    Wrestling with poetry                   |            |            |  0:26 |      |      |
    #+END:
-** Components [3/10]
+** Components [4/10]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: children
@@ -156,7 +156,7 @@
     asyncio under the hood these days anyway.
     (The Internet says Twisted does not use asyncio, but still.)
     So Twisted it is!
-*** Web UI [1/5]
+*** Web UI [2/5]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: children
@@ -175,16 +175,18 @@
      CLOCK: [2025-10-18 Sa 15:38]--[2025-10-18 Sa 15:43] =>  0:05
      CLOCK: [2025-10-16 Do 17:47]--[2025-10-16 Do 17:48] =>  0:01
      :END:
-**** TODO Tagging [0/3]                                                :tags:
+**** TODO Tagging [1/3]                                                :tags:
      :PROPERTIES:
      :COOKIE_DATA: todo recursive
      :VISIBILITY: children
      :END:
-***** TODO Displaying Tags
+***** DONE Displaying Tags
+      CLOSED: [2025-10-26 So 15:05]
       :LOGBOOK:
+      CLOCK: [2025-10-26 So 13:47]--[2025-10-26 So 15:03] =>  1:16
       CLOCK: [2025-10-20 Mo 12:20]--[2025-10-20 Mo 13:08] =>  0:48
       :END:
-***** TODO Adding and removing Tags [1/2]
+***** TODO Adding and removing Tags [2/3]
       :LOGBOOK:
       CLOCK: [2025-10-25 Sa 13:45]--[2025-10-25 Sa 15:56] =>  2:11
       CLOCK: [2025-10-20 Mo 18:11]--[2025-10-20 Mo 19:20] =>  1:09
@@ -193,7 +195,8 @@
       CLOCK: [2025-10-20 Mo 13:08]--[2025-10-20 Mo 13:36] =>  0:28
       :END:
       - [X] Order and indent Tags in menu according to hierarchy
-      - [ ] Add Tags
+      - [X] Add Tags
+      - [ ] Remove tags
 ***** TODO Suggestions
 *** Main [0/0]
     :PROPERTIES:
