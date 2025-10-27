@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-17 16:29:38 krylon>
+# Time-stamp: <2025-10-27 19:56:06 krylon>
 #
 # /data/code/python/headlines/classy.py
 # created on 15. 10. 2025
@@ -37,7 +37,7 @@ class Karl:
     Get it? Karl, because Karl Marx and class struggle? I'll see myself out.
     """
 
-    log: logging.Logger = field(default_factory=lambda: common.get_logger("Karl"))
+    log: logging.Logger = field(default_factory=lambda: common.get_logger("karl"))
     lock: Lock = field(default_factory=Lock)
     bayes: SimpleBayes = \
         field(default_factory=lambda: SimpleBayes(cache_path=str(common.path.cache)))

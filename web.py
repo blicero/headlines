@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-25 15:42:31 krylon>
+# Time-stamp: <2025-10-27 19:18:46 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -87,7 +87,7 @@ class WebUI:
     karl: Karl
 
     def __init__(self, root: Union[str, pathlib.Path] = "") -> None:
-        self.log = common.get_logger("WebUI")
+        self.log = common.get_logger("web")
         self.lock = Lock()
 
         self.host = "localhost"
