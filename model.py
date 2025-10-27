@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-20 17:13:44 krylon>
+# Time-stamp: <2025-10-27 17:10:03 krylon>
 #
 # /data/code/python/headlines/src/headlines/model.py
 # created on 30. 09. 2025
@@ -132,6 +132,11 @@ class Item:
         """Return a sanitized copy of the Item's body."""
         scrubber: Scrubber = Scrubber()
         return scrubber.scrub_html(self.body, self.item_id)
+
+    @property
+    def clean_full(self) -> str:
+        """Return a sanitized copy of the Item's headline and body."""
+        return self.headline + " " + self.clean_body
 
 
 @dataclass(kw_only=True, slots=True, eq=True, unsafe_hash=True)

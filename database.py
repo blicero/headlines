@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-20 18:39:30 krylon>
+# Time-stamp: <2025-10-27 16:40:11 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -81,6 +81,7 @@ CREATE TABLE tag (
 ) STRICT
     """,
     "CREATE INDEX tag_parent_idx ON tag (parent)",
+    "CREATE UNIQUE INDEX tag_name_idx ON tag (name)",
     """
 CREATE TABLE tag_link (
     id INTEGER PRIMARY KEY,
@@ -159,6 +160,7 @@ class Query(Enum):
     TagAdd = auto()
     TagGetAll = auto()
     TagGetByID = auto()
+    TagGetByName = auto()
     TagGetChildren = auto()
     TagDelete = auto()
     TagSetParent = auto()
@@ -166,6 +168,7 @@ class Query(Enum):
     TagLinkAdd = auto()
     TagLinkGetByTag = auto()
     TagLinkGetByItem = auto()
+    TagLinkGetTaggedItems = auto()
     TagLinkDelete = auto()
 
 
@@ -298,6 +301,14 @@ SELECT
 FROM tag
 WHERE id = ?
     """,
+    Query.TagGetByName: """
+SELECT
+    id,
+    parent,
+    description
+FROM tag
+WHERE name = ?
+    """,
     Query.TagGetChildren: """
 WITH RECURSIVE children(id, name, lvl, root, parent, full_name) AS (
     SELECT
@@ -359,6 +370,21 @@ SELECT
 FROM tag_link l
 INNER JOIN item i ON l.item_id = i.id
 WHERE l.tag_id = ?
+    """,
+    Query.TagLinkGetTaggedItems: """
+WITH idlist AS (SELECT DISTINCT item_id FROM tag_link)
+
+SELECT
+    l.item_id,
+    i.feed_id,
+    i.url,
+    i.headline,
+    i.body,
+    i.timestamp,
+    i.time_added,
+    i.rating
+FROM idlist l
+INNER JOIN item i ON l.item_id = i.id
     """,
     Query.TagLinkDelete: "DELETE FROM tag_link WHERE tag_id = ? AND item_id = ?",
 }
@@ -803,6 +829,28 @@ class Database:
             self.log.error(msg)
             raise DatabaseError(msg) from err
 
+    def tag_get_by_name(self, name: str) -> Optional[Tag]:
+        """Load a Tag by its ID."""
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.TagGetByName], (name, ))
+            row = cur.fetchone()
+            tag: Optional[Tag] = None
+            if row is not None:
+                tag = Tag(
+                    tag_id=row[0],
+                    parent=row[1],
+                    name=name,
+                    description=row[2],
+                )
+            return tag
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to lookup Tag {name}: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
     def tag_get_children(self, root: Tag) -> list[Tag]:
         """Load all tags that are children of <root>"""
         try:
@@ -914,6 +962,36 @@ class Database:
             cname: Final[str] = err.__class__.__name__
             msg: Final[str] = \
                 f"{cname} trying to get Tags for Item {item.item_id}: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
+    def tag_link_get_tagged_items(self) -> list[Item]:
+        """Get a list of all Items that have been tagged."""
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.TagLinkGetTaggedItems])
+
+            items: list[Item] = []
+
+            for row in cur:
+                item: Item = Item(
+                    item_id=row[0],
+                    feed_id=row[1],
+                    url=row[2],
+                    headline=row[3],
+                    body=row[4],
+                    timestamp=datetime.fromtimestamp(row[5]),
+                    time_added=datetime.fromtimestamp(row[6]),
+                    rating=Rating(row[7]),
+                )
+
+                items.append(item)
+
+            return items
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to get tagged Items: {err}"
             self.log.error(msg)
             raise DatabaseError(msg) from err
 
