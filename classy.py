@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-27 19:56:06 krylon>
+# Time-stamp: <2025-10-29 16:43:28 krylon>
 #
 # /data/code/python/headlines/classy.py
 # created on 15. 10. 2025
@@ -27,7 +27,10 @@ from bs4 import BeautifulSoup
 from simplebayes import SimpleBayes
 
 from headlines import common
+from headlines.database import Database
 from headlines.model import Item, Rating
+
+cache_file: Final[str] = "classifier.pickle"
 
 
 @dataclass(kw_only=True, slots=True)
@@ -42,20 +45,39 @@ class Karl:
     bayes: SimpleBayes = \
         field(default_factory=lambda: SimpleBayes(cache_path=str(common.path.cache)))
 
-    def __post_init(self) -> None:  # pylint: disable-msg=W0238
-        if not self.bayes.cache_train():
-            self.log.error("Failed to train classifier")
+    def __post_init__(self) -> None:
+        self.log.info("Hello from Karl's constructor.")
+        self.bayes.cache_file = cache_file
+        if not self.has_cache() or not self.bayes.cache_train():
+            self.retrain()
+
+    def retrain(self) -> None:
+        """Retrain the Bayes net from the database."""
+        self.log.info("Training Classifier")
+        db: Database = Database()
+        try:
+            items: list[Item] = db.item_get_rated()
+            with self.lock:
+                self.bayes.flush()
+
+                for item in items:
+                    if item.rating != Rating.Unrated:
+                        self.bayes.train(item.rating.name, item.clean_full)
+
+                self.bayes.cache_persist()
+        finally:
+            db.close()
 
     def has_cache(self) -> bool:
         """Return True if a file with cached training data exists."""
-        # full_path = common.path.spool.joinpath(self.bayes.cache_file)
-        # return full_path.exists()
-        return os.path.exists(self.bayes.get_cache_location())
+        loc: Final[str] = self.bayes.get_cache_location()
+        self.log.info("Advisor cache is %s", loc)
+        return os.path.exists(loc)
 
     def item_text(self, item: Item) -> str:
         """Return the plain text from an Item."""
         # TODO Maybe add some caching later on.
-        raw: Final[str] = item.headline + " " + item.body
+        raw: Final[str] = item.clean_full
         soup = BeautifulSoup(raw, "html.parser")
         plain: Final[str] = soup.get_text()
         return plain.lower()

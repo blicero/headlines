@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-27 19:18:35 krylon>
+# Time-stamp: <2025-10-29 16:43:30 krylon>
 #
 # /data/code/python/headlines/tagging.py
 # created on 26. 10. 2025
@@ -38,32 +38,39 @@ class Advisor:
 
     log: logging.Logger = field(default_factory=lambda: common.get_logger("advisor"))
     lock: Lock = field(default_factory=Lock)
-    bayes: SimpleBayes = field(init=False)
+    bayes: SimpleBayes = \
+        field(default_factory=lambda: SimpleBayes(cache_path=str(common.path.cache)))
     tag_cache: dict[str, Tag] = field(default_factory=dict)
 
-    def __post_init(self) -> None:  # pylint: disable-msg=W0238
-        full_cache_path: Final[str] = os.path.join(str(common.path.cache), cache_file)
-        need_training: Final[bool] = os.path.isfile(full_cache_path)
-
+    def __post_init__(self) -> None:
+        self.log.info("Hello from Advisor's constructor")
+        self.bayes.cache_file = cache_file
         db: Database = Database()
-        tags = db.tag_get_all()
+        try:
+            tags = db.tag_get_all()
+        finally:
+            db.close()
 
         for tag in tags:
             self.tag_cache[tag.name] = tag
 
-        self.bayes = SimpleBayes(cache_path=str(common.path.cache))
-        self.bayes.cache_file = cache_file
-
-        if need_training:
+        if not self.has_cache() or not self.bayes.cache_train():
             self.retrain()
+
+    def has_cache(self) -> bool:
+        """Return True if a file with cached training data exists."""
+        loc: Final[str] = self.bayes.get_cache_location()
+        self.log.info("Advisor cache is %s", loc)
+        return os.path.exists(loc)
 
     def retrain(self) -> None:
         """Retrain the Bayes net from the database."""
+        self.log.info("Training Tag Advisor")
         db: Database = Database()
         try:
+            items: list[Item] = db.tag_link_get_tagged_items()
             with self.lock:
                 self.bayes.flush()
-                items: list[Item] = db.tag_link_get_tagged_items()
 
                 for item in items:
                     tags = db.tag_link_get_by_item(item)
@@ -75,20 +82,35 @@ class Advisor:
         finally:
             db.close()
 
+    def learn(self, item: Item, tag: Tag) -> None:
+        """Learn about a new Item-Tag link."""
+        with self.lock:
+            self.bayes.train(tag.name, item.clean_full)
+
+    def forget(self, item: Item, tag: Tag) -> None:
+        """Remove the association between <item> and <tag>."""
+        with self.lock:
+            self.bayes.untrain(tag.name, item.clean_full)
+
+    def save(self) -> None:
+        """Save the training state."""
+        with self.lock:
+            self.bayes.cache_persist()
+
     def advise(self, item: Item, cnt: int = 10) -> list[tuple[Tag, float]]:
         """Return up to <cnt> Tags best matching <item>."""
         assert cnt > 0
         with self.lock:
             scores: Final[dict[str, float]] = self.bayes.score(item.clean_full)
 
-            tags = [(self.tag_cache[x[0]], x[1]) for x in scores.items()]
+        tags = [(self.tag_cache[x[0]], x[1]) for x in scores.items()]
 
-            tags.sort(key=lambda x: x[1], reverse=True)
+        tags.sort(key=lambda x: x[1], reverse=True)
 
-            if len(tags) > cnt:
-                tags = tags[:cnt]
+        if len(tags) > cnt:
+            tags = tags[:cnt]
 
-            return tags
+        return tags
 
 # Local Variables: #
 # python-indent: 4 #
