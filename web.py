@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-27 19:18:46 krylon>
+# Time-stamp: <2025-10-29 16:51:15 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -26,6 +26,7 @@ import socket
 from datetime import datetime
 from threading import Lock
 from typing import Any, Final, Optional, Union
+from uuid import uuid4
 
 import bottle
 from bottle import request, response, route, run
@@ -35,6 +36,7 @@ from headlines import common
 from headlines.classy import Karl
 from headlines.database import Database, DatabaseError
 from headlines.model import Feed, Item, Rating, Tag
+from headlines.tagging import Advisor
 
 mime_types: Final[dict[str, str]] = {
     ".css":  "text/css",
@@ -75,6 +77,7 @@ class WebUI:
         "host",
         "port",
         "karl",
+        "advisor",
     ]
 
     log: logging.Logger
@@ -85,10 +88,13 @@ class WebUI:
     host: str
     port: int
     karl: Karl
+    advisor: Advisor
 
     def __init__(self, root: Union[str, pathlib.Path] = "") -> None:
         self.log = common.get_logger("web")
         self.lock = Lock()
+
+        self.log.info("Web interface is coming up...")
 
         self.host = "localhost"
         self.port = 4107
@@ -104,10 +110,12 @@ class WebUI:
                 raise TypeError("Invalid type for root (must be str or pathlib.Path)")
 
         self.karl = Karl()
-        if not self.karl.has_cache():
-            db: Database = Database()
-            items: list[Item] = db.item_get_rated()
-            self.karl.train_bulk(items)
+        # if not self.karl.has_cache():
+        #     db: Database = Database()
+        #     items: list[Item] = db.item_get_rated()
+        #     self.karl.train_bulk(items)
+
+        self.advisor = Advisor()
 
         self.tmpl_root = self.root.joinpath("templates")
         self.env = Environment(loader=FileSystemLoader(str(self.tmpl_root)))
@@ -177,14 +185,15 @@ class WebUI:
             feeds: list[Feed] = db.feed_get_all()
             tags: list[Tag] = db.tag_get_all()
             item_tags: dict[int, set[Tag]] = {}
+            advice: dict[int, list[tuple[Tag, float]]] = {}
 
             for item in items:
                 item_tags[item.item_id] = set(db.tag_link_get_by_item(item))
-                if item.is_rated:
-                    continue
+                if not item.is_rated:
+                    rating: Rating = self.karl.classify(item)
+                    item.cache_rating(rating, 0.75)
 
-                rating: Rating = self.karl.classify(item)
-                item.cache_rating(rating, 0.75)
+                advice[item.item_id] = self.advisor.advise(item)
 
             response.set_header("Cache-Control", "no-store, max-age=0")
             tmpl = self.env.get_template("news.jinja")
@@ -195,6 +204,8 @@ class WebUI:
             tmpl_vars["items"] = items
             tmpl_vars["tags"] = tags
             tmpl_vars["item_tags"] = item_tags
+            tmpl_vars["advice"] = advice
+            tmpl_vars["uuid"] = uuid4
 
             return tmpl.render(tmpl_vars)
         finally:

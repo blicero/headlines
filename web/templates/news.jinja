@@ -1,5 +1,5 @@
 {# -*- mode: jinja2; coding: utf-8; -*-
-Time-stamp: <2025-10-26 14:22:18 krylon>
+Time-stamp: <2025-10-29 17:04:09 krylon>
 /data/code/python/headlines/web/templates/news.jinja
 created on 13. 10. 2025
 (c) 2025 Benjamin Walkenhorst
@@ -80,13 +80,27 @@ created on 13. 10. 2025
             {% endif %}
           </td>
           <td> {# Tags #}
+            <div id="tag_suggestions_{{ item.item_id }}">
+              {% for sugg in advice[item.item_id] %}
+                {% set aid = uuid() %}
+                <span id="{{ aid }}" class="suggest">
+                  {{ sugg[0].name }}
+                  ({{ sugg[1] | round(1) }})
+                  <img src="/static/cs-xlet-running.png"
+                       width="24"
+                       height="24"
+                       onclick="attach_tag_to_item({{ sugg[0].tag_id }}, {{ item.item_id }}, '{{- aid -}}', '{{ sugg[0].name }}');" />
+                </span>
+                {% if not loop.last %}&nbsp; {% endif %}
+              {% else %}
+                &mdash;
+              {% endfor %}
+            </div>
             <div id="item_tags_{{ item.item_id }}">
               {% for tag in item_tags[item.item_id] %}
                 {{ render_tag(item, tag) }}
                 {% if not loop.last %}&nbsp; {% endif %}
               {% endfor %}
-            </div>
-            <div id="tag_suggestions_{{ item.item_id }}">
             </div>
             <div id="tag_form_{{ item.item_id }}">
               {% set id_root = "tag_menu_item_{}".format(item.item_id) %}
