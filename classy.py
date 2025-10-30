@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-29 16:43:28 krylon>
+# Time-stamp: <2025-10-30 17:53:17 krylon>
 #
 # /data/code/python/headlines/classy.py
 # created on 15. 10. 2025
@@ -20,7 +20,7 @@ headlines.classy
 import logging
 import os
 from dataclasses import dataclass, field
-from threading import Lock
+from threading import RLock
 from typing import Final
 
 from bs4 import BeautifulSoup
@@ -41,7 +41,7 @@ class Karl:
     """
 
     log: logging.Logger = field(default_factory=lambda: common.get_logger("karl"))
-    lock: Lock = field(default_factory=Lock)
+    lock: RLock = field(default_factory=RLock)
     bayes: SimpleBayes = \
         field(default_factory=lambda: SimpleBayes(cache_path=str(common.path.cache)))
 
@@ -89,17 +89,6 @@ class Karl:
             rating: Final[Rating] = Rating.from_str(self.bayes.classify(plain))
             item.cache_rating(rating)
             return rating
-
-    def train_bulk(self, items: list[Item]) -> None:
-        """Train the classifier on a list of Items."""
-        with self.lock:
-            self.bayes.flush()
-            for item in items:
-                if item.rating == Rating.Unrated:
-                    continue
-                plain: str = self.item_text(item)
-                self.bayes.train(item.rating.name, plain)
-            self.bayes.cache_persist()
 
     def learn(self, item: Item, rating: Rating) -> None:
         """Add an Item and its Rating to the training data."""

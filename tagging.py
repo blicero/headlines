@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-29 16:43:30 krylon>
+# Time-stamp: <2025-10-30 17:48:52 krylon>
 #
 # /data/code/python/headlines/tagging.py
 # created on 26. 10. 2025
@@ -20,7 +20,7 @@ headlines.tagging
 import logging
 import os
 from dataclasses import dataclass, field
-from threading import Lock
+from threading import RLock
 from typing import Final
 
 from simplebayes import SimpleBayes
@@ -37,7 +37,7 @@ class Advisor:
     """Advisor suggests Tags for Items."""
 
     log: logging.Logger = field(default_factory=lambda: common.get_logger("advisor"))
-    lock: Lock = field(default_factory=Lock)
+    lock: RLock = field(default_factory=RLock)
     bayes: SimpleBayes = \
         field(default_factory=lambda: SimpleBayes(cache_path=str(common.path.cache)))
     tag_cache: dict[str, Tag] = field(default_factory=dict)
@@ -82,15 +82,19 @@ class Advisor:
         finally:
             db.close()
 
-    def learn(self, item: Item, tag: Tag) -> None:
+    def learn(self, item: Item, tag: Tag, save: bool = True) -> None:
         """Learn about a new Item-Tag link."""
         with self.lock:
             self.bayes.train(tag.name, item.clean_full)
+            if save:
+                self.save()
 
-    def forget(self, item: Item, tag: Tag) -> None:
+    def forget(self, item: Item, tag: Tag, save: bool = True) -> None:
         """Remove the association between <item> and <tag>."""
         with self.lock:
             self.bayes.untrain(tag.name, item.clean_full)
+            if save:
+                self.save()
 
     def save(self) -> None:
         """Save the training state."""
