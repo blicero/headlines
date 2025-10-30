@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-29 16:51:15 krylon>
+# Time-stamp: <2025-10-30 17:49:32 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -143,6 +143,9 @@ class WebUI:
         route("/ajax/add_tag_link",
               method="POST",
               callback=self._handle_add_tag_link)
+        route("/ajax/del_tag_link",
+              method="POST",
+              callback=self._handle_del_tag_link)
 
         route("/static/<path>", callback=self._handle_static)
         route("/favicon.ico", callback=self._handle_favicon)
@@ -364,6 +367,42 @@ class WebUI:
                     db.tag_link_add(item, tag)
                 res["message"] = "ACK"
                 res["status"] = True
+                self.advisor.learn(item, tag)
+
+            body: Final[str] = json.dumps(res)
+            response.set_header("Content-Type", "application/json")
+            response.set_header("Cache-Control", "no-store, max-age=0")
+            return body
+        finally:
+            db.close()
+
+    def _handle_del_tag_link(self) -> Union[str, bytes]:
+        """Remove a Tag from an Item."""
+        db: Final[Database] = Database()
+        try:
+            params: Final[str] = ", ".join([f"{x} => {y}" for x, y in request.params.items()])
+            self.log.debug("%s - request.params = %s",
+                           request.fullpath,
+                           params)
+            item_id: Final[int] = int(request.params["item_id"])
+            tag_id: Final[int] = int(request.params["tag_id"])
+            item: Final[Optional[Item]] = db.item_get_by_id(item_id)
+            tag: Final[Optional[Tag]] = db.tag_get_by_id(tag_id)
+            res = {
+                "status": False,
+                "timestamp": datetime.now().strftime(common.TimeFmt),
+            }
+
+            if item is None:
+                res["message"] = f"Item {item_id} was not found in Database"
+            elif tag is None:
+                res["message"] = f"Tag {tag_id} was not found in Database"
+            else:
+                with db:
+                    db.tag_link_delete(tag, item)
+                res["message"] = "ACK"
+                res["status"] = True
+                self.advisor.forget(item, tag)
 
             body: Final[str] = json.dumps(res)
             response.set_header("Content-Type", "application/json")

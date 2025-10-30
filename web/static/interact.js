@@ -1,4 +1,4 @@
-// Time-stamp: <2025-10-29 17:00:51 krylon>
+// Time-stamp: <2025-10-30 17:40:28 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -346,13 +346,42 @@ function add_tag(item_id) {
 } // function add_tag(item_id)
 
 function remove_tag_link(item_id, tag_id) {
-    const msg = "IMPLEMENTME: remove_tag_link(item_id, tag_id)"
-    console.error(msg)
-    alert(msg)
-    msg_add(new Date(), 'ERROR', msg)
+    const url = '/ajax/del_tag_link'
+    const data = {
+        "item_id": item_id,
+        "tag_id": tag_id,
+    }
+
+    console.log(`About to remove Tag ${tag_id} from Item ${item_id}`)
+
+    const req = $.post(
+        url,
+        data,
+        (res) => {
+            if (res.status) {
+                // If we wanted to be *really* thorough, we could also disable the
+                // tag in the Item's menu. But I don't think that's a high priority
+                // issue.
+                console.log(`Successfully removed Tag ${tag_id} from Item ${item_id}.`)
+                const lbl_id = `#tag_link_${item_id}_${tag_id}`
+                const lbl = $(lbl_id)[0]
+                lbl.remove()
+            } else {
+                const msg = res.message
+                console.error(msg)
+                alert(msg)
+            }
+        },
+        'json'
+    ).fail(function () {
+        const msg = `Error adding Tag ${tag_id} to Item ${item_id}`
+        console.error(msg)
+        msg_add(new Date(), 'ERROR', msg)
+        alert(msg)
+    })
 } // function remove_tag(item_id, tag_id)
 
-function attach_tag_to_item(tag_id, item_id, elt_id, tag_name) {
+function attach_tag_to_item(item_id, tag_id, elt_id, tag_name) {
     const url = '/ajax/add_tag_link'
 
     const data = {
@@ -393,4 +422,4 @@ function attach_tag_to_item(tag_id, item_id, elt_id, tag_name) {
         msg_add(new Date(), 'ERROR', msg)
         alert(msg)
     })
-}
+} // function attach_tag_to_item(item_id, tag_id, elt_id, tag_name)

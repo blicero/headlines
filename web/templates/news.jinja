@@ -1,5 +1,5 @@
 {# -*- mode: jinja2; coding: utf-8; -*-
-Time-stamp: <2025-10-29 17:04:09 krylon>
+Time-stamp: <2025-10-30 17:29:29 krylon>
 /data/code/python/headlines/web/templates/news.jinja
 created on 13. 10. 2025
 (c) 2025 Benjamin Walkenhorst
@@ -89,7 +89,7 @@ created on 13. 10. 2025
                   <img src="/static/cs-xlet-running.png"
                        width="24"
                        height="24"
-                       onclick="attach_tag_to_item({{ sugg[0].tag_id }}, {{ item.item_id }}, '{{- aid -}}', '{{ sugg[0].name }}');" />
+                       onclick="attach_tag_to_item({{ item.item_id }}, {{ sugg[0].tag_id }}, '{{- aid -}}', '{{ sugg[0].name }}');" />
                 </span>
                 {% if not loop.last %}&nbsp; {% endif %}
               {% else %}
