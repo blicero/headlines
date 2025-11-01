@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-30 17:53:17 krylon>
+# Time-stamp: <2025-10-30 18:06:50 krylon>
 #
 # /data/code/python/headlines/classy.py
 # created on 15. 10. 2025
@@ -62,7 +62,7 @@ class Karl:
 
                 for item in items:
                     if item.rating != Rating.Unrated:
-                        self.bayes.train(item.rating.name, item.clean_full)
+                        self.bayes.train(item.rating.name, item.plain_full)
 
                 self.bayes.cache_persist()
         finally:
@@ -85,8 +85,7 @@ class Karl:
     def classify(self, item: Item) -> Rating:
         """Classify an Item based on trained data."""
         with self.lock:
-            plain = self.item_text(item)
-            rating: Final[Rating] = Rating.from_str(self.bayes.classify(plain))
+            rating: Final[Rating] = Rating.from_str(self.bayes.classify(item.plain_full))
             item.cache_rating(rating)
             return rating
 
@@ -94,13 +93,12 @@ class Karl:
         """Add an Item and its Rating to the training data."""
         with self.lock:
             try:
-                plain = self.item_text(item)
                 match rating:
                     case Rating.Boring | Rating.Interesting:
-                        self.bayes.train(rating.name, plain)
+                        self.bayes.train(rating.name, item.plain_full)
                     case Rating.Unrated:
                         assert item.rating != Rating.Unrated
-                        self.bayes.untrain(item.rating, plain)  # ???
+                        self.bayes.untrain(item.rating, item.plain_full)
             except Exception as err:  # pylint: disable-msg=W0718
                 cname: Final[str] = err.__class__.__name__
                 self.log.error("%s trying to train on Item %d (%s): %s",

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-30 17:48:52 krylon>
+# Time-stamp: <2025-10-30 18:07:18 krylon>
 #
 # /data/code/python/headlines/tagging.py
 # created on 26. 10. 2025
@@ -76,7 +76,7 @@ class Advisor:
                     tags = db.tag_link_get_by_item(item)
 
                     for tag in tags:
-                        self.bayes.train(tag.name, item.clean_full)
+                        self.bayes.train(tag.name, item.plain_full)
 
                 self.bayes.cache_persist()
         finally:
@@ -85,14 +85,14 @@ class Advisor:
     def learn(self, item: Item, tag: Tag, save: bool = True) -> None:
         """Learn about a new Item-Tag link."""
         with self.lock:
-            self.bayes.train(tag.name, item.clean_full)
+            self.bayes.train(tag.name, item.plain_full)
             if save:
                 self.save()
 
     def forget(self, item: Item, tag: Tag, save: bool = True) -> None:
         """Remove the association between <item> and <tag>."""
         with self.lock:
-            self.bayes.untrain(tag.name, item.clean_full)
+            self.bayes.untrain(tag.name, item.plain_full)
             if save:
                 self.save()
 
@@ -105,7 +105,7 @@ class Advisor:
         """Return up to <cnt> Tags best matching <item>."""
         assert cnt > 0
         with self.lock:
-            scores: Final[dict[str, float]] = self.bayes.score(item.clean_full)
+            scores: Final[dict[str, float]] = self.bayes.score(item.plain_full)
 
         tags = [(self.tag_cache[x[0]], x[1]) for x in scores.items()]
 

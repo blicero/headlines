@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-27 17:10:03 krylon>
+# Time-stamp: <2025-10-30 20:27:18 krylon>
 #
 # /data/code/python/headlines/src/headlines/model.py
 # created on 30. 09. 2025
@@ -20,7 +20,9 @@ headlines.model
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import IntEnum
-from typing import Optional
+from typing import Final, Optional
+
+from bs4 import BeautifulSoup
 
 from headlines import common
 from headlines.scrub import Scrubber
@@ -137,6 +139,18 @@ class Item:
     def clean_full(self) -> str:
         """Return a sanitized copy of the Item's headline and body."""
         return self.headline + " " + self.clean_body
+
+    @property
+    def plain_body(self) -> str:
+        """Return a copy of the Item's body stripped of all HTML elements."""
+        soup = BeautifulSoup(self.body, "html.parser")
+        plain: Final[str] = soup.get_text()
+        return plain
+
+    @property
+    def plain_full(self) -> str:
+        """Return a string that is the concatenation of the Item's headline and stripped body."""
+        return self.headline + " " + self.plain_body
 
 
 @dataclass(kw_only=True, slots=True, eq=True, unsafe_hash=True)
