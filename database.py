@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-27 16:40:11 krylon>
+# Time-stamp: <2025-10-31 15:37:01 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -170,6 +170,7 @@ class Query(Enum):
     TagLinkGetByItem = auto()
     TagLinkGetTaggedItems = auto()
     TagLinkDelete = auto()
+    TagLinkGetItemCount = auto()
 
 
 qdb: Final[dict[Query, str]] = {
@@ -387,6 +388,27 @@ FROM idlist l
 INNER JOIN item i ON l.item_id = i.id
     """,
     Query.TagLinkDelete: "DELETE FROM tag_link WHERE tag_id = ? AND item_id = ?",
+    Query.TagLinkGetItemCount: """
+WITH links AS (
+SELECT
+    tag_id,
+    COUNT(id) AS cnt
+    FROM tag_link
+    GROUP BY tag_id
+)
+
+SELECT
+    t.id,
+    t.name,
+    t.description,
+    t.parent,
+    t.lvl,
+    t.full_name,
+    l.cnt
+FROM tag_sorted t
+INNER JOIN links l ON t.id = l.tag_id
+ORDER BY full_name
+    """,
 }
 
 
@@ -1004,6 +1026,53 @@ class Database:
             cname: Final[str] = err.__class__.__name__
             msg: Final[str] = \
                 f"{cname} trying to detach Tag {tag.name} from Item {item.item_id}: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
+    def tag_link_get_item_cnt(self) -> list[Tag]:
+        """Get all Tags with the number of linked Items."""
+        try:
+            # XXX I am not all that certain my solution is even correct, let alone
+            #     anywhere near to optimal.
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.TagLinkGetItemCount])
+            tags: list[Tag] = []
+            cnt_tbl: dict[int, int] = {}
+            children: dict[int, set[int]] = {}
+            for row in cur:
+                t: Tag = Tag(
+                    tag_id=row[0],
+                    name=row[1],
+                    description=row[2],
+                    parent=row[3],
+                    lvl=row[4],
+                    full_name=row[5],
+                    link_cnt=row[6],
+                    link_cnt_rec=row[6],
+                )
+
+                tags.append(t)
+
+                cnt_tbl[t.tag_id] = t.link_cnt
+
+                children[t.tag_id] = set()
+                if t.parent is not None:
+                    if t.parent not in children:
+                        children[t.parent] = set()
+                        children[t.parent].add(t.tag_id)
+                    else:
+                        children[t.parent].add(t.tag_id)
+
+            for t in tags:
+                if t.tag_id in children:
+                    for c in children[t.tag_id]:
+                        t.link_cnt_rec += cnt_tbl[c]
+
+            return tags
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to load Tags with Link counts: {err}"
             self.log.error(msg)
             raise DatabaseError(msg) from err
 

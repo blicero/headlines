@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-30 17:49:32 krylon>
+# Time-stamp: <2025-10-31 15:37:56 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -129,6 +129,8 @@ class WebUI:
         route("/main", callback=self._handle_main)
         route("/news", callback=self._handle_news)
         route("/news/<cnt:int>/<offset:int>", callback=self._handle_news)
+        route("/tag/all", callback=self._handle_tag_all)
+        route("/tag/new", callback=self._handle_tag_create)
 
         route("/ajax/beacon", callback=self._handle_beacon)
         route("/ajax/item_rate/<item_id:int>/<score:int>",
@@ -213,6 +215,24 @@ class WebUI:
             return tmpl.render(tmpl_vars)
         finally:
             db.close()
+
+    def _handle_tag_all(self) -> Union[bytes, str]:
+        """Present a view of all Tag."""
+        db: Database = Database()
+        try:
+            tags: list[Tag] = db.tag_link_get_item_cnt()
+            tags.sort(key=lambda x: x.full_name)
+            response.set_header("Cache-Control", "no-store, max-age=0")
+            tmpl = self.env.get_template("tags.jinja")
+            tmpl_vars = self._tmpl_vars()
+            tmpl_vars["tags"] = tags
+            return tmpl.render(tmpl_vars)
+        finally:
+            db.close()
+
+    def _handle_tag_create(self) -> Union[str, bytes]:
+        """Snag it, bag it, tag it."""
+        pass
 
     # AJAX Handlers
 

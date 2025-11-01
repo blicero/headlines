@@ -149,6 +149,8 @@ class Tag:
     description: str = ""
     lvl: int = 0
     full_name: str = ""
+    link_cnt: int = 0
+    link_cnt_rec: int = 0
 
 
 @dataclass(kw_only=True, slots=True)

@@ -1,5 +1,5 @@
 {# -*- mode: jinja2; coding: utf-8; -*-
-Time-stamp: <2025-10-15 16:12:20 krylon>
+Time-stamp: <2025-10-30 18:42:53 krylon>
 /data/code/python/medusa/web/templates/menu.jinja
 created on 06. 05. 2025
 (c) 2025 Benjamin Walkenhorst
@@ -71,6 +71,53 @@ created on 06. 05. 2025
                   <tr>
                     <th><input type="button" onclick="clear_form();" value="Reset" /></th>
                     <td><input type="button" onclick="subscribe();" value="OK" /></td>
+                  </tr>
+                </table>
+              </form>
+            </li>
+          </ul>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="/tag/all">Tags</a>
+        </li>
+
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle"
+             href="#"
+             id="createTagLink"
+             role="button"
+             data-bs-toggle="dropdown"
+             aria-expanded="false">
+             Create Tag
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="createTagLink">
+            <li>
+              <form class="dropdown-item" action="/tag/new" id="tag_create_form">
+                <table class="horizontal">
+                  <tr>
+                    <th>Name</th>
+                    <td>
+                      <input type="text" name="name" id="tag_form_name" placeholder="Name" required />
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>Parent</th>
+                    <td>
+                      <select id="tag_form_parent" class="btn btn-secondary">
+                        {% for tag in tags %}
+                          <option value="{{ tag.tag_id }}"
+                                  id="{{ id_root }}_opt_{{ tag.tag_id }}">
+                                  {{ nbsp(tag.lvl*2) }}
+                                  {{ tag.name }}
+                          </option>
+                        {% endfor %}
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><input type="button" onclick="clear_tag_form();" value="Reset" /></td>
+                    <td><input type="button" onclick="create_tag();" value="OK" /></td>
                   </tr>
                 </table>
               </form>

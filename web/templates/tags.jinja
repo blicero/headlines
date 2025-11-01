@@ -1,0 +1,23 @@
+{# -*- mode: jinja2; coding: utf-8; -*-
+Time-stamp: <2025-10-31 14:29:40 krylon>
+/data/code/python/headlines/web/templates/tags.jinja
+created on 30. 10. 2025
+(c) 2025 Benjamin Walkenhorst
+ #}
+
+{% extends "main.jinja" %}
+
+{% block content %}
+  <ul class="tags list-group">
+    {% for tag in tags %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        {{ nbsp(tag.lvl * 2) }}
+        <a href="/tag/{{ tag.tag_id }}">{{ tag.name }}</a>
+        <span class="badge text-bg-primary rounded-pill">
+          {{ tag.link_cnt }} ({{ tag.link_cnt_rec }})
+        </span>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}
+
