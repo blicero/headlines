@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-31 15:37:56 krylon>
+# Time-stamp: <2025-11-01 18:59:44 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -148,6 +148,9 @@ class WebUI:
         route("/ajax/del_tag_link",
               method="POST",
               callback=self._handle_del_tag_link)
+        route("/ajax/items_by_tag/<tag_id:int>",
+              method="GET",
+              callback=self._handle_items_for_tag)
 
         route("/static/<path>", callback=self._handle_static)
         route("/favicon.ico", callback=self._handle_favicon)
@@ -428,6 +431,55 @@ class WebUI:
             response.set_header("Content-Type", "application/json")
             response.set_header("Cache-Control", "no-store, max-age=0")
             return body
+        finally:
+            db.close()
+
+    def _handle_items_for_tag(self, tag_id) -> Union[str, bytes]:
+        """Load and render Items for <tag>."""
+        db: Database = Database()
+        try:
+            res: dict = {
+                "status": False,
+                "timestamp": datetime.now().strftime(common.TimeFmt),
+                "message": "",
+                "payload": "",
+            }
+            tag: Optional[Tag] = db.tag_get_by_id(tag_id)
+            if tag is None:
+                res["message"] = f"Tag #{tag_id} was not found in database"
+            else:
+                items: list[Item] = db.tag_link_get_by_tag(tag)
+                feeds: list[Feed] = db.feed_get_all()
+                tags: list[Tag] = db.tag_get_all()
+                item_tags: dict[int, set[Tag]] = {}
+                advice: dict[int, list[tuple[Tag, float]]] = {}
+
+            for item in items:
+                item_tags[item.item_id] = set(db.tag_link_get_by_item(item))
+                if not item.is_rated:
+                    rating: Rating = self.karl.classify(item)
+                    item.cache_rating(rating, 0.75)
+
+                advice[item.item_id] = self.advisor.advise(item)
+
+            response.set_header("Cache-Control", "no-store, max-age=0")
+            response.set_header("Content-Type", "application/json")
+            tmpl = self.env.get_template("items.jinja")
+            tmpl_vars = self._tmpl_vars()
+            tmpl_vars["title"] = f"{common.AppName} {common.AppVersion} - News"
+            tmpl_vars["year"] = datetime.now().year
+            tmpl_vars["feeds"] = {f.fid: f for f in feeds}
+            tmpl_vars["items"] = items
+            tmpl_vars["tags"] = tags
+            tmpl_vars["item_tags"] = item_tags
+            tmpl_vars["advice"] = advice
+            tmpl_vars["uuid"] = uuid4
+
+            res["status"] = True
+            res["message"] = "ACK"
+            res["payload"] = tmpl.render(tmpl_vars)
+
+            return json.dumps(res)
         finally:
             db.close()
 

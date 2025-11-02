@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-31 15:37:01 krylon>
+# Time-stamp: <2025-11-01 16:04:22 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -404,9 +404,9 @@ SELECT
     t.parent,
     t.lvl,
     t.full_name,
-    l.cnt
+    COALESCE(l.cnt, 0) AS cnt
 FROM tag_sorted t
-INNER JOIN links l ON t.id = l.tag_id
+LEFT OUTER JOIN links l ON t.id = l.tag_id
 ORDER BY full_name
     """,
 }

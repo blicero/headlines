@@ -1,9 +1,9 @@
 {# -*- mode: jinja2; coding: utf-8; -*- #}
+{# Time-stamp: <2025-11-02 17:57:11 krylon> #}
 
-{# Macros #}
-{% macro nbsp(cnt) -%}
-  {{ "&nbsp; " * cnt }}
-{%- endmacro %}
+{% import "macros.jinja" as lib %} 
+{# {% include "macros.jinja" %} #}
+
 <!DOCTYPE html>
 <html>
   <head>

@@ -1,4 +1,4 @@
-// Time-stamp: <2025-10-30 17:40:28 krylon>
+// Time-stamp: <2025-11-01 18:41:37 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -423,3 +423,27 @@ function attach_tag_to_item(item_id, tag_id, elt_id, tag_name) {
         alert(msg)
     })
 } // function attach_tag_to_item(item_id, tag_id, elt_id, tag_name)
+
+function display_items_for_tag(tag_id) {
+    const url = `/ajax/items_by_tag/${tag_id}`
+
+    $.get(
+        url,
+        {},
+        (res) => {
+            if (res.status) {
+                const div = $("#content-area")[0]
+                div.innerHTML = res.payload
+            } else {
+                console.error(res.message)
+                alert(res.message)
+            }
+        },
+        'json'
+    ).fail(() => {
+        const msg = `Error loading Items by Tag ${tag_id}`
+        console.error(msg)
+        msg_add(new Date(), 'ERROR', msg)
+        alert(msg)
+    })
+} // function display_items_for_tag(tag_id)
