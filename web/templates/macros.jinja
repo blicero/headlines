@@ -1,5 +1,5 @@
 {# -*- mode: jinja2; coding: utf-8; -*-
-Time-stamp: <2025-11-01 18:51:55 krylon>
+Time-stamp: <2025-11-03 18:26:33 krylon>
 /data/code/python/headlines/web/templates/macros.jinja
 created on 01. 11. 2025
 (c) 2025 Benjamin Walkenhorst
@@ -13,7 +13,7 @@ created on 01. 11. 2025
 
 {% macro render_tag(item, tag) -%}
   <span id="item_{{ item.item_id }}_tag_{{ tag.tag_id }}">
-    <a href="/tags/{{ tag.tag_id }}">{{ tag.name }}</a>
+    <a href="/tag/{{ tag.tag_id }}">{{ tag.name }}</a>
     <img src="/static/delete.png" onclick="remove_tag_link({{ item.item_id }}, {{ tag.tag_id }});" />
   </span>
 {%- endmacro %}
