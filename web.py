@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-01 18:59:44 krylon>
+# Time-stamp: <2025-11-03 18:35:12 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -130,7 +130,7 @@ class WebUI:
         route("/news", callback=self._handle_news)
         route("/news/<cnt:int>/<offset:int>", callback=self._handle_news)
         route("/tag/all", callback=self._handle_tag_all)
-        route("/tag/new", callback=self._handle_tag_create)
+        route("/tag/<tag_id:int>", callback=self._handle_tag_details)
 
         route("/ajax/beacon", callback=self._handle_beacon)
         route("/ajax/item_rate/<item_id:int>/<score:int>",
@@ -151,6 +151,9 @@ class WebUI:
         route("/ajax/items_by_tag/<tag_id:int>",
               method="GET",
               callback=self._handle_items_for_tag)
+        route("/ajax/tag/new",
+              method="POST",
+              callback=self._handle_tag_create)
 
         route("/static/<path>", callback=self._handle_static)
         route("/favicon.ico", callback=self._handle_favicon)
@@ -161,6 +164,7 @@ class WebUI:
             "now": datetime.now().strftime(common.TimeFmt),
             "year": datetime.now().year,
             "time_fmt": common.TimeFmt,
+            "uuid": uuid4,
         }
 
         return default
@@ -207,13 +211,11 @@ class WebUI:
             tmpl = self.env.get_template("news.jinja")
             tmpl_vars = self._tmpl_vars()
             tmpl_vars["title"] = f"{common.AppName} {common.AppVersion} - News"
-            tmpl_vars["year"] = datetime.now().year
             tmpl_vars["feeds"] = {f.fid: f for f in feeds}
             tmpl_vars["items"] = items
             tmpl_vars["tags"] = tags
             tmpl_vars["item_tags"] = item_tags
             tmpl_vars["advice"] = advice
-            tmpl_vars["uuid"] = uuid4
 
             return tmpl.render(tmpl_vars)
         finally:
@@ -221,7 +223,7 @@ class WebUI:
 
     def _handle_tag_all(self) -> Union[bytes, str]:
         """Present a view of all Tag."""
-        db: Database = Database()
+        db: Final[Database] = Database()
         try:
             tags: list[Tag] = db.tag_link_get_item_cnt()
             tags.sort(key=lambda x: x.full_name)
@@ -233,9 +235,44 @@ class WebUI:
         finally:
             db.close()
 
-    def _handle_tag_create(self) -> Union[str, bytes]:
-        """Snag it, bag it, tag it."""
-        pass
+    def _handle_tag_details(self, tag_id: int) -> Union[str, bytes]:
+        """Display detailed information plus linked Items for a Tag."""
+        db: Final[Database] = Database()
+        try:
+            tmpl_vars = self._tmpl_vars()
+            tag: Optional[Tag] = db.tag_get_by_id(tag_id)
+            if tag is None:
+                response.status_code = 404
+                response.set_header("Cache-Control", "no-store, max-age=0")
+                tmpl_vars["message"] = f"Tag {tag_id} does not exist"
+                tmpl_vars["url"] = request.get_header("Referer")
+                tmpl = self.env.get_template("error.jinja")
+                return tmpl.render(tmpl_vars)
+
+            items: list[Item] = db.tag_link_get_by_tag(tag)
+            item_tags: dict[int, set[Tag]] = {}
+            advice: dict[int, list[tuple[Tag, float]]] = {}
+
+            for item in items:
+                item_tags[item.item_id] = set(db.tag_link_get_by_item(item))
+                if not item.is_rated:
+                    rating: Rating = self.karl.classify(item)
+                    item.cache_rating(rating, 0.75)
+
+                advice[item.item_id] = self.advisor.advise(item)
+
+            tmpl_vars["tag"] = tag
+            tmpl_vars["items"] = items
+            tmpl_vars["tags"] = db.tag_get_all()
+            tmpl_vars["feeds"] = db.feed_get_all()
+            tmpl_vars["advice"] = advice
+            tmpl_vars["item_tags"] = item_tags
+
+            # TODO Get and render the template!
+            tmpl = self.env.get_template("tag_details.jinja")
+            return tmpl.render(tmpl_vars)
+        finally:
+            db.close()
 
     # AJAX Handlers
 
@@ -444,15 +481,21 @@ class WebUI:
                 "message": "",
                 "payload": "",
             }
+
+            tags: list[Tag] = []
             tag: Optional[Tag] = db.tag_get_by_id(tag_id)
+            items: list[Item] = []
+            item_tags: dict[int, set[Tag]] = {}
+            advice: dict[int, list[tuple[Tag, float]]] = {}
+
             if tag is None:
                 res["message"] = f"Tag #{tag_id} was not found in database"
             else:
-                items: list[Item] = db.tag_link_get_by_tag(tag)
+                items = db.tag_link_get_by_tag(tag)
                 feeds: list[Feed] = db.feed_get_all()
-                tags: list[Tag] = db.tag_get_all()
-                item_tags: dict[int, set[Tag]] = {}
-                advice: dict[int, list[tuple[Tag, float]]] = {}
+                tags = db.tag_get_all()
+                item_tags = {}
+                advice = {}
 
             for item in items:
                 item_tags[item.item_id] = set(db.tag_link_get_by_item(item))
@@ -482,6 +525,40 @@ class WebUI:
             return json.dumps(res)
         finally:
             db.close()
+
+    def _handle_tag_create(self) -> Union[str, bytes]:
+        """Snag it, bag it, tag it."""
+        db: Final[Database] = Database()
+        res: dict = {
+            "status": False,
+            "timestamp": datetime.now().strftime(common.TimeFmt),
+            "message": "",
+        }
+        try:
+            params: Final[str] = ", ".join([f"{x} => {y}" for x, y in request.params.items()])
+            self.log.debug("%s - request.params = %s",
+                           request.fullpath,
+                           params)
+
+            name: Final[str] = request.params["name"]
+            parent: Final[int] = int(request.params["parent"])
+            tag: Final[Tag] = Tag(name=name, parent=parent if parent != 0 else None)
+
+            with db:
+                db.tag_add(tag)
+
+            res["status"] = True
+            res["message"] = "ACK"
+        except DatabaseError as err:
+            cname: Final[str] = err.__class__.__name__
+            res["message"] = f"{cname} trying to add Tag named {name} (parent = {parent}): {err}"
+            self.log.error(res["message"])
+        finally:
+            db.close()
+
+        response.set_header("Cache-Control", "no-store, max-age=0")
+        response.set_header("Content-Type", "application/json")
+        return json.dumps(res)
 
     # Static files
 

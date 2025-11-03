@@ -1,0 +1,61 @@
+{# -*- mode: jinja2; coding: utf-8; -*-
+Time-stamp: <2025-11-03 18:40:38 krylon>
+/data/code/python/headlines/web/templates/tag_details.jinja
+created on 03. 11. 2025
+(c) 2025 Benjamin Walkenhorst
+ #}
+
+{% extends "main.jinja" %}
+
+{% block title %}
+  Tag {{ tag.name }}
+{% endblock %}
+
+{% block content %}
+  <form action="/ajax/tag/update" method="post" id="tag_edit_form">
+    <table class="horizontal">
+      <tr>
+        <th>Name:</th>
+        <td><input type="text" id="tag_name" placeholder="Name..." value="{{ tag.name }}" required /></td>
+      </tr>
+      <tr>
+        <th>Parent:</th>
+        <td>
+          <select id="tag_parent" class="btn btn-secondary">
+            <option value="0">
+              None
+            </option>
+            {% for tag in tags %}
+              <option value="{{ tag.tag_id }}"
+                      id="{{ id_root }}_opt_{{ tag.tag_id }}">
+                      {{ lib.nbsp(tag.lvl*2) }}
+                      {{ tag.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <th>Description:</th>
+        <td>
+          <textarea id="tag_description"
+                    rows="5"
+                    cols="72">
+                    {{ tag.description }}
+          </textarea>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <input type="reset" class="btn btn-danger" value="Reset" />
+        </td>
+
+        <td>
+          <input type="submit" class="btn btn-success" value="OK" />
+        </td>
+      </tr>
+    </table>
+  </form>
+  <hr />
+  {% include 'items.jinja' %}
+{% endblock %}

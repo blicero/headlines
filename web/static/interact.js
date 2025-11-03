@@ -1,4 +1,4 @@
-// Time-stamp: <2025-11-01 18:41:37 krylon>
+// Time-stamp: <2025-11-03 17:40:09 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -447,3 +447,48 @@ function display_items_for_tag(tag_id) {
         alert(msg)
     })
 } // function display_items_for_tag(tag_id)
+
+function clear_tag_form() {
+    const input_name = $("#tag_form_name")[0]
+    const input_parent = $("#tag_form_parent")[0]
+
+    input_name.value = ""
+    input_parent.selectedIndex = 0
+} // function clear_tag_form()
+
+function create_tag() {
+    const url = "/ajax/tag/new"
+    const input_name = $("#tag_form_name")[0]
+    const input_parent = $("#tag_form_parent")[0]
+    const input_idx = input_parent.selectedIndex
+
+    const name = input_name.value
+    const parent = input_parent[input_idx].value
+    const pat = /^\s*$/
+
+    if (name.match(pat) != null) {
+        const msg = "Tag name must not be empty!"
+        alert(msg)
+    }
+
+    const data = { "name": name, "parent": parent }
+
+    $.post(
+        url,
+        data,
+        (res) => {
+            if (res.status) {
+                location.reload()
+            } else {
+                console.error(res.message)
+                alert(res.message)
+            }
+        },
+        'json'
+    ).fail(() => {
+        const msg = `Error adding Tag ${name}`
+        console.error(msg)
+        msg_add(new Date(), 'ERROR', msg)
+        alert(msg)
+    })
+} // function create_tag()

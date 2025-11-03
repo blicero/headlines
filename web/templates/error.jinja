@@ -1,0 +1,22 @@
+{# -*- mode: jinja2; coding: utf-8; -*-
+Time-stamp: <2025-11-03 17:50:06 krylon>
+/data/code/python/headlines/web/error.jinja
+created on 03. 11. 2025
+(c) 2025 Benjamin Walkenhorst
+ #}
+
+{% extends "main.jinja" %}
+
+{% block title %}
+  Error
+{% endblock %}
+
+{% block content %}
+  <big>We are sorry, but something has gone horribly, <i>terrifyingly</i> wrong!!!!</big>
+  <p>
+  {{ message }}
+  <p>
+    Return to <a href="{{ url }}">where you came from</a>? 
+{% endblock %}
+
+
