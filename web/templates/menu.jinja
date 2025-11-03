@@ -1,5 +1,5 @@
 {# -*- mode: jinja2; coding: utf-8; -*-
-Time-stamp: <2025-11-02 17:57:18 krylon>
+Time-stamp: <2025-11-03 17:00:00 krylon>
 /data/code/python/medusa/web/templates/menu.jinja
 created on 06. 05. 2025
 (c) 2025 Benjamin Walkenhorst
@@ -105,6 +105,9 @@ created on 06. 05. 2025
                     <th>Parent</th>
                     <td>
                       <select id="tag_form_parent" class="btn btn-secondary">
+                        <option value="0">
+                          None
+                        </option>
                         {% for tag in tags %}
                           <option value="{{ tag.tag_id }}"
                                   id="{{ id_root }}_opt_{{ tag.tag_id }}">
@@ -116,8 +119,19 @@ created on 06. 05. 2025
                     </td>
                   </tr>
                   <tr>
-                    <td><input type="button" onclick="clear_tag_form();" value="Reset" /></td>
-                    <td><input type="button" onclick="create_tag();" value="OK" /></td>
+                    <td>
+                      <input type="button"
+                             class="btn btn-danger"
+                             onclick="clear_tag_form();"
+                             value="Reset" />
+                    </td>
+
+                    <td>
+                      <input type="button"
+                             class="btn btn-success"
+                             onclick="create_tag();"
+                             value="OK" />
+                    </td>
                   </tr>
                 </table>
               </form>
