@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-11-03 20:14:27 krylon>
+# Time-stamp: <2025-11-04 19:21:15 krylon>
 #
 #+TAGS: internals(i) ui(u) database(d) design(e)
 #+TAGS: meditation(m) optimize(o) refactor(r) cleanup(c)
@@ -15,12 +15,12 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2025-11-03 Mo 20:14]
+   #+CAPTION: Clock summary at [2025-11-04 Di 19:21]
    | Headline                                      | Time       |           |          |         |       |
    |-----------------------------------------------+------------+-----------+----------+---------+-------|
-   | *Total time*                                  | *3d 13:47* |           |          |         |       |
+   | *Total time*                                  | *3d 16:50* |           |          |         |       |
    |-----------------------------------------------+------------+-----------+----------+---------+-------|
-   | *Headlines [17/21]*                           | *3d 13:47* |           |          |         |       |
+   | *Headlines [17/21]*                           | *3d 16:50* |           |          |         |       |
    | \_  /Components [10/12]/                      |            | /3d 1:26/ |          |         |       |
    | \_    Common [1/1]                            |            |           |     0:08 |         |       |
    | \_      Down the rabbit hole for pathlib      |            |           |          |    0:08 |       |
@@ -42,10 +42,11 @@
    | \_        Adding and removing Tags [3/3]      |            |           |          |         |  4:58 |
    | \_        Recommendation                      |            |           |          |         | 12:45 |
    | \_    Main [0/0]                              |            |           |     1:53 |         |       |
-   | \_  /Features [3/5]/                          |            | /9:05/    |          |         |       |
+   | \_  /Features [3/5]/                          |            | /12:08/   |          |         |       |
    | \_    Sanitize [3/3]                          |            |           |     4:19 |         |       |
    | \_    Tagging [0/0]                           |            |           |     2:49 |         |       |
-   | \_    Rating [0/1]                            |            |           |     1:57 |         |       |
+   | \_    Rating [0/1]                            |            |           |     5:00 |         |       |
+   | \_      Tokenizer                             |            |           |          |    3:03 |       |
    | \_  /Bugs [3/3]/                              |            | /2:50/    |          |         |       |
    | \_    The mysterious case of the missing link |            |           |     1:19 |         |       |
    | \_    Missing pubDate                         |            |           |     1:11 |         |       |
@@ -295,7 +296,13 @@
     CLOCK: [2025-10-14 Di 16:16]--[2025-10-14 Di 18:13] =>  1:57
     :END:
 **** TODO Tokenizer
+     :LOGBOOK:
+     CLOCK: [2025-11-04 Di 16:17]--[2025-11-04 Di 19:20] =>  3:03
+     :END:
      I should create a custom tokenizer that does stemming.
+***** [2025-11-04 Di 16:20]
+      I think I will use the PorterStemmer from nltk for stemming and
+      langdetect for figuring out what language a piece of text is. 
 *** Full-text search [0/0]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
