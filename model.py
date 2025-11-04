@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-30 20:27:18 krylon>
+# Time-stamp: <2025-11-04 17:38:02 krylon>
 #
 # /data/code/python/headlines/src/headlines/model.py
 # created on 30. 09. 2025
@@ -22,6 +22,7 @@ from datetime import datetime
 from enum import IntEnum
 from typing import Final, Optional
 
+import langdetect
 from bs4 import BeautifulSoup
 
 from headlines import common
@@ -151,6 +152,11 @@ class Item:
     def plain_full(self) -> str:
         """Return a string that is the concatenation of the Item's headline and stripped body."""
         return self.headline + " " + self.plain_body
+
+    @property
+    def language(self) -> str:
+        """Attempt to guess which language the Item is written in."""
+        return langdetect.detect(self.plain_full)
 
 
 @dataclass(kw_only=True, slots=True, eq=True, unsafe_hash=True)

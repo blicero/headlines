@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-30 18:07:18 krylon>
+# Time-stamp: <2025-11-04 18:13:28 krylon>
 #
 # /data/code/python/headlines/tagging.py
 # created on 26. 10. 2025
@@ -28,6 +28,7 @@ from simplebayes import SimpleBayes
 from headlines import common
 from headlines.database import Database
 from headlines.model import Item, Tag
+from headlines.nlp import NLP
 
 cache_file: Final[str] = "advisor.pickle"
 
@@ -38,6 +39,7 @@ class Advisor:
 
     log: logging.Logger = field(default_factory=lambda: common.get_logger("advisor"))
     lock: RLock = field(default_factory=RLock)
+    nlp: NLP = field(default_factory=NLP)
     bayes: SimpleBayes = \
         field(default_factory=lambda: SimpleBayes(cache_path=str(common.path.cache)))
     tag_cache: dict[str, Tag] = field(default_factory=dict)
@@ -45,17 +47,24 @@ class Advisor:
     def __post_init__(self) -> None:
         self.log.info("Hello from Advisor's constructor")
         self.bayes.cache_file = cache_file
-        db: Database = Database()
-        try:
-            tags = db.tag_get_all()
-        finally:
-            db.close()
 
-        for tag in tags:
-            self.tag_cache[tag.name] = tag
+        self._fill_tag_cache()
 
         if not self.has_cache() or not self.bayes.cache_train():
             self.retrain()
+
+    def _fill_tag_cache(self) -> None:
+        with self.lock:
+            db: Database = Database()
+            try:
+                tags = db.tag_get_all()
+            finally:
+                db.close()
+
+            self.tag_cache.clear()
+
+            for tag in tags:
+                self.tag_cache[tag.name] = tag
 
     def has_cache(self) -> bool:
         """Return True if a file with cached training data exists."""
@@ -76,7 +85,8 @@ class Advisor:
                     tags = db.tag_link_get_by_item(item)
 
                     for tag in tags:
-                        self.bayes.train(tag.name, item.plain_full)
+                        txt: str = self.nlp.preprocess(item.plain_full)
+                        self.bayes.train(tag.name, txt)
 
                 self.bayes.cache_persist()
         finally:
@@ -85,14 +95,16 @@ class Advisor:
     def learn(self, item: Item, tag: Tag, save: bool = True) -> None:
         """Learn about a new Item-Tag link."""
         with self.lock:
-            self.bayes.train(tag.name, item.plain_full)
+            txt: Final[str] = self.nlp.preprocess(item.plain_full)
+            self.bayes.train(tag.name, txt)
             if save:
                 self.save()
 
     def forget(self, item: Item, tag: Tag, save: bool = True) -> None:
         """Remove the association between <item> and <tag>."""
         with self.lock:
-            self.bayes.untrain(tag.name, item.plain_full)
+            txt: Final[str] = self.nlp.preprocess(item.plain_full)
+            self.bayes.untrain(tag.name, txt)
             if save:
                 self.save()
 
@@ -105,9 +117,14 @@ class Advisor:
         """Return up to <cnt> Tags best matching <item>."""
         assert cnt > 0
         with self.lock:
-            scores: Final[dict[str, float]] = self.bayes.score(item.plain_full)
+            txt: Final[str] = self.nlp.preprocess(item.plain_full)
+            scores: Final[dict[str, float]] = self.bayes.score(txt)
 
-        tags = [(self.tag_cache[x[0]], x[1]) for x in scores.items()]
+        try:
+            tags = [(self.tag_cache[x[0]], x[1]) for x in scores.items()]
+        except KeyError:
+            self._fill_tag_cache()
+            return self.advise(item, cnt)
 
         tags.sort(key=lambda x: x[1], reverse=True)
 

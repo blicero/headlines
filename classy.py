@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-30 18:06:50 krylon>
+# Time-stamp: <2025-11-04 18:12:27 krylon>
 #
 # /data/code/python/headlines/classy.py
 # created on 15. 10. 2025
@@ -23,12 +23,12 @@ from dataclasses import dataclass, field
 from threading import RLock
 from typing import Final
 
-from bs4 import BeautifulSoup
 from simplebayes import SimpleBayes
 
 from headlines import common
 from headlines.database import Database
 from headlines.model import Item, Rating
+from headlines.nlp import NLP
 
 cache_file: Final[str] = "classifier.pickle"
 
@@ -42,6 +42,7 @@ class Karl:
 
     log: logging.Logger = field(default_factory=lambda: common.get_logger("karl"))
     lock: RLock = field(default_factory=RLock)
+    nlp: NLP = field(default_factory=NLP)
     bayes: SimpleBayes = \
         field(default_factory=lambda: SimpleBayes(cache_path=str(common.path.cache)))
 
@@ -61,8 +62,9 @@ class Karl:
                 self.bayes.flush()
 
                 for item in items:
+                    txt: str = self.nlp.preprocess(item.plain_full)
                     if item.rating != Rating.Unrated:
-                        self.bayes.train(item.rating.name, item.plain_full)
+                        self.bayes.train(item.rating.name, txt)
 
                 self.bayes.cache_persist()
         finally:
@@ -74,18 +76,12 @@ class Karl:
         self.log.info("Advisor cache is %s", loc)
         return os.path.exists(loc)
 
-    def item_text(self, item: Item) -> str:
-        """Return the plain text from an Item."""
-        # TODO Maybe add some caching later on.
-        raw: Final[str] = item.clean_full
-        soup = BeautifulSoup(raw, "html.parser")
-        plain: Final[str] = soup.get_text()
-        return plain.lower()
-
     def classify(self, item: Item) -> Rating:
         """Classify an Item based on trained data."""
         with self.lock:
-            rating: Final[Rating] = Rating.from_str(self.bayes.classify(item.plain_full))
+            txt: Final[str] = self.nlp.preprocess(item.plain_full)
+            rating: Final[Rating] = \
+                Rating.from_str(self.bayes.classify(txt))
             item.cache_rating(rating)
             return rating
 
@@ -93,12 +89,13 @@ class Karl:
         """Add an Item and its Rating to the training data."""
         with self.lock:
             try:
+                txt: Final[str] = self.nlp.preprocess(item.plain_full)
                 match rating:
                     case Rating.Boring | Rating.Interesting:
-                        self.bayes.train(rating.name, item.plain_full)
+                        self.bayes.train(rating.name, txt)
                     case Rating.Unrated:
                         assert item.rating != Rating.Unrated
-                        self.bayes.untrain(item.rating, item.plain_full)
+                        self.bayes.untrain(item.rating, txt)
             except Exception as err:  # pylint: disable-msg=W0718
                 cname: Final[str] = err.__class__.__name__
                 self.log.error("%s trying to train on Item %d (%s): %s",
