@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-04 17:38:02 krylon>
+# Time-stamp: <2025-11-05 16:29:48 krylon>
 #
 # /data/code/python/headlines/src/headlines/model.py
 # created on 30. 09. 2025
@@ -157,6 +157,11 @@ class Item:
     def language(self) -> str:
         """Attempt to guess which language the Item is written in."""
         return langdetect.detect(self.plain_full)
+
+    @property
+    def xid(self) -> str:
+        """Return the Item ID stringified, suitable as a key for caching."""
+        return f"{self.item_id:08x}"
 
 
 @dataclass(kw_only=True, slots=True, eq=True, unsafe_hash=True)

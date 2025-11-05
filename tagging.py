@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-04 18:13:28 krylon>
+# Time-stamp: <2025-11-05 16:29:05 krylon>
 #
 # /data/code/python/headlines/tagging.py
 # created on 26. 10. 2025
@@ -85,7 +85,7 @@ class Advisor:
                     tags = db.tag_link_get_by_item(item)
 
                     for tag in tags:
-                        txt: str = self.nlp.preprocess(item.plain_full)
+                        txt: str = self.nlp.preprocess(item)
                         self.bayes.train(tag.name, txt)
 
                 self.bayes.cache_persist()
@@ -95,7 +95,7 @@ class Advisor:
     def learn(self, item: Item, tag: Tag, save: bool = True) -> None:
         """Learn about a new Item-Tag link."""
         with self.lock:
-            txt: Final[str] = self.nlp.preprocess(item.plain_full)
+            txt: Final[str] = self.nlp.preprocess(item)
             self.bayes.train(tag.name, txt)
             if save:
                 self.save()
@@ -103,7 +103,7 @@ class Advisor:
     def forget(self, item: Item, tag: Tag, save: bool = True) -> None:
         """Remove the association between <item> and <tag>."""
         with self.lock:
-            txt: Final[str] = self.nlp.preprocess(item.plain_full)
+            txt: Final[str] = self.nlp.preprocess(item)
             self.bayes.untrain(tag.name, txt)
             if save:
                 self.save()
@@ -117,7 +117,7 @@ class Advisor:
         """Return up to <cnt> Tags best matching <item>."""
         assert cnt > 0
         with self.lock:
-            txt: Final[str] = self.nlp.preprocess(item.plain_full)
+            txt: Final[str] = self.nlp.preprocess(item)
             scores: Final[dict[str, float]] = self.bayes.score(txt)
 
         try:

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-04 18:12:27 krylon>
+# Time-stamp: <2025-11-05 16:29:08 krylon>
 #
 # /data/code/python/headlines/classy.py
 # created on 15. 10. 2025
@@ -62,7 +62,7 @@ class Karl:
                 self.bayes.flush()
 
                 for item in items:
-                    txt: str = self.nlp.preprocess(item.plain_full)
+                    txt: str = self.nlp.preprocess(item)
                     if item.rating != Rating.Unrated:
                         self.bayes.train(item.rating.name, txt)
 
@@ -79,7 +79,7 @@ class Karl:
     def classify(self, item: Item) -> Rating:
         """Classify an Item based on trained data."""
         with self.lock:
-            txt: Final[str] = self.nlp.preprocess(item.plain_full)
+            txt: Final[str] = self.nlp.preprocess(item)
             rating: Final[Rating] = \
                 Rating.from_str(self.bayes.classify(txt))
             item.cache_rating(rating)
@@ -89,7 +89,7 @@ class Karl:
         """Add an Item and its Rating to the training data."""
         with self.lock:
             try:
-                txt: Final[str] = self.nlp.preprocess(item.plain_full)
+                txt: Final[str] = self.nlp.preprocess(item)
                 match rating:
                     case Rating.Boring | Rating.Interesting:
                         self.bayes.train(rating.name, txt)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-04 17:50:13 krylon>
+# Time-stamp: <2025-11-05 16:30:30 krylon>
 #
 # /data/code/python/headlines/nlp.py
 # created on 04. 11. 2025
@@ -25,6 +25,8 @@ from typing import Final
 from nltk.stem import SnowballStemmer
 
 from headlines import common
+from headlines.cache import Cache, CacheDB, DBType
+from headlines.model import Item
 
 languages: Final[dict[str, str]] = {
     "de": "german",
@@ -41,12 +43,14 @@ class NLP:
     log: logging.Logger = field(default_factory=lambda: common.get_logger("nlp"))
     lock: Lock = field(default_factory=Lock)
     stemmer: dict[str, SnowballStemmer] = field(default_factory=dict)
+    _cache: CacheDB = field(init=False)
 
     def __post_init__(self) -> None:
         for cc, lang in languages.items():
             self.stemmer[cc] = SnowballStemmer(lang, True)
+        self._cache = Cache().get_db(DBType.Stemmer)
 
-    def tokenize(self, raw: str, lng: str = "en") -> list[str]:
+    def _tokenize(self, raw: str, lng: str = "en") -> list[str]:
         """Break up the Item's text into tokens and perform stemming on them."""
         if lng not in languages:
             self.log.error("Language code %s is not supported. Falling back to English.",
@@ -58,9 +62,15 @@ class NLP:
 
         return tokens
 
-    def preprocess(self, raw: str, lng: str = "en") -> str:
+    def preprocess(self, item: Item, lng: str = "en") -> str:
         """Preprocess the text."""
-        return " ".join(self.tokenize(raw, lng))
+        with self._cache.tx(True) as tx:
+            key = item.xid
+            if key not in tx:
+                output = " ".join(self._tokenize(item.plain_full, lng))
+                tx[key] = output
+                return output
+            return tx[key]
 
 # Local Variables: #
 # python-indent: 4 #

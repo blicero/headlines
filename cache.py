@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-05 15:50:13 krylon>
+# Time-stamp: <2025-11-05 16:08:12 krylon>
 #
 # /data/code/python/headlines/cache.py
 # created on 05. 11. 2025
@@ -43,8 +43,10 @@ class DBType(Enum):
     """DBType represents what kind of data we want to cache."""
 
     Stemmer = auto()
+    Scrub = auto()
     Advice = auto()
     Rating = auto()
+    Language = auto()
 
     @property
     def string(self) -> str:
@@ -77,6 +79,10 @@ class Tx:
             raise TxError("Cannot change the database in a readonly transaction!")
 
         self.tx.delete(key.encode())
+
+    def __contains__(self, key) -> bool:
+        val = self.tx.get(key.encode())
+        return val is not None
 
 
 @dataclass(kw_only=True, slots=True)
@@ -134,7 +140,7 @@ class Cache(metaclass=Singleton):
         self.lock = RLock()
         self.env = lmdb.Environment(cache_root,
                                     subdir=True,
-                                    map_size=(1 << 33),
+                                    map_size=(1 << 40),  # 1 TiB
                                     metasync=False,
                                     create=True,
                                     max_dbs=len(DBType)+2,
