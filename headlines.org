@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-11-05 11:34:23 krylon>
+# Time-stamp: <2025-11-05 15:57:45 krylon>
 #
 #+TAGS: internals(i) ui(u) database(d) design(e)
 #+TAGS: meditation(m) optimize(o) refactor(r) cleanup(c)
@@ -15,12 +15,12 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2025-11-05 Mi 11:34]
+   #+CAPTION: Clock summary at [2025-11-05 Mi 15:57]
    | Headline                                      | Time       |           |          |         |       |
    |-----------------------------------------------+------------+-----------+----------+---------+-------|
-   | *Total time*                                  | *3d 17:39* |           |          |         |       |
+   | *Total time*                                  | *3d 19:25* |           |          |         |       |
    |-----------------------------------------------+------------+-----------+----------+---------+-------|
-   | *Headlines [17/21]*                           | *3d 17:39* |           |          |         |       |
+   | *Headlines [17/21]*                           | *3d 19:25* |           |          |         |       |
    | \_  /Components [10/12]/                      |            | /3d 1:26/ |          |         |       |
    | \_    Common [1/1]                            |            |           |     0:08 |         |       |
    | \_      Down the rabbit hole for pathlib      |            |           |          |    0:08 |       |
@@ -42,12 +42,12 @@
    | \_        Adding and removing Tags [3/3]      |            |           |          |         |  4:58 |
    | \_        Recommendation                      |            |           |          |         | 12:45 |
    | \_    Main [0/0]                              |            |           |     1:53 |         |       |
-   | \_  /Features [3/5]/                          |            | /12:57/   |          |         |       |
+   | \_  /Features [3/5]/                          |            | /14:43/   |          |         |       |
    | \_    Sanitize [3/3]                          |            |           |     4:19 |         |       |
    | \_    Tagging [0/0]                           |            |           |     2:49 |         |       |
    | \_    Rating [0/1]                            |            |           |     5:00 |         |       |
    | \_      Tokenizer                             |            |           |          |    3:03 |       |
-   | \_    Caching [0/0]                           |            |           |     0:49 |         |       |
+   | \_    Caching [0/0]                           |            |           |     2:35 |         |       |
    | \_  /Bugs [3/3]/                              |            | /2:50/    |          |         |       |
    | \_    The mysterious case of the missing link |            |           |     1:19 |         |       |
    | \_    Missing pubDate                         |            |           |     1:11 |         |       |
@@ -315,6 +315,7 @@
     :VISIBILITY: children
     :END:
     :LOGBOOK:
+    CLOCK: [2025-11-05 Mi 14:11]--[2025-11-05 Mi 15:57] =>  1:46
     CLOCK: [2025-11-05 Mi 10:45]--[2025-11-05 Mi 11:34] =>  0:49
     :END:
     There is *a lot* of potential for optimization that I am leaving on the
@@ -322,6 +323,12 @@
     caching. Premature optimization and all that.
     But when the time comes, performance is probably going to be not super
     great, at which point we will re-visit this topic.
+    [2025-11-05 Mi 14:11]
+    So, I am going to need to cache stemmed Item bodies for use in the
+    Bayesian classifier, and the classification data for rating and tagging.
+    LMDB conveniently allows one to create several databases within a single
+    Environment, which is what I intend to do.
+    I just need to think a little about a sane and simple interface.
 ** Bugs [3/3]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
