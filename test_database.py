@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-20 11:18:29 krylon>
+# Time-stamp: <2025-11-05 15:34:17 krylon>
 #
 # /data/code/python/headlines/tests/test_database.py
 # created on 08. 10. 2025
@@ -28,7 +28,7 @@ from headlines.model import Feed, Item, Rating, Tag, TagLink
 
 test_dir: Final[str] = os.path.join(
     "/tmp",
-    datetime.now().strftime("snoopy_test_database_%Y%m%d_%H%M%S"))
+    datetime.now().strftime(f"{common.AppName.lower()}_test_database_%Y%m%d_%H%M%S"))
 
 item_cnt: Final[int] = 100
 tag_cnt: Final[int] = 10
