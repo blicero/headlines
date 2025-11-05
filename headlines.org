@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-11-04 19:21:15 krylon>
+# Time-stamp: <2025-11-05 11:34:23 krylon>
 #
 #+TAGS: internals(i) ui(u) database(d) design(e)
 #+TAGS: meditation(m) optimize(o) refactor(r) cleanup(c)
@@ -15,12 +15,12 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2025-11-04 Di 19:21]
+   #+CAPTION: Clock summary at [2025-11-05 Mi 11:34]
    | Headline                                      | Time       |           |          |         |       |
    |-----------------------------------------------+------------+-----------+----------+---------+-------|
-   | *Total time*                                  | *3d 16:50* |           |          |         |       |
+   | *Total time*                                  | *3d 17:39* |           |          |         |       |
    |-----------------------------------------------+------------+-----------+----------+---------+-------|
-   | *Headlines [17/21]*                           | *3d 16:50* |           |          |         |       |
+   | *Headlines [17/21]*                           | *3d 17:39* |           |          |         |       |
    | \_  /Components [10/12]/                      |            | /3d 1:26/ |          |         |       |
    | \_    Common [1/1]                            |            |           |     0:08 |         |       |
    | \_      Down the rabbit hole for pathlib      |            |           |          |    0:08 |       |
@@ -42,11 +42,12 @@
    | \_        Adding and removing Tags [3/3]      |            |           |          |         |  4:58 |
    | \_        Recommendation                      |            |           |          |         | 12:45 |
    | \_    Main [0/0]                              |            |           |     1:53 |         |       |
-   | \_  /Features [3/5]/                          |            | /12:08/   |          |         |       |
+   | \_  /Features [3/5]/                          |            | /12:57/   |          |         |       |
    | \_    Sanitize [3/3]                          |            |           |     4:19 |         |       |
    | \_    Tagging [0/0]                           |            |           |     2:49 |         |       |
    | \_    Rating [0/1]                            |            |           |     5:00 |         |       |
    | \_      Tokenizer                             |            |           |          |    3:03 |       |
+   | \_    Caching [0/0]                           |            |           |     0:49 |         |       |
    | \_  /Bugs [3/3]/                              |            | /2:50/    |          |         |       |
    | \_    The mysterious case of the missing link |            |           |     1:19 |         |       |
    | \_    Missing pubDate                         |            |           |     1:11 |         |       |
@@ -312,6 +313,9 @@
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: children
+    :END:
+    :LOGBOOK:
+    CLOCK: [2025-11-05 Mi 10:45]--[2025-11-05 Mi 11:34] =>  0:49
     :END:
     There is *a lot* of potential for optimization that I am leaving on the
     table right now. In particular, there a lots of things I could speed up by
