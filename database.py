@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-01 16:04:22 krylon>
+# Time-stamp: <2025-11-06 15:21:19 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -154,6 +154,7 @@ class Query(Enum):
     ItemGetRated = auto()
     ItemGetByID = auto()
     ItemGetByURL = auto()
+    ItemGetCount = auto()
     ItemSearch = auto()
     ItemRate = auto()
 
@@ -278,6 +279,7 @@ SELECT
 FROM item
 WHERE url = ?
     """,
+    Query.ItemGetCount: "SELECT COUNT(id) FROM item",
     Query.ItemRate: "UPDATE item SET rating = ? WHERE id = ?",
     Query.TagAdd: """
 INSERT INTO tag (parent, name, description)
@@ -775,8 +777,23 @@ class Database:
             self.log.error(msg)
             raise DatabaseError(msg) from err
 
+    def item_get_count(self) -> int:
+        """Get the total number of Items in the database."""
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.ItemGetCount])
+            row = cur.fetchone()
+            return row[0]
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to count Items: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
     def item_search(self, _query: str) -> list[Item]:
         """Search the Items in the database for <query>."""
+        self.log.critical("item_search: IMPLEMENTME!!!")
         return []
 
     def item_rate(self, item: Item, rating: Rating) -> None:
