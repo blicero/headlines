@@ -1,5 +1,5 @@
 {# -*- mode: jinja2; coding: utf-8; -*-
-Time-stamp: <2025-11-02 17:56:29 krylon>
+Time-stamp: <2025-11-06 15:37:04 krylon>
 /data/code/python/headlines/web/templates/news.jinja
 created on 13. 10. 2025
 (c) 2025 Benjamin Walkenhorst
@@ -18,7 +18,39 @@ created on 13. 10. 2025
     })
   </script>
 
+  <div id="paginate_top" class="paginate">
+    {% if page_no > 0 %}
+      <a href="/news/{{ page_size }}/{{ page_no - 1 }}">&lt;&lt;</a>
+    {% else %}
+      &lt;&lt;
+    {% endif %}
+    {{ lib.nbsp(2) }}
+    Page {{ page_no }}/{{ page_max }}
+    {{ lib.nbsp(2) }}
+    {% if page_no < page_max %}
+      <a href="/news/{{ page_size }}/{{ page_no + 1 }}">&gt;&gt;</a>
+    {% else %}
+      &gt;&gt;
+    {% endif %}
+  </div>
+
   {% include 'items.jinja' %}
+
+  <div id="paginate_bottom" class="paginate">
+    {% if page_no > 0 %}
+      <a href="/news/{{ page_size }}/{{ page_no - 1 }}">&lt;&lt;</a>
+    {% else %}
+      &lt;&lt;
+    {% endif %}
+    {{ lib.nbsp(2) }}
+    Page {{ page_no }}/{{ page_max }}
+    {{ lib.nbsp(2) }}
+    {% if page_no < page_max %}
+      <a href="/news/{{ page_size }}/{{ page_no + 1 }}">&gt;&gt;</a>
+    {% else %}
+      &gt;&gt;
+    {% endif %}
+  </div>
 
 {% endblock %}
 

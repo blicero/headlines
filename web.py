@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-03 18:35:12 krylon>
+# Time-stamp: <2025-11-06 15:32:14 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -191,9 +191,12 @@ class WebUI:
 
     def _handle_news(self, cnt: int = 100, offset: int = 0) -> Union[str, bytes]:
         """Present news Items."""
+        if cnt == 0:
+            self.log.info("cnt is 0, which is inacceptable. Let's use 100")
+            cnt = 100
         db: Database = Database()
         try:
-            items: list[Item] = db.item_get_recent(cnt, offset)
+            items: list[Item] = db.item_get_recent(cnt, offset * cnt)
             feeds: list[Feed] = db.feed_get_all()
             tags: list[Tag] = db.tag_get_all()
             item_tags: dict[int, set[Tag]] = {}
@@ -216,6 +219,9 @@ class WebUI:
             tmpl_vars["tags"] = tags
             tmpl_vars["item_tags"] = item_tags
             tmpl_vars["advice"] = advice
+            tmpl_vars["page_no"] = offset
+            tmpl_vars["page_max"] = db.item_get_count() // cnt
+            tmpl_vars["page_size"] = cnt
 
             return tmpl.render(tmpl_vars)
         finally:
@@ -405,10 +411,10 @@ class WebUI:
         """Attach a Tag to an Item"""
         db: Database = Database()
         try:
-            params: Final[str] = ", ".join([f"{x} => {y}" for x, y in request.params.items()])
-            self.log.debug("%s - request.params = %s",
-                           request.fullpath,
-                           params)
+            # params: Final[str] = ", ".join([f"{x} => {y}" for x, y in request.params.items()])
+            # self.log.debug("%s - request.params = %s",
+            #                request.fullpath,
+            #                params)
             item_id: Final[int] = int(request.params["item_id"])
             tag_id: Final[int] = int(request.params["tag_id"])
             item: Final[Optional[Item]] = db.item_get_by_id(item_id)
