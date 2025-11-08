@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-11-08 14:43:54 krylon>
+# Time-stamp: <2025-11-08 15:15:38 krylon>
 #
 #+TAGS: internals(i) ui(u) database(d) design(e)
 #+TAGS: meditation(m) optimize(o) refactor(r) cleanup(c)
@@ -8,19 +8,19 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Headlines [22/25]
+* Headlines [24/28]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: children
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2025-11-08 Sa 14:43]
+   #+CAPTION: Clock summary at [2025-11-08 Sa 15:15]
    | Headline                                      | Time       |           |         |         |       |
    |-----------------------------------------------+------------+-----------+---------+---------+-------|
    | *Total time*                                  | *3d 23:20* |           |         |         |       |
    |-----------------------------------------------+------------+-----------+---------+---------+-------|
-   | *Headlines [22/25]*                           | *3d 23:20* |           |         |         |       |
+   | *Headlines [24/28]*                           | *3d 23:20* |           |         |         |       |
    | \_  /Components [13/14]/                      |            | /3d 2:26/ |         |         |       |
    | \_    Common [1/1]                            |            |           |    0:08 |         |       |
    | \_      Down the rabbit hole for pathlib      |            |           |         |    0:08 |       |
@@ -43,10 +43,10 @@
    | \_        Adding and removing Tags [3/3]      |            |           |         |         |  4:58 |
    | \_        Recommendation                      |            |           |         |         | 12:45 |
    | \_    Main [0/0]                              |            |           |    1:53 |         |       |
-   | \_  /Features [3/5]/                          |            | /17:13/   |         |         |       |
+   | \_  /Features [6/9]/                          |            | /17:13/   |         |         |       |
    | \_    Sanitize [3/3]                          |            |           |    4:19 |         |       |
    | \_    Tagging [0/0]                           |            |           |    2:49 |         |       |
-   | \_    Rating [0/1]                            |            |           |    5:00 |         |       |
+   | \_    Rating [1/1]                            |            |           |    5:00 |         |       |
    | \_      Tokenizer                             |            |           |         |    3:03 |       |
    | \_    Caching [1/1]                           |            |           |    5:05 |         |       |
    | \_      Expiration!                           |            |           |         |    0:44 |       |
@@ -262,11 +262,22 @@
     CLOCK: [2025-10-11 Sa 16:22]--[2025-10-11 Sa 18:10] =>  1:48
     CLOCK: [2025-10-11 Sa 16:07]--[2025-10-11 Sa 16:12] =>  0:05
     :END:
-** Features [3/5]
+** Features [6/9]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: children
    :END:
+*** TODO Later, B_tches [0/0]
+    I want to mark Items as "I want to read that, just not right now."
+    This one should be easy.
+*** TODO Clustering? [0/0]
+    Sometimes several Items from different news sources cover the same
+    event. It would be really cool if I could cluster these Items together,
+    and even cooler if that could be done automatically. I don't think it's
+    possible but worth a try.
+*** TODO Searching [0/0]
+    I want to be able to search the database by text, but also by time and
+    tags, respecting the tag hierarchy.
 *** Sanitize [3/3]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
@@ -308,7 +319,7 @@
     :LOGBOOK:
     CLOCK: [2025-10-18 Sa 15:46]--[2025-10-18 Sa 18:35] =>  2:49
     :END:
-*** Rating [0/1]
+*** Rating [1/1]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: children
@@ -316,7 +327,8 @@
     :LOGBOOK:
     CLOCK: [2025-10-14 Di 16:16]--[2025-10-14 Di 18:13] =>  1:57
     :END:
-**** TODO Tokenizer
+**** DONE Tokenizer
+     CLOSED: [2025-11-08 Sa 15:02]
      :LOGBOOK:
      CLOCK: [2025-11-04 Di 16:17]--[2025-11-04 Di 19:20] =>  3:03
      :END:
@@ -329,7 +341,8 @@
     :COOKIE_DATA: todo recursive
     :VISIBILITY: children
     :END:
-*** TODO Caching [1/1]
+*** DONE Caching [1/1]
+    CLOSED: [2025-11-08 Sa 15:03]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: children
