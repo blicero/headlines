@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-05 16:11:49 krylon>
+# Time-stamp: <2025-11-07 16:50:26 krylon>
 #
 # /data/code/python/headlines/scrub.py
 # created on 17. 10. 2025
@@ -52,7 +52,7 @@ class Scrubber(metaclass=Singleton):
     def __init__(self) -> None:
         self.log = common.get_logger("scrubber")
         self.lock = Lock()
-        self._cache = Cache().get_db(DBType.Scrub)
+        self._cache = Cache().get_db(DBType.Scrub, 604800)
 
     def scrub_html(self, content: str, _key: int = 0) -> str:
         """Attempt to sanitize the given HTML content."""
