@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-05 16:29:08 krylon>
+# Time-stamp: <2025-11-08 14:28:09 krylon>
 #
 # /data/code/python/headlines/classy.py
 # created on 15. 10. 2025
@@ -21,11 +21,12 @@ import logging
 import os
 from dataclasses import dataclass, field
 from threading import RLock
-from typing import Final
+from typing import Final, Optional
 
 from simplebayes import SimpleBayes
 
 from headlines import common
+from headlines.cache import Cache, CacheDB, DBType
 from headlines.database import Database
 from headlines.model import Item, Rating
 from headlines.nlp import NLP
@@ -45,9 +46,11 @@ class Karl:
     nlp: NLP = field(default_factory=NLP)
     bayes: SimpleBayes = \
         field(default_factory=lambda: SimpleBayes(cache_path=str(common.path.cache)))
+    _cache: CacheDB = field(init=False)
 
     def __post_init__(self) -> None:
         self.log.info("Hello from Karl's constructor.")
+        self._cache = Cache().get_db(DBType.Rating, 3600)
         self.bayes.cache_file = cache_file
         if not self.has_cache() or not self.bayes.cache_train():
             self.retrain()
@@ -60,6 +63,7 @@ class Karl:
             items: list[Item] = db.item_get_rated()
             with self.lock:
                 self.bayes.flush()
+                self._cache.purge(True)
 
                 for item in items:
                     txt: str = self.nlp.preprocess(item)
@@ -78,18 +82,29 @@ class Karl:
 
     def classify(self, item: Item) -> Rating:
         """Classify an Item based on trained data."""
+        if item.is_rated:
+            return item.rating
+        xid: Final[str] = item.xid
         with self.lock:
-            txt: Final[str] = self.nlp.preprocess(item)
-            rating: Final[Rating] = \
-                Rating.from_str(self.bayes.classify(txt))
-            item.cache_rating(rating)
-            return rating
+            with self._cache.tx(False) as tx:
+                rstr: Optional[str] = tx[xid]
+            if rstr is None:
+                txt: Final[str] = self.nlp.preprocess(item)
+                rstr = self.bayes.classify(txt)
+                with self._cache.tx(True) as tx:
+                    tx[xid] = rstr
+        rating: Final[Rating] = Rating.from_str(rstr)
+        item.cache_rating(rating)
+        return rating
 
     def learn(self, item: Item, rating: Rating) -> None:
         """Add an Item and its Rating to the training data."""
+        xid: Final[str] = item.xid
         with self.lock:
             try:
                 txt: Final[str] = self.nlp.preprocess(item)
+                with self._cache.tx(True) as tx:
+                    del tx[xid]
                 match rating:
                     case Rating.Boring | Rating.Interesting:
                         self.bayes.train(rating.name, txt)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-05 16:29:05 krylon>
+# Time-stamp: <2025-11-08 14:30:43 krylon>
 #
 # /data/code/python/headlines/tagging.py
 # created on 26. 10. 2025
@@ -21,11 +21,12 @@ import logging
 import os
 from dataclasses import dataclass, field
 from threading import RLock
-from typing import Final
+from typing import Final, Optional
 
 from simplebayes import SimpleBayes
 
 from headlines import common
+from headlines.cache import Cache, CacheDB, DBType
 from headlines.database import Database
 from headlines.model import Item, Tag
 from headlines.nlp import NLP
@@ -43,10 +44,12 @@ class Advisor:
     bayes: SimpleBayes = \
         field(default_factory=lambda: SimpleBayes(cache_path=str(common.path.cache)))
     tag_cache: dict[str, Tag] = field(default_factory=dict)
+    _cache: CacheDB = field(init=False)
 
     def __post_init__(self) -> None:
         self.log.info("Hello from Advisor's constructor")
         self.bayes.cache_file = cache_file
+        self._cache = Cache().get_db(DBType.Advice, 3600)
 
         self._fill_tag_cache()
 
@@ -79,6 +82,7 @@ class Advisor:
         try:
             items: list[Item] = db.tag_link_get_tagged_items()
             with self.lock:
+                self._cache.purge(True)
                 self.bayes.flush()
 
                 for item in items:
@@ -95,6 +99,8 @@ class Advisor:
     def learn(self, item: Item, tag: Tag, save: bool = True) -> None:
         """Learn about a new Item-Tag link."""
         with self.lock:
+            with self._cache.tx(True) as tx:
+                del tx[item.xid]
             txt: Final[str] = self.nlp.preprocess(item)
             self.bayes.train(tag.name, txt)
             if save:
@@ -117,8 +123,13 @@ class Advisor:
         """Return up to <cnt> Tags best matching <item>."""
         assert cnt > 0
         with self.lock:
-            txt: Final[str] = self.nlp.preprocess(item)
-            scores: Final[dict[str, float]] = self.bayes.score(txt)
+            with self._cache.tx(False) as tx:
+                scores: Optional[dict[str, float]] = tx[item.xid]
+            if scores is None:
+                txt: Final[str] = self.nlp.preprocess(item)
+                scores = self.bayes.score(txt)
+                with self._cache.tx(True) as tx:
+                    tx[item.xid] = scores
 
         try:
             tags = [(self.tag_cache[x[0]], x[1]) for x in scores.items()]
