@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-11-06 16:38:08 krylon>
+# Time-stamp: <2025-11-08 14:43:54 krylon>
 #
 #+TAGS: internals(i) ui(u) database(d) design(e)
 #+TAGS: meditation(m) optimize(o) refactor(r) cleanup(c)
@@ -8,19 +8,19 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Headlines [20/23]
+* Headlines [22/25]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: children
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2025-11-06 Do 16:38]
+   #+CAPTION: Clock summary at [2025-11-08 Sa 14:43]
    | Headline                                      | Time       |           |         |         |       |
    |-----------------------------------------------+------------+-----------+---------+---------+-------|
-   | *Total time*                                  | *3d 20:59* |           |         |         |       |
+   | *Total time*                                  | *3d 23:20* |           |         |         |       |
    |-----------------------------------------------+------------+-----------+---------+---------+-------|
-   | *Headlines [20/23]*                           | *3d 20:59* |           |         |         |       |
+   | *Headlines [22/25]*                           | *3d 23:20* |           |         |         |       |
    | \_  /Components [13/14]/                      |            | /3d 2:26/ |         |         |       |
    | \_    Common [1/1]                            |            |           |    0:08 |         |       |
    | \_      Down the rabbit hole for pathlib      |            |           |         |    0:08 |       |
@@ -43,16 +43,18 @@
    | \_        Adding and removing Tags [3/3]      |            |           |         |         |  4:58 |
    | \_        Recommendation                      |            |           |         |         | 12:45 |
    | \_    Main [0/0]                              |            |           |    1:53 |         |       |
-   | \_  /Features [3/5]/                          |            | /15:17/   |         |         |       |
+   | \_  /Features [3/5]/                          |            | /17:13/   |         |         |       |
    | \_    Sanitize [3/3]                          |            |           |    4:19 |         |       |
    | \_    Tagging [0/0]                           |            |           |    2:49 |         |       |
    | \_    Rating [0/1]                            |            |           |    5:00 |         |       |
    | \_      Tokenizer                             |            |           |         |    3:03 |       |
-   | \_    Caching [0/0]                           |            |           |    3:09 |         |       |
-   | \_  /Bugs [3/3]/                              |            | /2:50/    |         |         |       |
+   | \_    Caching [1/1]                           |            |           |    5:05 |         |       |
+   | \_      Expiration!                           |            |           |         |    0:44 |       |
+   | \_  /Bugs [4/4]/                              |            | /3:15/    |         |         |       |
    | \_    The mysterious case of the missing link |            |           |    1:19 |         |       |
    | \_    Missing pubDate                         |            |           |    1:11 |         |       |
    | \_    The case of the failing refresh         |            |           |    0:20 |         |       |
+   | \_    Deadlock in Cache layer                 |            |           |    0:25 |         |       |
    | \_  /Journal [1/1]/                           |            | /0:26/    |         |         |       |
    | \_    Wrestling with poetry                   |            |           |    0:26 |         |       |
    #+END:
@@ -327,12 +329,13 @@
     :COOKIE_DATA: todo recursive
     :VISIBILITY: children
     :END:
-*** TODO Caching [0/0]
+*** TODO Caching [1/1]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: children
     :END:
     :LOGBOOK:
+    CLOCK: [2025-11-07 Fr 15:58]--[2025-11-07 Fr 17:10] =>  1:12
     CLOCK: [2025-11-05 Mi 15:59]--[2025-11-05 Mi 16:33] =>  0:34
     CLOCK: [2025-11-05 Mi 14:11]--[2025-11-05 Mi 15:57] =>  1:46
     CLOCK: [2025-11-05 Mi 10:45]--[2025-11-05 Mi 11:34] =>  0:49
@@ -342,18 +345,24 @@
     caching. Premature optimization and all that.
     But when the time comes, performance is probably going to be not super
     great, at which point we will re-visit this topic.
-    [2025-11-05 Mi 14:11]
     So, I am going to need to cache stemmed Item bodies for use in the
     Bayesian classifier, and the classification data for rating and tagging.
     LMDB conveniently allows one to create several databases within a single
     Environment, which is what I intend to do.
     I just need to think a little about a sane and simple interface.
-    [2025-11-05 Mi 15:58]
     Okay, with that (hopefully) done, I need to use the cache in these places:
     - [X] Processing Items with NLTK
-    - [ ] Rating Items
-    - [ ] Suggesting Tags for Items
-** Bugs [3/3]
+    - [X] Rating Items
+    - [X] Suggesting Tags for Items
+**** DONE Expiration!
+     CLOSED: [2025-11-07 Fr 15:57]
+     :LOGBOOK:
+     CLOCK: [2025-11-07 Fr 15:13]--[2025-11-07 Fr 15:57] =>  0:44
+     :END:
+     Tokenization is not as much of an issue, but caching ratings and advice
+     without an expiration date is a questionable idea, because as I rate and
+     tag more Items, that affects future classifications and advice.
+** Bugs [4/4]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: children
@@ -382,6 +391,11 @@
     CLOSED: [2025-10-20 Mo 09:23]
     :LOGBOOK:
     CLOCK: [2025-10-15 Mi 15:35]--[2025-10-15 Mi 15:55] =>  0:20
+    :END:
+*** DONE Deadlock in Cache layer
+    CLOSED: [2025-11-08 Sa 14:43]
+    :LOGBOOK:
+    CLOCK: [2025-11-08 Sa 14:18]--[2025-11-08 Sa 14:43] =>  0:25
     :END:
 ** Journal [1/1]
    :PROPERTIES:
