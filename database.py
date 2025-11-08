@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-06 15:21:19 krylon>
+# Time-stamp: <2025-11-08 16:37:16 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -134,6 +134,18 @@ SELECT
 FROM children
 ORDER BY full_name
     """,
+    """
+CREATE TABLE later (
+    id INTEGER PRIMARY KEY,
+    item_id INTEGER UNIQUE NOT NULL,
+    time_marked INTEGER NOT NULL DEFAULT (unixepoch()),
+    time_finished INTEGER,
+    FOREIGN KEY (item_id) REFERENCES item (id)
+        ON UPDATE RESTRICT
+        ON DELETE CASCADE
+) STRICT
+    """,
+    "CREATE INDEX later_item_idx ON later (item_id)",
 ]
 
 
@@ -172,6 +184,13 @@ class Query(Enum):
     TagLinkGetTaggedItems = auto()
     TagLinkDelete = auto()
     TagLinkGetItemCount = auto()
+
+    LaterAdd = auto()
+    LaterUnmark = auto()
+    LaterGetAll = auto()
+    LaterGetUnfinished = auto()
+    LaterMarkFinished = auto()
+    LaterPurge = auto()
 
 
 qdb: Final[dict[Query, str]] = {
@@ -410,6 +429,16 @@ SELECT
 FROM tag_sorted t
 LEFT OUTER JOIN links l ON t.id = l.tag_id
 ORDER BY full_name
+    """,
+    Query.LaterAdd: "INSERT INTO later (item_id) VALUES (?)",
+    Query.LaterUnmark: "DELETE FROM later WHERE item_id = ?",
+    Query.LaterGetAll: """
+SELECT
+    id,
+    item_id,
+    time_marked,
+    time_finished
+FROM later
     """,
 }
 
