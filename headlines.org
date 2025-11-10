@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-11-10 16:10:56 krylon>
+# Time-stamp: <2025-11-10 19:58:52 krylon>
 #
 #+TAGS: internals(i) ui(u) database(d) design(e)
 #+TAGS: meditation(m) optimize(o) refactor(r) cleanup(c)
@@ -8,19 +8,19 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Headlines [25/29]
+* Headlines [27/32]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: children
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2025-11-10 Mo 16:10]
+   #+CAPTION: Clock summary at [2025-11-10 Mo 19:58]
    | Headline                                        | Time      |           |         |         |       |      |
    |-------------------------------------------------+-----------+-----------+---------+---------+-------+------|
-   | *Total time*                                    | *4d 3:11* |           |         |         |       |      |
+   | *Total time*                                    | *4d 4:30* |           |         |         |       |      |
    |-------------------------------------------------+-----------+-----------+---------+---------+-------+------|
-   | *Headlines [25/29]*                             | *4d 3:11* |           |         |         |       |      |
+   | *Headlines [27/32]*                             | *4d 4:30* |           |         |         |       |      |
    | \_  /Components [14/15]/                        |           | /3d 2:52/ |         |         |       |      |
    | \_    Common [1/1]                              |           |           |    0:08 |         |       |      |
    | \_      Down the rabbit hole for pathlib        |           |           |         |    0:08 |       |      |
@@ -33,8 +33,8 @@
    | \_        Tagging [0/0]                         |           |           |         |         |  0:46 |      |
    | \_      Testing                                 |           |           |         |    0:50 |       |      |
    | \_    Engine [0/0]                              |           |           |   11:36 |         |       |      |
-   | \_    Web UI [9/10]                             |           |           | 2d 0:35 |         |       |      |
-   | \_      Pagination [0/1]                        |           |           |         |    1:00 |       |      |
+   | \_    Web UI [10/12]                            |           |           | 2d 0:35 |         |       |      |
+   | \_      Pagination [1/1]                        |           |           |         |    1:00 |       |      |
    | \_      Rating                                  |           |           |         |    0:06 |       |      |
    | \_      Tagging [6/6]                           |           |           |         | 1d 8:51 |       |      |
    | \_        View Tags and their linked Items      |           |           |         |         |  8:46 |      |
@@ -44,15 +44,16 @@
    | \_        Recommendation [1/1]                  |           |           |         |         | 13:11 |      |
    | \_          Don't recommend Tags already linked |           |           |         |         |       | 0:26 |
    | \_    Main [0/0]                                |           |           |    1:53 |         |       |      |
-   | \_  /Features [6/9]/                            |           | /20:38/   |         |         |       |      |
-   | \_    Later, B_tches [0/0]                      |           |           |    3:25 |         |       |      |
+   | \_  /Features [6/9]/                            |           | /21:43/   |         |         |       |      |
+   | \_    Later, B_tches [0/0]                      |           |           |    4:30 |         |       |      |
    | \_    Sanitize [3/3]                            |           |           |    4:19 |         |       |      |
    | \_    Tagging [0/0]                             |           |           |    2:49 |         |       |      |
    | \_    Rating [1/1]                              |           |           |    5:00 |         |       |      |
    | \_      Tokenizer                               |           |           |         |    3:03 |       |      |
    | \_    Caching [1/1]                             |           |           |    5:05 |         |       |      |
    | \_      Expiration!                             |           |           |         |    0:44 |       |      |
-   | \_  /Bugs [4/4]/                                |           | /3:15/    |         |         |       |      |
+   | \_  /Bugs [5/5]/                                |           | /3:29/    |         |         |       |      |
+   | \_    Missing text in Advisor                   |           |           |    0:14 |         |       |      |
    | \_    The mysterious case of the missing link   |           |           |    1:19 |         |       |      |
    | \_    Missing pubDate                           |           |           |    1:11 |         |       |      |
    | \_    The case of the failing refresh           |           |           |    0:20 |         |       |      |
@@ -169,7 +170,7 @@
     asyncio under the hood these days anyway.
     (The Internet says Twisted does not use asyncio, but still.)
     So Twisted it is!
-*** Web UI [9/10]
+*** Web UI [10/12]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: children
@@ -182,7 +183,10 @@
     CLOCK: [2025-10-13 Mo 17:47]--[2025-10-13 Mo 23:41] =>  5:54
     CLOCK: [2025-10-11 Sa 19:31]--[2025-10-11 Sa 23:30] =>  3:59
     :END:
-**** DONE Pagination [0/1]
+**** TODO Manage feeds from WebUI
+     Until now, I've been doing that via the sqlite shell.
+**** TODO Mark boring items visually [0/0]
+**** DONE Pagination [1/1]
      CLOSED: [2025-11-06 Do 15:50]
      :PROPERTIES:
      :COOKIE_DATA: todo recursive
@@ -194,7 +198,8 @@
      :END:
      In the backend, support is already there, is just need to include it in
      the frontend.
-***** TODO Make page size configurable?
+***** SUSPENDED Make page size configurable?
+      CLOSED: [2025-11-10 Mo 16:19]
       It would be nice - and shouldn't be too hard to make the page size
       configurable from the front end, using LocalStorage.
 **** DONE Rating
@@ -276,6 +281,7 @@
    :END:
 *** TODO Later, B_tches [0/0]
     :LOGBOOK:
+    CLOCK: [2025-11-10 Mo 16:21]--[2025-11-10 Mo 17:26] =>  1:05
     CLOCK: [2025-11-08 Sa 16:11]--[2025-11-08 Sa 19:36] =>  3:25
     :END:
     I want to mark Items as "I want to read that, just not right now."
@@ -385,11 +391,18 @@
      Tokenization is not as much of an issue, but caching ratings and advice
      without an expiration date is a questionable idea, because as I rate and
      tag more Items, that affects future classifications and advice.
-** Bugs [4/4]
+** Bugs [5/5]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: children
    :END:
+*** DONE Missing text in Advisor
+    CLOSED: [2025-11-10 Mo 17:41]
+    :LOGBOOK:
+    CLOCK: [2025-11-10 Mo 17:27]--[2025-11-10 Mo 17:41] =>  0:14
+    :END:
+    [2025-11-10 Mo 17:40] The culprit was not explicitly encoding a cache key
+    to UTF-8, causing LMDB to throw an Exception.
 *** DONE The mysterious case of the missing link
     CLOSED: [2025-10-24 Fr 20:46]
     :LOGBOOK:
