@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-06 15:32:14 krylon>
+# Time-stamp: <2025-11-10 16:05:03 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -208,7 +208,10 @@ class WebUI:
                     rating: Rating = self.karl.classify(item)
                     item.cache_rating(rating, 0.75)
 
-                advice[item.item_id] = self.advisor.advise(item)
+                advice[item.item_id] = self.advisor.advise(
+                    item,
+                    {t.name for t in item_tags[item.item_id]}
+                )
 
             response.set_header("Cache-Control", "no-store, max-age=0")
             tmpl = self.env.get_template("news.jinja")

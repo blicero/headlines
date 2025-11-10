@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-08 14:30:43 krylon>
+# Time-stamp: <2025-11-10 16:03:53 krylon>
 #
 # /data/code/python/headlines/tagging.py
 # created on 26. 10. 2025
@@ -119,9 +119,14 @@ class Advisor:
         with self.lock:
             self.bayes.cache_persist()
 
-    def advise(self, item: Item, cnt: int = 10) -> list[tuple[Tag, float]]:
+    def advise(self,
+               item: Item,
+               links: Optional[set[str]] = None,
+               cnt: int = 10) -> list[tuple[Tag, float]]:
         """Return up to <cnt> Tags best matching <item>."""
         assert cnt > 0
+        if links is None:
+            links = set()
         with self.lock:
             with self._cache.tx(False) as tx:
                 scores: Optional[dict[str, float]] = tx[item.xid]
@@ -132,10 +137,10 @@ class Advisor:
                     tx[item.xid] = scores
 
         try:
-            tags = [(self.tag_cache[x[0]], x[1]) for x in scores.items()]
+            tags = [(self.tag_cache[x[0]], x[1]) for x in scores.items() if x[0] not in links]
         except KeyError:
             self._fill_tag_cache()
-            return self.advise(item, cnt)
+            return self.advise(item, links, cnt)
 
         tags.sort(key=lambda x: x[1], reverse=True)
 
