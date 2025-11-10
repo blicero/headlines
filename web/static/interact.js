@@ -1,4 +1,4 @@
-// Time-stamp: <2025-11-03 17:40:09 krylon>
+// Time-stamp: <2025-11-10 17:19:54 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -492,3 +492,11 @@ function create_tag() {
         alert(msg)
     })
 } // function create_tag()
+
+function mark_later_read(item_id) {
+    console.log(`Mark Item ${item_id} to be read later.`)
+} // function mark_later_read(item_id)
+
+function mark_later_done(item_id) {
+    console.log(`Mark Item ${item_id} as read.`)
+} // function mark_later_done(item_id)

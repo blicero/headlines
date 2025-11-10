@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-05 15:34:17 krylon>
+# Time-stamp: <2025-11-10 17:22:38 krylon>
 #
 # /data/code/python/headlines/tests/test_database.py
 # created on 08. 10. 2025
@@ -24,7 +24,7 @@ from typing import Final, Optional
 
 from headlines import common
 from headlines.database import Database
-from headlines.model import Feed, Item, Rating, Tag, TagLink
+from headlines.model import Feed, Item, Later, Rating, Tag, TagLink
 
 test_dir: Final[str] = os.path.join(
     "/tmp",
@@ -179,6 +179,26 @@ class TestDatabase(unittest.TestCase):
                         self.assertEqual(link.item_id, item.item_id)
                         self.assertEqual(link.tag_id, tag.tag_id)
 
+    def test_09_later_add(self) -> None:
+        """Attempt to mark Items as read-later."""
+        db: Database = self.db()
+        items: list[Item] = db.item_get_recent(item_cnt)
+
+        with db:
+            for item in items:
+                lt: Later = db.item_later_add(item)
+                self.assertIsNotNone(lt)
+                self.assertIsInstance(lt, Later)
+                self.assertEqual(lt.item_id, item.item_id)
+
+        iids: set[int] = {i.item_id for i in items}
+
+        later: set[Later] = db.item_later_get_all()
+        self.assertIsNotNone(later)
+        self.assertEqual(len(items), len(later))
+
+        for lt in later:
+            self.assertIn(lt.item_id, iids)
 
 # Local Variables: #
 # python-indent: 4 #

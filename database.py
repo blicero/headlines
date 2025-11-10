@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-08 16:37:16 krylon>
+# Time-stamp: <2025-11-10 17:21:50 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -29,7 +29,7 @@ from typing import Final, Optional, Union
 import krylib
 
 from headlines import common
-from headlines.model import Feed, Item, Rating, Tag, TagLink
+from headlines.model import Feed, Item, Later, Rating, Tag, TagLink
 
 
 class DatabaseError(common.HeadlineError):
@@ -146,6 +146,7 @@ CREATE TABLE later (
 ) STRICT
     """,
     "CREATE INDEX later_item_idx ON later (item_id)",
+    "CREATE INDEX later_unfinished_idx ON later (time_finished IS NULL)",
 ]
 
 
@@ -430,7 +431,7 @@ FROM tag_sorted t
 LEFT OUTER JOIN links l ON t.id = l.tag_id
 ORDER BY full_name
     """,
-    Query.LaterAdd: "INSERT INTO later (item_id) VALUES (?)",
+    Query.LaterAdd: "INSERT INTO later (item_id) VALUES (?) RETURNING id, time_marked",
     Query.LaterUnmark: "DELETE FROM later WHERE item_id = ?",
     Query.LaterGetAll: """
 SELECT
@@ -439,6 +440,14 @@ SELECT
     time_marked,
     time_finished
 FROM later
+    """,
+    Query.LaterGetUnfinished: """
+SELECT
+    id,
+    item_id,
+    time_marked,
+FROM later
+WHERE time_finished IS NULL
     """,
 }
 
@@ -1119,6 +1128,72 @@ class Database:
             cname: Final[str] = err.__class__.__name__
             msg: Final[str] = \
                 f"{cname} trying to load Tags with Link counts: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
+    def item_later_add(self, item: Item) -> Later:
+        """Mark an Item to be read later."""
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.LaterAdd], (item.item_id, ))
+            row = cur.fetchone()
+            later: Final[Later] = Later(
+                lid=row[0],
+                item_id=item.item_id,
+                time_marked=datetime.fromtimestamp(row[1]),
+            )
+            return later
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying mark Item {item.item_id} to be read later: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
+    def item_later_remove(self, item: Union[Item, Later]) -> None:
+        """Remove an Item from the read-later-list."""
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.LaterUnmark], (item.item_id, ))
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to delete Later for Item {item.item_id}: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
+    def item_later_mark_done(self, item: Union[Item, Later]) -> None:
+        """Mark an Item from the to-read-list as done."""
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.LaterMarkFinished], (item.item_id, ))
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to mark Item {item.item_id} as read: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
+    def item_later_get_all(self) -> set[Later]:
+        """Get all Items from the to-read-list."""
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.LaterGetAll])
+            items: set[Later] = set()
+
+            for row in cur:
+                l: Later = Later(
+                    lid=row[0],
+                    item_id=row[1],
+                    time_marked=datetime.fromtimestamp(row[2]),
+                    time_finished=(datetime.fromtimestamp(row[3]) if row[3] is not None else None),
+                )
+                items.add(l)
+            return items
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to load all Later Items: {err}"
             self.log.error(msg)
             raise DatabaseError(msg) from err
 

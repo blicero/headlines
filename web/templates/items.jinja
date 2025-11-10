@@ -1,5 +1,5 @@
 {# -*- mode: jinja2; coding: utf-8; -*-
-Time-stamp: <2025-11-01 18:58:52 krylon>
+Time-stamp: <2025-11-10 19:49:32 krylon>
 /data/code/python/headlines/web/templates/items.jinja
 created on 01. 11. 2025
 (c) 2025 Benjamin Walkenhorst
@@ -22,7 +22,25 @@ created on 01. 11. 2025
   <tbody class="items" id="items">
     {% for item in items %}
       <tr>
-        <td>{{ item.stamp_str }}</td>
+        <td>
+          {{ item.stamp_str }}
+          <hr />
+          <div id="later_{{ item.item_id }}" class="later">
+            {% if item.item_id not in later %}
+              <button type="button"
+                      class="btn btn-light btn-sm later"
+                      onclick="mark_later_read({{ item.item_id }});">
+                      Later
+              </button>
+            {% else %}
+              <button type="button"
+                      class="btn btn-dark btn-sm later"
+                      onclick="mark_later_done({{ item.item_id }});">
+                      Done?
+              </button>
+            {% endif %}
+          </div>
+        </td>
         <td>
           <a href="/feed/{{ item.feed_id }}">
             {{ feeds[item.feed_id].name }}

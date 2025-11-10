@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-05 16:29:48 krylon>
+# Time-stamp: <2025-11-10 17:24:28 krylon>
 #
 # /data/code/python/headlines/src/headlines/model.py
 # created on 30. 09. 2025
@@ -186,6 +186,15 @@ class TagLink:
     tag_id: int
     item_id: int
 
+
+@dataclass(kw_only=True, slots=True, unsafe_hash=True)
+class Later:
+    """Later signifies that a news Item is to be read at a later time."""
+
+    lid: int = 0
+    item_id: int = 0
+    time_marked: datetime = field(default_factory=datetime.now)
+    time_finished: Optional[datetime] = None
 
 # Local Variables: #
 # python-indent: 4 #

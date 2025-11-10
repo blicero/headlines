@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-10 16:05:03 krylon>
+# Time-stamp: <2025-11-10 17:22:28 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -35,7 +35,7 @@ from jinja2 import Environment, FileSystemLoader
 from headlines import common
 from headlines.classy import Karl
 from headlines.database import Database, DatabaseError
-from headlines.model import Feed, Item, Rating, Tag
+from headlines.model import Feed, Item, Later, Rating, Tag
 from headlines.tagging import Advisor
 
 mime_types: Final[dict[str, str]] = {
@@ -200,6 +200,7 @@ class WebUI:
             feeds: list[Feed] = db.feed_get_all()
             tags: list[Tag] = db.tag_get_all()
             item_tags: dict[int, set[Tag]] = {}
+            later: set[Later] = db.item_later_get_all()
             advice: dict[int, list[tuple[Tag, float]]] = {}
 
             for item in items:
@@ -221,6 +222,7 @@ class WebUI:
             tmpl_vars["items"] = items
             tmpl_vars["tags"] = tags
             tmpl_vars["item_tags"] = item_tags
+            tmpl_vars["later"] = later
             tmpl_vars["advice"] = advice
             tmpl_vars["page_no"] = offset
             tmpl_vars["page_max"] = db.item_get_count() // cnt
