@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-05 16:30:30 krylon>
+# Time-stamp: <2025-11-10 16:10:01 krylon>
 #
 # /data/code/python/headlines/nlp.py
 # created on 04. 11. 2025
@@ -69,8 +69,9 @@ class NLP:
             if key not in tx:
                 output = " ".join(self._tokenize(item.plain_full, lng))
                 tx[key] = output
-                return output
-            return tx[key]
+            else:
+                output = tx[key]
+            return output
 
 # Local Variables: #
 # python-indent: 4 #

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-08 14:28:09 krylon>
+# Time-stamp: <2025-11-10 16:10:09 krylon>
 #
 # /data/code/python/headlines/classy.py
 # created on 15. 10. 2025
@@ -83,6 +83,7 @@ class Karl:
     def classify(self, item: Item) -> Rating:
         """Classify an Item based on trained data."""
         if item.is_rated:
+            self.log.error("XXX Item %d is already rated!", item.item_id)
             return item.rating
         xid: Final[str] = item.xid
         with self.lock:
@@ -90,6 +91,10 @@ class Karl:
                 rstr: Optional[str] = tx[xid]
             if rstr is None:
                 txt: Final[str] = self.nlp.preprocess(item)
+                if txt is None:
+                    self.log.error("Failed to preprocess Item %d",
+                                   item.item_id)
+                    txt = item.plain_full
                 rstr = self.bayes.classify(txt)
                 with self._cache.tx(True) as tx:
                     tx[xid] = rstr
