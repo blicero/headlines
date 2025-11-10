@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-10 16:10:01 krylon>
+# Time-stamp: <2025-11-10 17:31:34 krylon>
 #
 # /data/code/python/headlines/nlp.py
 # created on 04. 11. 2025
@@ -71,6 +71,10 @@ class NLP:
                 tx[key] = output
             else:
                 output = tx[key]
+            if output is None:
+                self.log.error("Failed to process Item %d\n%s\n\n",
+                               item.item_id,
+                               item.plain_full)
             return output
 
 # Local Variables: #

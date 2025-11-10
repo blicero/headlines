@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-10 16:03:53 krylon>
+# Time-stamp: <2025-11-10 17:31:51 krylon>
 #
 # /data/code/python/headlines/tagging.py
 # created on 26. 10. 2025
@@ -132,6 +132,7 @@ class Advisor:
                 scores: Optional[dict[str, float]] = tx[item.xid]
             if scores is None:
                 txt: Final[str] = self.nlp.preprocess(item)
+                assert txt is not None
                 scores = self.bayes.score(txt)
                 with self._cache.tx(True) as tx:
                     tx[item.xid] = scores

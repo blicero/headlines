@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-08 14:34:31 krylon>
+# Time-stamp: <2025-11-10 17:38:58 krylon>
 #
 # /data/code/python/headlines/cache.py
 # created on 05. 11. 2025
@@ -19,6 +19,7 @@ headlines.cache
 
 import logging
 import pickle
+import traceback
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
@@ -96,7 +97,7 @@ class Tx:
             raise TxError("Cannot change the database in a readonly transaction!")
 
         item = CacheItem(item=val, expires=datetime.now()+self.ttl)
-        raw = pickle.dumps(item)
+        raw: Final[bytes] = pickle.dumps(item)
 
         self.tx.put(key.encode(), raw, overwrite=True)
 
@@ -113,7 +114,7 @@ class Tx:
 
         item = pickle.loads(val)
         if self.rw and not item.valid:
-            self.tx.delete(key)
+            self.tx.delete(key.encode())
         return item.valid
 
 
@@ -142,9 +143,10 @@ class CacheDB:
             yield Tx(log=self.log, tx=tx, rw=rw, ttl=self.ttl)
         except Exception as err:  # noqa: F841 # pylint: disable-msg=W0718
             cname: Final[str] = err.__class__.__name__
-            self.log.error("Abort transaction due to %s: %s",
+            self.log.error("Abort transaction due to %s: %s\n%s",
                            cname,
-                           err)
+                           err,
+                           "\n".join(traceback.format_exception(err)))
             tx.abort()
         else:
             tx.commit()
