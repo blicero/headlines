@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-11 17:56:22 krylon>
+# Time-stamp: <2025-11-11 18:56:52 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -228,7 +228,7 @@ class WebUI:
             tmpl_vars["items"] = items
             tmpl_vars["tags"] = tags
             tmpl_vars["item_tags"] = item_tags
-            tmpl_vars["later"] = later
+            tmpl_vars["later"] = {lt.item_id: lt for lt in later}
             tmpl_vars["advice"] = advice
             tmpl_vars["page_no"] = offset
             tmpl_vars["page_max"] = db.item_get_count() // cnt

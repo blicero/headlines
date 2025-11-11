@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-10 17:24:28 krylon>
+# Time-stamp: <2025-11-11 18:52:41 krylon>
 #
 # /data/code/python/headlines/src/headlines/model.py
 # created on 30. 09. 2025
@@ -195,6 +195,11 @@ class Later:
     item_id: int = 0
     time_marked: datetime = field(default_factory=datetime.now)
     time_finished: Optional[datetime] = None
+
+    @property
+    def finished(self) -> bool:
+        """Return True if the Item has been marked as read."""
+        return self.time_finished is not None
 
 # Local Variables: #
 # python-indent: 4 #
