@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-11-11 20:53:02 krylon>
+# Time-stamp: <2025-11-11 21:59:54 krylon>
 #
 #+TAGS: internals(i) ui(u) database(d) design(e)
 #+TAGS: meditation(m) optimize(o) refactor(r) cleanup(c)
@@ -15,13 +15,13 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2025-11-11 Di 20:53]
+   #+CAPTION: Clock summary at [2025-11-11 Di 21:59]
    | Headline                                        | Time      |           |         |         |       |      |
    |-------------------------------------------------+-----------+-----------+---------+---------+-------+------|
-   | *Total time*                                    | *4d 7:45* |           |         |         |       |      |
+   | *Total time*                                    | *4d 8:37* |           |         |         |       |      |
    |-------------------------------------------------+-----------+-----------+---------+---------+-------+------|
-   | *Headlines [28/32]*                             | *4d 7:45* |           |         |         |       |      |
-   | \_  /Components [14/15]/                        |           | /3d 2:52/ |         |         |       |      |
+   | *Headlines [28/32]*                             | *4d 8:37* |           |         |         |       |      |
+   | \_  /Components [15/17]/                        |           | /3d 3:44/ |         |         |       |      |
    | \_    Common [1/1]                              |           |           |    0:08 |         |       |      |
    | \_      Down the rabbit hole for pathlib        |           |           |         |    0:08 |       |      |
    | \_    Model [1/1]                               |           |           |    0:38 |         |       |      |
@@ -33,7 +33,8 @@
    | \_        Tagging [0/0]                         |           |           |         |         |  0:46 |      |
    | \_      Testing                                 |           |           |         |    0:50 |       |      |
    | \_    Engine [0/0]                              |           |           |   11:36 |         |       |      |
-   | \_    Web UI [10/12]                            |           |           | 2d 0:35 |         |       |      |
+   | \_    Web UI [10/12]                            |           |           | 2d 1:27 |         |       |      |
+   | \_      Manage feeds from WebUI [0/0]           |           |           |         |    0:52 |       |      |
    | \_      Pagination [1/1]                        |           |           |         |    1:00 |       |      |
    | \_      Rating                                  |           |           |         |    0:06 |       |      |
    | \_      Tagging [6/6]                           |           |           |         | 1d 8:51 |       |      |
@@ -61,7 +62,7 @@
    | \_  /Journal [1/1]/                             |           | /0:26/    |         |         |       |      |
    | \_    Wrestling with poetry                     |           |           |    0:26 |         |       |      |
    #+END:
-** Components [14/15]
+** Components [15/17]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: children
@@ -183,7 +184,14 @@
     CLOCK: [2025-10-13 Mo 17:47]--[2025-10-13 Mo 23:41] =>  5:54
     CLOCK: [2025-10-11 Sa 19:31]--[2025-10-11 Sa 23:30] =>  3:59
     :END:
-**** TODO Manage feeds from WebUI
+**** TODO Manage feeds from WebUI [0/0]
+     :PROPERTIES:
+     :COOKIE_DATA: todo recursive
+     :VISIBILITY: children
+     :END:
+     :LOGBOOK:
+     CLOCK: [2025-11-11 Di 21:07]--[2025-11-11 Di 21:59] =>  0:52
+     :END:
      Until now, I've been doing that via the sqlite shell.
 **** TODO Mark boring items visually [0/0]
 **** DONE Pagination [1/1]
