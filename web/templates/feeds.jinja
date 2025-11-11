@@ -1,0 +1,31 @@
+{# -*- mode: jinja2; coding: utf-8; -*-
+Time-stamp: <2025-11-11 21:15:00 krylon>
+/data/code/python/headlines/web/templates/feeds.jinja
+created on 11. 11. 2025
+(c) 2025 Benjamin Walkenhorst
+ #}
+
+{% extends "main.jinja" %}
+
+{% block content %}
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Interval (sec.)</th>
+        <th>Last Update</th>
+        <th>Active?</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for feed in feeds %}
+        <tr>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
+
+
