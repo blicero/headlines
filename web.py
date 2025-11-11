@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-10 17:22:28 krylon>
+# Time-stamp: <2025-11-11 17:56:22 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -154,6 +154,12 @@ class WebUI:
         route("/ajax/tag/new",
               method="POST",
               callback=self._handle_tag_create)
+        route("/ajax/later/add/<item_id:int>",
+              method="POST",
+              callback=self._handle_later_add)
+        route("/ajax/later/done/<item_id:int>",
+              method="POST",
+              callback=self._handle_later_mark_done)
 
         route("/static/<path>", callback=self._handle_static)
         route("/favicon.ico", callback=self._handle_favicon)
@@ -564,6 +570,67 @@ class WebUI:
             cname: Final[str] = err.__class__.__name__
             res["message"] = f"{cname} trying to add Tag named {name} (parent = {parent}): {err}"
             self.log.error(res["message"])
+        finally:
+            db.close()
+
+        response.set_header("Cache-Control", "no-store, max-age=0")
+        response.set_header("Content-Type", "application/json")
+        return json.dumps(res)
+
+    def _handle_later_add(self, item_id: int) -> Union[bytes, str]:
+        """Add an Item to the read-later list."""
+        res: dict = {
+            "status": False,
+            "timestamp": datetime.now().strftime(common.TimeFmt),
+            "message": "",
+            "payload": None,
+        }
+        db: Final[Database] = Database()
+        try:
+            with db:
+                item: Optional[Item] = db.item_get_by_id(item_id)
+                if item is None:
+                    res["message"] = f"Item {item_id} does not exist in database"
+                else:
+                    later: Later = db.item_later_add(item)
+                    res["payload"] = later.lid
+                    res["status"] = True
+        except DatabaseError as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to mark Item {item_id} as read-later: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+        finally:
+            db.close()
+
+        response.set_header("Cache-Control", "no-store, max-age=0")
+        response.set_header("Content-Type", "application/json")
+        return json.dumps(res)
+
+    def _handle_later_mark_done(self, item_id: int) -> Union[bytes, str]:
+        """Mark an Item on the read-later list as done."""
+        res: dict = {
+            "status": False,
+            "timestamp": datetime.now().strftime(common.TimeFmt),
+            "message": "",
+            "payload": None,
+        }
+        db: Final[Database] = Database()
+        try:
+            with db:
+                item: Optional[Item] = db.item_get_by_id(item_id)
+                if item is None:
+                    res["status"] = f"Item {item_id} was not found in database"
+                else:
+                    db.item_later_mark_done(item)
+                    res["status"] = True
+        except DatabaseError as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to mark Item {item_id} as read: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
         finally:
             db.close()
 

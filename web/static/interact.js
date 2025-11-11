@@ -1,4 +1,4 @@
-// Time-stamp: <2025-11-10 17:19:54 krylon>
+// Time-stamp: <2025-11-11 18:15:07 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -494,9 +494,58 @@ function create_tag() {
 } // function create_tag()
 
 function mark_later_read(item_id) {
-    console.log(`Mark Item ${item_id} to be read later.`)
+    const url = `/ajax/later/add/${item_id}`
+    const div_id = `#later_${item_id}`
+    const div = $(div_id)[0]
+
+    $.post(
+        url,
+        {},
+        (res) => {
+            if (res.status) {
+                const content = `
+<button type="button"
+        class="btn btn-dark btn-sm later"
+        onclick="mark_later_done(${item_id});">
+Done?
+</button>
+`
+                div.innerHTML = content
+            } else {
+                console.error(res.message)
+                msg_add(new Date(), 'ERROR', res.message)
+                alert(res.message)
+            }
+        },
+        'json'
+    ).fail(() => {
+        const msg = `Error marking Item ${item_id} as read-later`
+        msg_add(new Date(), 'ERROR', msg)
+        alert(msg)
+    })
 } // function mark_later_read(item_id)
 
 function mark_later_done(item_id) {
-    console.log(`Mark Item ${item_id} as read.`)
+    const url = `/ajax/later/done/${item_id}`
+    const div_id = `#later_${item_id}`
+    const div = $(div_id)[0]
+
+    $.post(
+        url,
+        {},
+        (res) => {
+            if (res.status) {
+                div.innerHTML = '' // ???
+            } else {
+                console.error(res.message)
+                msg_add(new Date(), 'ERROR', res.message)
+                alert(res.message)
+            }
+        },
+        'json'
+    ).fail(() => {
+        const msg = `Error marking Item ${item_id} as read`
+        msg_add(new Date(), 'ERROR', msg)
+        alert(msg)      
+    })
 } // function mark_later_done(item_id)
