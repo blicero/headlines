@@ -1,0 +1,53 @@
+{# -*- mode: jinja2; coding: utf-8; -*-
+Time-stamp: <2025-11-11 19:41:38 krylon>
+/data/code/python/headlines/web/templates/later.jinja
+created on 11. 11. 2025
+(c) 2025 Benjamin Walkenhorst
+ #}
+
+{% extends "main.jinja" %}
+
+{% block content %}
+  <table class="table table-striped">
+    <thead>
+      <th>Time</th>
+      <th>Source</th>
+      <th>Headline</th>
+      <th>Status</th>
+    </thead>
+
+    <tbody>
+      {% for lt in later %}
+        {% set item = items[lt.item_id] %}
+        <tr>
+          <td>{{ item.stamp_str }}</td>
+          <td>
+            <a href="/feed/{{ item.feed_id }}">
+              {{ feeds[item.feed_id].name }}
+            </a>
+          </td>
+          <td>
+            <a target="_blank"
+               href="{{ item.url }}">
+               {{ item.headline }}
+            </a>
+          </td>
+          <td id="later_{{ item.item_id }}">
+            {% if not lt.finished %}
+              Marked as to-read on {{ lt.marked_str }}<br />
+              <button type="button"
+                      class="btn btn-dark btn-sm later"
+                      onclick="mark_later_done({{ item.item_id }});">
+                      Done?
+              </button>
+            {% else %}
+              Marked as read on {{ lt.finished_str }}
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
+
+

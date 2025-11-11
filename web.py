@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-11 18:56:52 krylon>
+# Time-stamp: <2025-11-11 20:39:37 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -131,6 +131,7 @@ class WebUI:
         route("/news/<cnt:int>/<offset:int>", callback=self._handle_news)
         route("/tag/all", callback=self._handle_tag_all)
         route("/tag/<tag_id:int>", callback=self._handle_tag_details)
+        route("/later", callback=self._handle_later)
 
         route("/ajax/beacon", callback=self._handle_beacon)
         route("/ajax/item_rate/<item_id:int>/<score:int>",
@@ -197,8 +198,8 @@ class WebUI:
 
     def _handle_news(self, cnt: int = 100, offset: int = 0) -> Union[str, bytes]:
         """Present news Items."""
-        if cnt == 0:
-            self.log.info("cnt is 0, which is inacceptable. Let's use 100")
+        if cnt <= 0:
+            self.log.info("cnt is %d, which is inacceptable. Let's use 100", cnt)
             cnt = 100
         db: Database = Database()
         try:
@@ -287,6 +288,34 @@ class WebUI:
 
             # TODO Get and render the template!
             tmpl = self.env.get_template("tag_details.jinja")
+            return tmpl.render(tmpl_vars)
+        finally:
+            db.close()
+
+    def _handle_later(self) -> Union[bytes, str]:
+        """Display the read-later list."""
+        db: Final[Database] = Database()
+        try:
+            later: set[Later] = db.item_later_get_all()
+            self.log.debug("Rendering %d Items to be read later.",
+                           len(later))
+            items: dict[int, Item] = {}
+            for lt in later:
+                item: Optional[Item] = db.item_get_by_id(lt.item_id)
+                if item is not None:
+                    items[item.item_id] = item
+                else:
+                    self.log.critical("CANTHAPPEN: Item %d was not found in database", lt.item_id)
+            assert len(later) == len(items)
+            feeds: list[Feed] = db.feed_get_all()
+            response.set_header("Content-Type", "text/html; charset=UTF-8")
+            response.set_header("Cache-Control", "no-store, max-age=0")
+            tmpl = self.env.get_template("later.jinja")
+            tmpl_vars = self._tmpl_vars()
+            tmpl_vars["title"] = f"{common.AppName} {common.AppVersion} - Later"
+            tmpl_vars["feeds"] = {f.fid: f for f in feeds}
+            tmpl_vars["items"] = items
+            tmpl_vars["later"] = later
             return tmpl.render(tmpl_vars)
         finally:
             db.close()

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-11 18:52:41 krylon>
+# Time-stamp: <2025-11-11 20:41:11 krylon>
 #
 # /data/code/python/headlines/src/headlines/model.py
 # created on 30. 09. 2025
@@ -200,6 +200,22 @@ class Later:
     def finished(self) -> bool:
         """Return True if the Item has been marked as read."""
         return self.time_finished is not None
+
+    @property
+    def marked_str(self) -> str:
+        """Return the time_marked timestamp as a human-readable string."""
+        return self.time_marked.strftime(common.TimeFmt)
+
+    @property
+    def finished_str(self) -> str:
+        """Return the time_finished timestamp as a human-readable string.
+
+        If the Item has not been marked finished, and the time_finished field is
+        None, return an empty string.
+        """
+        if self.time_finished is not None:
+            return self.time_finished.strftime(common.TimeFmt)
+        return ""
 
 # Local Variables: #
 # python-indent: 4 #

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-11 18:53:33 krylon>
+# Time-stamp: <2025-11-11 20:40:56 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -1187,11 +1187,13 @@ class Database:
             items: set[Later] = set()
 
             for row in cur:
+                fin: Optional[datetime] = \
+                    datetime.fromtimestamp(row[3]) if (row[3] is not None) else None
                 l: Later = Later(
                     lid=row[0],
                     item_id=row[1],
                     time_marked=datetime.fromtimestamp(row[2]),
-                    time_finished=(datetime.fromtimestamp(row[3]) if (row[3] is not None) else None),
+                    time_finished=fin,
                 )
                 items.add(l)
             return items
