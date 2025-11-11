@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-11-10 19:58:52 krylon>
+# Time-stamp: <2025-11-11 18:40:35 krylon>
 #
 #+TAGS: internals(i) ui(u) database(d) design(e)
 #+TAGS: meditation(m) optimize(o) refactor(r) cleanup(c)
@@ -15,12 +15,12 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2025-11-10 Mo 19:58]
+   #+CAPTION: Clock summary at [2025-11-11 Di 18:40]
    | Headline                                        | Time      |           |         |         |       |      |
    |-------------------------------------------------+-----------+-----------+---------+---------+-------+------|
-   | *Total time*                                    | *4d 4:30* |           |         |         |       |      |
+   | *Total time*                                    | *4d 5:38* |           |         |         |       |      |
    |-------------------------------------------------+-----------+-----------+---------+---------+-------+------|
-   | *Headlines [27/32]*                             | *4d 4:30* |           |         |         |       |      |
+   | *Headlines [27/32]*                             | *4d 5:38* |           |         |         |       |      |
    | \_  /Components [14/15]/                        |           | /3d 2:52/ |         |         |       |      |
    | \_    Common [1/1]                              |           |           |    0:08 |         |       |      |
    | \_      Down the rabbit hole for pathlib        |           |           |         |    0:08 |       |      |
@@ -44,8 +44,8 @@
    | \_        Recommendation [1/1]                  |           |           |         |         | 13:11 |      |
    | \_          Don't recommend Tags already linked |           |           |         |         |       | 0:26 |
    | \_    Main [0/0]                                |           |           |    1:53 |         |       |      |
-   | \_  /Features [6/9]/                            |           | /21:43/   |         |         |       |      |
-   | \_    Later, B_tches [0/0]                      |           |           |    4:30 |         |       |      |
+   | \_  /Features [6/9]/                            |           | /22:51/   |         |         |       |      |
+   | \_    Later, B_tches [0/0]                      |           |           |    5:38 |         |       |      |
    | \_    Sanitize [3/3]                            |           |           |    4:19 |         |       |      |
    | \_    Tagging [0/0]                             |           |           |    2:49 |         |       |      |
    | \_    Rating [1/1]                              |           |           |    5:00 |         |       |      |
@@ -281,6 +281,7 @@
    :END:
 *** TODO Later, B_tches [0/0]
     :LOGBOOK:
+    CLOCK: [2025-11-11 Di 17:32]--[2025-11-11 Di 18:40] =>  1:08
     CLOCK: [2025-11-10 Mo 16:21]--[2025-11-10 Mo 17:26] =>  1:05
     CLOCK: [2025-11-08 Sa 16:11]--[2025-11-08 Sa 19:36] =>  3:25
     :END:
