@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-10 17:21:50 krylon>
+# Time-stamp: <2025-11-11 18:38:56 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -448,6 +448,11 @@ SELECT
     time_marked,
 FROM later
 WHERE time_finished IS NULL
+    """,
+    Query.LaterMarkFinished: """
+UPDATE later
+SET time_finished = unixepoch()
+WHERE item_id = ?
     """,
 }
 

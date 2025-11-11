@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-10 17:22:38 krylon>
+# Time-stamp: <2025-11-11 18:38:24 krylon>
 #
 # /data/code/python/headlines/tests/test_database.py
 # created on 08. 10. 2025
@@ -199,6 +199,22 @@ class TestDatabase(unittest.TestCase):
 
         for lt in later:
             self.assertIn(lt.item_id, iids)
+
+    def test_10_later_finish(self) -> None:
+        """Attempt marking Items on the read-later list as finished."""
+        db: Database = self.db()
+        items: list[Item] = db.item_get_recent(item_cnt)
+        cnt: Final[int] = len(items)
+
+        with db:
+            for item in items:
+                db.item_later_mark_done(item)
+
+        later: set[Later] = db.item_later_get_all()
+        self.assertIsNotNone(items)
+        self.assertEqual(cnt, len(later))
+        for lt in later:
+            self.assertIsNotNone(lt.time_finished)
 
 # Local Variables: #
 # python-indent: 4 #
