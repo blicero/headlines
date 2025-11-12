@@ -235,7 +235,7 @@ SELECT
     last_update,
     active
 FROM feed
-WHERE COALESCE(last_update, 0) + interval < ?
+WHERE active AND (COALESCE(last_update, 0) + interval < ?)
     """,
     Query.FeedSetActive: "UPDATE feed SET active = ? WHERE id = ?",
     Query.FeedSetLastUpdate: "UPDATE feed SET last_update = ? WHERE id = ?",
