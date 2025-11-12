@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-11-11 21:59:54 krylon>
+# Time-stamp: <2025-11-12 12:03:32 krylon>
 #
 #+TAGS: internals(i) ui(u) database(d) design(e)
 #+TAGS: meditation(m) optimize(o) refactor(r) cleanup(c)
@@ -8,61 +8,61 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Headlines [28/32]
+* Headlines [29/33]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: children
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2025-11-11 Di 21:59]
-   | Headline                                        | Time      |           |         |         |       |      |
-   |-------------------------------------------------+-----------+-----------+---------+---------+-------+------|
-   | *Total time*                                    | *4d 8:37* |           |         |         |       |      |
-   |-------------------------------------------------+-----------+-----------+---------+---------+-------+------|
-   | *Headlines [28/32]*                             | *4d 8:37* |           |         |         |       |      |
-   | \_  /Components [15/17]/                        |           | /3d 3:44/ |         |         |       |      |
-   | \_    Common [1/1]                              |           |           |    0:08 |         |       |      |
-   | \_      Down the rabbit hole for pathlib        |           |           |         |    0:08 |       |      |
-   | \_    Model [1/1]                               |           |           |    0:38 |         |       |      |
-   | \_      Testing                                 |           |           |         |    0:27 |       |      |
-   | \_      Rating and Tagging [0/0]                |           |           |         |    0:10 |       |      |
-   | \_    Classifier [0/0]                          |           |           |    1:09 |         |       |      |
-   | \_    Database [3/3]                            |           |           |   10:53 |         |       |      |
-   | \_      Rating and Tagging [2/2]                |           |           |         |    1:21 |       |      |
-   | \_        Tagging [0/0]                         |           |           |         |         |  0:46 |      |
-   | \_      Testing                                 |           |           |         |    0:50 |       |      |
-   | \_    Engine [0/0]                              |           |           |   11:36 |         |       |      |
-   | \_    Web UI [10/12]                            |           |           | 2d 1:27 |         |       |      |
-   | \_      Manage feeds from WebUI [0/0]           |           |           |         |    0:52 |       |      |
-   | \_      Pagination [1/1]                        |           |           |         |    1:00 |       |      |
-   | \_      Rating                                  |           |           |         |    0:06 |       |      |
-   | \_      Tagging [6/6]                           |           |           |         | 1d 8:51 |       |      |
-   | \_        View Tags and their linked Items      |           |           |         |         |  8:46 |      |
-   | \_        Creating and editing Tags [1/3]       |           |           |         |         |  3:52 |      |
-   | \_        Displaying Tags                       |           |           |         |         |  2:04 |      |
-   | \_        Adding and removing Tags [3/3]        |           |           |         |         |  4:58 |      |
-   | \_        Recommendation [1/1]                  |           |           |         |         | 13:11 |      |
-   | \_          Don't recommend Tags already linked |           |           |         |         |       | 0:26 |
-   | \_    Main [0/0]                                |           |           |    1:53 |         |       |      |
-   | \_  /Features [7/9]/                            |           | /1d 0:58/ |         |         |       |      |
-   | \_    Later, B_tches [0/0]                      |           |           |    7:45 |         |       |      |
-   | \_    Sanitize [3/3]                            |           |           |    4:19 |         |       |      |
-   | \_    Tagging [0/0]                             |           |           |    2:49 |         |       |      |
-   | \_    Rating [1/1]                              |           |           |    5:00 |         |       |      |
-   | \_      Tokenizer                               |           |           |         |    3:03 |       |      |
-   | \_    Caching [1/1]                             |           |           |    5:05 |         |       |      |
-   | \_      Expiration!                             |           |           |         |    0:44 |       |      |
-   | \_  /Bugs [5/5]/                                |           | /3:29/    |         |         |       |      |
-   | \_    Missing text in Advisor                   |           |           |    0:14 |         |       |      |
-   | \_    The mysterious case of the missing link   |           |           |    1:19 |         |       |      |
-   | \_    Missing pubDate                           |           |           |    1:11 |         |       |      |
-   | \_    The case of the failing refresh           |           |           |    0:20 |         |       |      |
-   | \_    Deadlock in Cache layer                   |           |           |    0:25 |         |       |      |
-   | \_  /Journal [1/1]/                             |           | /0:26/    |         |         |       |      |
-   | \_    Wrestling with poetry                     |           |           |    0:26 |         |       |      |
+   #+CAPTION: Clock summary at [2025-11-12 Mi 12:03]
+   | Headline                                        | Time       |           |         |         |       |      |
+   |-------------------------------------------------+------------+-----------+---------+---------+-------+------|
+   | *Total time*                                    | *4d 10:31* |           |         |         |       |      |
+   |-------------------------------------------------+------------+-----------+---------+---------+-------+------|
+   | *Headlines [29/33]*                             | *4d 10:31* |           |         |         |       |      |
+   | \_  /Components [16/18]/                        |            | /3d 5:38/ |         |         |       |      |
+   | \_    Common [1/1]                              |            |           |    0:08 |         |       |      |
+   | \_      Down the rabbit hole for pathlib        |            |           |         |    0:08 |       |      |
+   | \_    Model [1/1]                               |            |           |    0:38 |         |       |      |
+   | \_      Testing                                 |            |           |         |    0:27 |       |      |
+   | \_      Rating and Tagging [0/0]                |            |           |         |    0:10 |       |      |
+   | \_    Classifier [0/0]                          |            |           |    1:09 |         |       |      |
+   | \_    Database [3/3]                            |            |           |   10:53 |         |       |      |
+   | \_      Rating and Tagging [2/2]                |            |           |         |    1:21 |       |      |
+   | \_        Tagging [0/0]                         |            |           |         |         |  0:46 |      |
+   | \_      Testing                                 |            |           |         |    0:50 |       |      |
+   | \_    Engine [0/0]                              |            |           |   11:36 |         |       |      |
+   | \_    Web UI [11/13]                            |            |           | 2d 3:21 |         |       |      |
+   | \_      Manage feeds from WebUI [0/1]           |            |           |         |    2:46 |       |      |
+   | \_      Pagination [1/1]                        |            |           |         |    1:00 |       |      |
+   | \_      Rating                                  |            |           |         |    0:06 |       |      |
+   | \_      Tagging [6/6]                           |            |           |         | 1d 8:51 |       |      |
+   | \_        View Tags and their linked Items      |            |           |         |         |  8:46 |      |
+   | \_        Creating and editing Tags [1/3]       |            |           |         |         |  3:52 |      |
+   | \_        Displaying Tags                       |            |           |         |         |  2:04 |      |
+   | \_        Adding and removing Tags [3/3]        |            |           |         |         |  4:58 |      |
+   | \_        Recommendation [1/1]                  |            |           |         |         | 13:11 |      |
+   | \_          Don't recommend Tags already linked |            |           |         |         |       | 0:26 |
+   | \_    Main [0/0]                                |            |           |    1:53 |         |       |      |
+   | \_  /Features [7/9]/                            |            | /1d 0:58/ |         |         |       |      |
+   | \_    Later, B_tches [0/0]                      |            |           |    7:45 |         |       |      |
+   | \_    Sanitize [3/3]                            |            |           |    4:19 |         |       |      |
+   | \_    Tagging [0/0]                             |            |           |    2:49 |         |       |      |
+   | \_    Rating [1/1]                              |            |           |    5:00 |         |       |      |
+   | \_      Tokenizer                               |            |           |         |    3:03 |       |      |
+   | \_    Caching [1/1]                             |            |           |    5:05 |         |       |      |
+   | \_      Expiration!                             |            |           |         |    0:44 |       |      |
+   | \_  /Bugs [5/5]/                                |            | /3:29/    |         |         |       |      |
+   | \_    Missing text in Advisor                   |            |           |    0:14 |         |       |      |
+   | \_    The mysterious case of the missing link   |            |           |    1:19 |         |       |      |
+   | \_    Missing pubDate                           |            |           |    1:11 |         |       |      |
+   | \_    The case of the failing refresh           |            |           |    0:20 |         |       |      |
+   | \_    Deadlock in Cache layer                   |            |           |    0:25 |         |       |      |
+   | \_  /Journal [1/1]/                             |            | /0:26/    |         |         |       |      |
+   | \_    Wrestling with poetry                     |            |           |    0:26 |         |       |      |
    #+END:
-** Components [15/17]
+** Components [16/18]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: children
@@ -171,7 +171,7 @@
     asyncio under the hood these days anyway.
     (The Internet says Twisted does not use asyncio, but still.)
     So Twisted it is!
-*** Web UI [10/12]
+*** Web UI [11/13]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: children
@@ -184,15 +184,19 @@
     CLOCK: [2025-10-13 Mo 17:47]--[2025-10-13 Mo 23:41] =>  5:54
     CLOCK: [2025-10-11 Sa 19:31]--[2025-10-11 Sa 23:30] =>  3:59
     :END:
-**** TODO Manage feeds from WebUI [0/0]
+**** DONE Manage feeds from WebUI [0/1]
+     CLOSED: [2025-11-12 Mi 12:03]
      :PROPERTIES:
      :COOKIE_DATA: todo recursive
      :VISIBILITY: children
      :END:
      :LOGBOOK:
+     CLOCK: [2025-11-12 Mi 10:09]--[2025-11-12 Mi 12:03] =>  1:54
      CLOCK: [2025-11-11 Di 21:07]--[2025-11-11 Di 21:59] =>  0:52
      :END:
      Until now, I've been doing that via the sqlite shell.
+***** TODO Edit refresh interval
+      And also other fields, but this is one I feel I would like to adjust.
 **** TODO Mark boring items visually [0/0]
 **** DONE Pagination [1/1]
      CLOSED: [2025-11-06 Do 15:50]
