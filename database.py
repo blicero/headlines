@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-11 20:40:56 krylon>
+# Time-stamp: <2025-11-12 11:57:50 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -673,6 +673,18 @@ class Database:
         except sqlite3.Error as err:
             cname: Final[str] = err.__class__.__name__
             msg: Final[str] = f"{cname} trying to set Feed {feed.name}'s refresh interval: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
+    def feed_delete(self, feed: Feed) -> None:
+        """Remove a Feed (and all associated Items) from the database."""
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.FeedDelete], (feed.fid, ))
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to delete Feed {feed.name}: {err}"
             self.log.error(msg)
             raise DatabaseError(msg) from err
 
