@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-11 20:39:37 krylon>
+# Time-stamp: <2025-11-12 11:17:15 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -132,6 +132,7 @@ class WebUI:
         route("/tag/all", callback=self._handle_tag_all)
         route("/tag/<tag_id:int>", callback=self._handle_tag_details)
         route("/later", callback=self._handle_later)
+        route("/feed/all", callback=self._handle_feed_view)
 
         route("/ajax/beacon", callback=self._handle_beacon)
         route("/ajax/item_rate/<item_id:int>/<score:int>",
@@ -161,6 +162,12 @@ class WebUI:
         route("/ajax/later/done/<item_id:int>",
               method="POST",
               callback=self._handle_later_mark_done)
+        route("/ajax/feed/toggle_active/<feed_id:int>",
+              method=["GET", "POST"],
+              callback=self._handle_feed_toggle_active)
+        route("/ajax/feed/unsubscribe/<feed_id:int>",
+              method=["GET", "POST"],
+              callback=self._handle_feed_unsubscribe)
 
         route("/static/<path>", callback=self._handle_static)
         route("/favicon.ico", callback=self._handle_favicon)
@@ -316,6 +323,21 @@ class WebUI:
             tmpl_vars["feeds"] = {f.fid: f for f in feeds}
             tmpl_vars["items"] = items
             tmpl_vars["later"] = later
+            return tmpl.render(tmpl_vars)
+        finally:
+            db.close()
+
+    def _handle_feed_view(self) -> Union[bytes, str]:
+        """Render an overview of all subscribed Feeds."""
+        db: Final[Database] = Database()
+        try:
+            tmpl = self.env.get_template("feeds.jinja")
+            tmpl_vars = self._tmpl_vars()
+            tmpl_vars["title"] = f"{common.AppName} {common.AppVersion} - Feeds"
+            tmpl_vars["feeds"] = db.feed_get_all()
+
+            tmpl_vars["feeds"].sort(key=lambda x: x.name.lower())
+
             return tmpl.render(tmpl_vars)
         finally:
             db.close()
@@ -660,6 +682,58 @@ class WebUI:
                 f"{cname} trying to mark Item {item_id} as read: {err}"
             self.log.error(msg)
             raise DatabaseError(msg) from err
+        finally:
+            db.close()
+
+        response.set_header("Cache-Control", "no-store, max-age=0")
+        response.set_header("Content-Type", "application/json")
+        return json.dumps(res)
+
+    def _handle_feed_toggle_active(self, feed_id: int) -> Union[str, bytes]:
+        """Toggle a Feed's active flag."""
+        res: dict = {
+            "status": False,
+            "timestamp": datetime.now().strftime(common.TimeFmt),
+            "message": "",
+            "payload": None,
+        }
+        db: Final[Database] = Database()
+        try:
+            with db:
+                feed: Final[Optional[Feed]] = db.feed_get_by_id(feed_id)
+                if feed is not None:
+                    db.feed_set_active(feed, not feed.active)
+                    res["status"] = True
+                    res["message"] = "ACK"
+                else:
+                    res["message"] = f"Feed {feed_id} was not found in database"
+                    self.log.error(res["message"])
+        finally:
+            db.close()
+
+        response.set_header("Cache-Control", "no-store, max-age=0")
+        response.set_header("Content-Type", "application/json")
+        return json.dumps(res)
+
+    def _handle_feed_unsubscribe(self, feed_id: int) -> Union[bytes, str]:
+        """Remove a Feed from the database. CAVEAT CLICKOR."""
+        res: dict = {
+            "status": False,
+            "timestamp": datetime.now().strftime(common.TimeFmt),
+            "message": "",
+            "payload": None,
+        }
+        db: Final[Database] = Database()
+        try:
+            with db:
+                feed: Final[Optional[Feed]] = db.feed_get_by_id(feed_id)
+                if feed is not None:
+                    db.feed_delete(feed)
+                    res["status"] = True
+                    res["message"] = "ACK"
+                else:
+                    res["message"] = f"Feed {feed_id} was not found in database"
+                    self.log.error(res["message"])
         finally:
             db.close()
 

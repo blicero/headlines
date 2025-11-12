@@ -1,4 +1,4 @@
-// Time-stamp: <2025-11-11 18:15:07 krylon>
+// Time-stamp: <2025-11-12 11:52:03 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -546,6 +546,36 @@ function mark_later_done(item_id) {
     ).fail(() => {
         const msg = `Error marking Item ${item_id} as read`
         msg_add(new Date(), 'ERROR', msg)
-        alert(msg)      
+        alert(msg)
     })
 } // function mark_later_done(item_id)
+
+function feed_toggle_active(feed_id) {
+    const url = `/ajax/feed/toggle_active/${feed_id}`
+    $.get(
+        url,
+        {},
+        (res) => {
+            if (res.status) {
+                // Okeli-dokeli
+            } else {
+                msg_add(new Date(), 'ERROR', res.message)
+                console.error(res.message)
+                alert(res.message)
+            }
+        },
+        'json'
+    ).fail(() => {
+        const msg = `Error toggling subscription of Feed ${feed_id}`
+        msg_add(new Date(), 'ERROR', msg)
+        alert(msg)        
+    })
+} // function feed_toggle_active(feed_id)
+
+function feed_unsubscribe(feed_id) {
+    const url = `/ajax/feed/unsubscribe/${feed_id}`
+    const msg = `IMPLEMENTME: feed_unsubscribe(${feed_id})`
+    console.log(msg)
+    alert(msg)
+} // function feed_unsubscribe(feed_id)
+
