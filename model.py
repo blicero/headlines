@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-11 20:41:11 krylon>
+# Time-stamp: <2025-11-12 10:12:28 krylon>
 #
 # /data/code/python/headlines/src/headlines/model.py
 # created on 30. 09. 2025
@@ -56,6 +56,16 @@ class Feed:
             minutes, seconds = divmod(seconds, 60)
 
         return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+
+    @property
+    def update_str(self) -> str:
+        """Return the last_update formated as a human-readable string.
+
+        If last_update is None, return an empty string.
+        """
+        if self.last_update is None:
+            return ""
+        return self.last_update.strftime(common.TimeFmt)
 
 
 class Rating(IntEnum):
