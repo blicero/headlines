@@ -1,4 +1,4 @@
-// Time-stamp: <2025-11-13 16:09:20 krylon>
+// Time-stamp: <2025-11-13 16:33:17 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -231,6 +231,9 @@ function rate_item(item_id, rating) {
                                switch (rating) {
                                case 0:
                                    icon = 'face-tired'
+                                   const row_id = `#item_row_${item_id}`
+                                   const row = $(row_id)[0]
+                                   row.classList.add("boring")
                                    break
                                case 1:
                                    icon = 'face-glasses'
@@ -266,6 +269,9 @@ function unrate_item(item_id) {
                           }
 
                           $(`#item_rating_${item_id}`)[0].innerHTML = res.content
+
+                          const row = $(`#item_row_${item_id}`)[0]
+                          row.classList.remove("boring")
                       },
                       'json')
 } // function rate_item(item_id, rating)

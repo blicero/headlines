@@ -1,4 +1,4 @@
-/* Time-stamp: <2025-11-10 17:22:53 krylon> */
+/* Time-stamp: <2025-11-13 16:28:46 krylon> */
 
 body { 
     font-family: Arial,Helvetica,sans-serif;
@@ -28,7 +28,8 @@ h2 {
 }
 
 *.boring {
-    filter: opacity(50%);
+    // filter: opacity(50%);
+    filter: blur(2px);
 }
 
 *.read {
