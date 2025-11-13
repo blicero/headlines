@@ -1,4 +1,4 @@
-// Time-stamp: <2025-11-12 11:52:03 krylon>
+// Time-stamp: <2025-11-13 16:09:20 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -568,7 +568,7 @@ function feed_toggle_active(feed_id) {
     ).fail(() => {
         const msg = `Error toggling subscription of Feed ${feed_id}`
         msg_add(new Date(), 'ERROR', msg)
-        alert(msg)        
+        alert(msg)
     })
 } // function feed_toggle_active(feed_id)
 
@@ -579,3 +579,74 @@ function feed_unsubscribe(feed_id) {
     alert(msg)
 } // function feed_unsubscribe(feed_id)
 
+function feed_interval_edit(feed_id, current) {
+    const cell_id = `#feed_interval_${feed_id}`
+    const cell = $(cell_id)[0]
+
+    const cell_content = `
+<input type="number"
+       id="feed_interval_input_${feed_id}"
+       name="feed_interval_input_${feed_id}"
+       min="300"
+       max="86400"
+       step="60"
+       value="${current}"/>
+<button type="button"
+        class="btn btn-sm btn-success"
+        onclick="feed_interval_submit(${feed_id});">
+  OK
+</button>
+<button type="button"
+        class="btn btn-sm btn-danger"
+        onclick="feed_interval_cancel(${feed_id}, ${current});">
+  Cancel
+</button>
+`
+    cell.innerHTML = cell_content
+} // function feed_interval_edit(feed_id)
+
+function feed_interval_submit(feed_id) {
+    const cell_id = `#feed_interval_${feed_id}`
+    const cell = $(cell_id)[0]
+    const input_id = `#feed_interval_input_${feed_id}`
+    const input = $(input_id)[0]
+    const new_interval = input.value
+    const url = `/ajax/feed/set_interval/${feed_id}/${new_interval}`
+
+    $.get(
+        url,
+        {},
+        (res) => {
+            if (res.status) {
+                const cell_content = `
+<span onclick="feed_interval_edit(${feed_id}, ${new_interval});"
+      id="feed_interval_${feed_id}">
+  ${new_interval}
+</span>
+`
+                cell.innerHTML = cell_content
+            } else {
+                msg_add(new Date(), 'ERROR', res.message)
+                alert(res.message)
+            }
+        },
+        'json'
+    ).fail(() => {
+        const msg = `Error setting interval for Feed ${feed_id}`
+        msg_add(new Date(), 'ERROR', msg)
+        alert(msg)
+    })
+
+} // function feed_interval_submit(feed_id)
+
+function feed_interval_cancel(feed_id, interval) {
+    const cell_id = `#feed_interval_${feed_id}`
+    const cell = $(cell_id)[0]
+
+    cell.innerHTML = `
+<span onclick="feed_interval_edit(${feed_id}, ${interval});"
+      id="feed_interval_${feed_id}">
+  ${interval}
+</span>
+`
+} // function feed_interval_cancel(feed_id, interval)

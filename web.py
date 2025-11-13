@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-12 11:17:15 krylon>
+# Time-stamp: <2025-11-13 16:06:55 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -168,6 +168,9 @@ class WebUI:
         route("/ajax/feed/unsubscribe/<feed_id:int>",
               method=["GET", "POST"],
               callback=self._handle_feed_unsubscribe)
+        route("/ajax/feed/set_interval/<feed_id:int>/<interval:int>",
+              method=["GET", "POST"],
+              callback=self._handle_feed_set_interval)
 
         route("/static/<path>", callback=self._handle_static)
         route("/favicon.ico", callback=self._handle_favicon)
@@ -734,6 +737,32 @@ class WebUI:
                 else:
                     res["message"] = f"Feed {feed_id} was not found in database"
                     self.log.error(res["message"])
+        finally:
+            db.close()
+
+        response.set_header("Cache-Control", "no-store, max-age=0")
+        response.set_header("Content-Type", "application/json")
+        return json.dumps(res)
+
+    def _handle_feed_set_interval(self, feed_id: int, interval: int) -> Union[bytes, str]:
+        """Set the refresh interval for a Feed."""
+        res: dict = {
+            "status": False,
+            "timestamp": datetime.now().strftime(common.TimeFmt),
+            "message": "NOT IMPLEMENTED",
+            "payload": None,
+        }
+        db: Final[Database] = Database()
+        try:
+            with db:
+                feed: Optional[Feed] = db.feed_get_by_id(feed_id)
+                if feed is None:
+                    res["message"] = f"Feed {feed_id} does not exist"
+                    self.log.error(res["message"])
+                else:
+                    db.feed_set_interval(feed, interval)
+                    res["status"] = True
+                    res["message"] = "ACK"
         finally:
             db.close()
 
