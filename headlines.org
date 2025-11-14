@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-11-13 16:42:34 krylon>
+# Time-stamp: <2025-11-14 15:01:34 krylon>
 #
 #+TAGS: internals(i) ui(u) database(d) design(e)
 #+TAGS: meditation(m) optimize(o) refactor(r) cleanup(c)
@@ -8,19 +8,19 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Headlines [31/33]
+* Headlines [32/35]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: children
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2025-11-13 Do 16:42]
+   #+CAPTION: Clock summary at [2025-11-14 Fr 15:01]
    | Headline                                        | Time       |           |         |         |       |      |
    |-------------------------------------------------+------------+-----------+---------+---------+-------+------|
    | *Total time*                                    | *4d 11:37* |           |         |         |       |      |
    |-------------------------------------------------+------------+-----------+---------+---------+-------+------|
-   | *Headlines [31/33]*                             | *4d 11:37* |           |         |         |       |      |
+   | *Headlines [32/35]*                             | *4d 11:37* |           |         |         |       |      |
    | \_  /Components [18/18]/                        |            | /3d 6:44/ |         |         |       |      |
    | \_    Common [1/1]                              |            |           |    0:08 |         |       |      |
    | \_      Down the rabbit hole for pathlib        |            |           |         |    0:08 |       |      |
@@ -47,7 +47,7 @@
    | \_        Recommendation [1/1]                  |            |           |         |         | 13:11 |      |
    | \_          Don't recommend Tags already linked |            |           |         |         |       | 0:26 |
    | \_    Main [0/0]                                |            |           |    1:53 |         |       |      |
-   | \_  /Features [7/9]/                            |            | /1d 0:58/ |         |         |       |      |
+   | \_  /Features [7/10]/                           |            | /1d 0:58/ |         |         |       |      |
    | \_    Later, B_tches [0/0]                      |            |           |    7:45 |         |       |      |
    | \_    Sanitize [3/3]                            |            |           |    4:19 |         |       |      |
    | \_    Tagging [0/0]                             |            |           |    2:49 |         |       |      |
@@ -55,7 +55,7 @@
    | \_      Tokenizer                               |            |           |         |    3:03 |       |      |
    | \_    Caching [1/1]                             |            |           |    5:05 |         |       |      |
    | \_      Expiration!                             |            |           |         |    0:44 |       |      |
-   | \_  /Bugs [5/5]/                                |            | /3:29/    |         |         |       |      |
+   | \_  /Bugs [6/6]/                                |            | /3:29/    |         |         |       |      |
    | \_    Missing text in Advisor                   |            |           |    0:14 |         |       |      |
    | \_    The mysterious case of the missing link   |            |           |    1:19 |         |       |      |
    | \_    Missing pubDate                           |            |           |    1:11 |         |       |      |
@@ -296,7 +296,7 @@
     CLOCK: [2025-10-11 Sa 16:22]--[2025-10-11 Sa 18:10] =>  1:48
     CLOCK: [2025-10-11 Sa 16:07]--[2025-10-11 Sa 16:12] =>  0:05
     :END:
-** Features [7/9]
+** Features [7/10]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: children
@@ -320,6 +320,10 @@
 *** TODO Searching [0/0]
     I want to be able to search the database by text, but also by time and
     tags, respecting the tag hierarchy.
+*** TODO Blacklist [0/0]
+    Been there before - I want an editable list of regular expressions so that
+    news Items matching those get discarded right away. E.g. to filter out
+    article behind a paywall I have no interest in climbing.
 *** Sanitize [3/3]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
@@ -417,11 +421,19 @@
      Tokenization is not as much of an issue, but caching ratings and advice
      without an expiration date is a questionable idea, because as I rate and
      tag more Items, that affects future classifications and advice.
-** Bugs [5/5]
+** Bugs [6/6]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: children
    :END:
+*** DONE Fails to start on 32-bit system
+    CLOSED: [2025-11-14 Fr 15:01]
+    On my trusty old Raspberry Pi Model 2, running 32-bit Raspbian, lmdb
+    throws an exception on startup, complaining - rightfully, I admit - the
+    memory map size is too large.
+    Currently, it is a constant, 1 TiB, which is indeed too large for a 32-bit
+    address space. So that should be configurable, as I intend as of now
+    ([2025-11-13 Do]), to run the application on the this little gem.
 *** DONE Missing text in Advisor
     CLOSED: [2025-11-10 Mo 17:41]
     :LOGBOOK:
