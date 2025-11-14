@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-10 17:38:58 krylon>
+# Time-stamp: <2025-11-14 14:53:36 krylon>
 #
 # /data/code/python/headlines/cache.py
 # created on 05. 11. 2025
@@ -18,6 +18,7 @@ headlines.cache
 
 
 import logging
+import os
 import pickle
 import traceback
 from contextlib import contextmanager
@@ -186,6 +187,7 @@ class Cache(metaclass=Singleton):
     path: str
 
     def __init__(self, cache_root: str = "") -> None:
+        map_size: Final[int] = 1 << (40 if os.uname().machine == 'x86_64' else 30)
         self.log = common.get_logger("cache")
         if cache_root == "":
             cache_root = str(common.path.cache.joinpath("lmdb"))
@@ -194,7 +196,7 @@ class Cache(metaclass=Singleton):
         self.lock = RLock()
         self.env = lmdb.Environment(cache_root,
                                     subdir=True,
-                                    map_size=(1 << 40),  # 1 TiB
+                                    map_size=map_size,
                                     metasync=False,
                                     create=True,
                                     max_dbs=len(DBType)+2,
