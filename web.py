@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-13 16:06:55 krylon>
+# Time-stamp: <2025-11-15 16:13:24 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -90,14 +90,17 @@ class WebUI:
     karl: Karl
     advisor: Advisor
 
-    def __init__(self, root: Union[str, pathlib.Path] = "") -> None:
+    def __init__(self,
+                 root: Union[str, pathlib.Path] = "",
+                 host: str = "localhost",
+                 port: int = 4107) -> None:
         self.log = common.get_logger("web")
         self.lock = Lock()
 
         self.log.info("Web interface is coming up...")
 
-        self.host = "localhost"
-        self.port = 4107
+        self.host = host
+        self.port = port
 
         match root:
             case "":

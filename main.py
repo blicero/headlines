@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-13 19:18:58 krylon>
+# Time-stamp: <2025-11-15 16:13:06 krylon>
 #
 # /data/code/python/headlines/main.py
 # created on 11. 10. 2025
@@ -62,7 +62,7 @@ def main() -> None:
 
     # I need to figure out how to stop the server in an orderly fashion.
     if args.web:
-        srv = WebUI()
+        srv = WebUI("", args.address, args.port)
         t = Thread(target=srv.run, daemon=True)
         t.start()
         # threads.append(t)
