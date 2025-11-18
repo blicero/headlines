@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-18 14:32:02 krylon>
+# Time-stamp: <2025-11-18 14:35:20 krylon>
 #
 # /data/code/python/headlines/src/headlines/engine.py
 # created on 30. 09. 2025
@@ -26,7 +26,7 @@ from datetime import datetime, timedelta
 from queue import Empty, SimpleQueue
 from threading import Lock, Thread
 from typing import Final, Optional, Union
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 
 import fastfeedparser as ffp  # type: ignore # pylint: disable-msg=E0401
 
@@ -200,6 +200,9 @@ class Engine:
                                        members)
             except Empty:
                 continue
+            except URLError as uerr:
+                self.log.error("URLError trying to process Feed: %s",
+                               uerr)
         self.log.debug("Fetch worker %02d is quitting.", num)
 
     def _item_loop(self) -> None:
