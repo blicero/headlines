@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-24 20:45:38 krylon>
+# Time-stamp: <2025-11-18 14:32:02 krylon>
 #
 # /data/code/python/headlines/src/headlines/engine.py
 # created on 30. 09. 2025
@@ -26,6 +26,7 @@ from datetime import datetime, timedelta
 from queue import Empty, SimpleQueue
 from threading import Lock, Thread
 from typing import Final, Optional, Union
+from urllib.error import HTTPError
 
 import fastfeedparser as ffp  # type: ignore # pylint: disable-msg=E0401
 
@@ -142,8 +143,14 @@ class Engine:
                                feed.name,
                                feed.fid,
                                feed.url)
-                # rss = EasyRSS(feed.url)
-                rss = ffp.parse(feed.url)
+
+                try:
+                    rss = ffp.parse(feed.url)
+                except HTTPError as herr:
+                    self.log.error("Error fetching feed %s: %s",
+                                   feed.name,
+                                   herr)
+                    continue
 
                 db: Database = Database()
                 db.feed_set_last_update(feed, datetime.now())
