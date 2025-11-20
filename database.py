@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-12 11:57:50 krylon>
+# Time-stamp: <2025-11-20 18:33:47 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -29,7 +29,8 @@ from typing import Final, Optional, Union
 import krylib
 
 from headlines import common
-from headlines.model import Feed, Item, Later, Rating, Tag, TagLink
+from headlines.model import (Blacklist, BlacklistItem, Feed, Item, Later,
+                             Rating, Tag, TagLink)
 
 
 class DatabaseError(common.HeadlineError):
@@ -147,6 +148,15 @@ CREATE TABLE later (
     """,
     "CREATE INDEX later_item_idx ON later (item_id)",
     "CREATE INDEX later_unfinished_idx ON later (time_finished IS NULL)",
+    """
+CREATE TABLE blacklist (
+    id INTEGER PRIMARY KEY,
+    pattern TEXT UNIQUE NOT NULL,
+    cnt INTEGER NOT NULL DEFAULT 0,
+    CHECK (cnt >= 0)
+) STRICT
+    """,
+    "CREATE INDEX bl_cnt_idx ON blacklist (cnt)",
 ]
 
 
@@ -192,6 +202,12 @@ class Query(Enum):
     LaterGetUnfinished = auto()
     LaterMarkFinished = auto()
     LaterPurge = auto()
+
+    BlacklistAdd = auto()
+    BlacklistCountHit = auto()
+    BlacklistUpdateCount = auto()
+    BlacklistRemove = auto()
+    BlacklistGetAll = auto()
 
 
 qdb: Final[dict[Query, str]] = {
@@ -454,6 +470,11 @@ UPDATE later
 SET time_finished = unixepoch()
 WHERE item_id = ?
     """,
+    Query.BlacklistAdd: "INSERT INTO blacklist (pattern) VALUES (?) RETURNING id",
+    Query.BlacklistCountHit: "UPDATE blacklist SET cnt = cnt + 1 WHERE id = ?",
+    Query.BlacklistUpdateCount: "UPDATE blacklist SET cnt = ? WHERE id = ?",
+    Query.BlacklistRemove: "DELETE FROM blacklist WHERE id = ?",
+    Query.BlacklistGetAll: "SELECT id, pattern, cnt FROM blacklist ORDER BY cnt DESC",
 }
 
 
@@ -1215,6 +1236,53 @@ class Database:
                 f"{cname} trying to load all Later Items: {err}"
             self.log.error(msg)
             raise DatabaseError(msg) from err
+
+    def blacklist_add(self, item: BlacklistItem) -> None:
+        """Add a BlacklistItem to the database."""
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.BlacklistAdd], (item.pattern.pattern, ))
+            row = cur.fetchone()
+            if row is not None:
+                item.item_id = row[0]
+            else:
+                self.log.error("Query BlacklistAdd did not return a row!")
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to add BlacklistItem '{item.pattern.pattern}': {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
+    def blacklist_save(self, bl: Blacklist) -> None:
+        """Update the Blacklist's hit counts."""
+        try:
+            cur = self.db.cursor()
+            cur.executemany(qdb[Query.BlacklistUpdateCount],
+                            ((x.cnt, x.item_id) for x in bl.items))
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to update hit counts for Blacklist: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
+    def blacklist_remove_item(self, bl: Blacklist, idx: int) -> None:
+        """Remove an item from the Blacklist."""
+        try:
+            assert 0 <= idx < len(bl.items)
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.BlacklistRemove], (bl.items[idx].item_id, ))
+            bl.items.pop(idx)
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to remove Item {idx} from Blacklist: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
+    def blacklist_get_all(self) -> Blacklist:
+        """DOCUMENT ME"""
 
 # Local Variables: #
 # python-indent: 4 #

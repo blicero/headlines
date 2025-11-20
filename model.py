@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-12 10:12:28 krylon>
+# Time-stamp: <2025-11-20 15:30:38 krylon>
 #
 # /data/code/python/headlines/src/headlines/model.py
 # created on 30. 09. 2025
@@ -17,13 +17,17 @@ headlines.model
 """
 
 
+import logging
+import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import IntEnum
+from threading import Lock
 from typing import Final, Optional
 
 import langdetect
 from bs4 import BeautifulSoup
+from krylib import Singleton
 
 from headlines import common
 from headlines.scrub import Scrubber
@@ -226,6 +230,37 @@ class Later:
         if self.time_finished is not None:
             return self.time_finished.strftime(common.TimeFmt)
         return ""
+
+
+@dataclass(kw_only=True, slots=True)
+class BlacklistItem:
+    """An item in the Blacklist."""
+
+    item_id: int
+    pattern: re.Pattern
+    cnt: int = 0
+
+    def matches(self, item: Item) -> bool:
+        """Return True if the Item is matched by the BlacklistItem's pattern."""
+        match self.pattern.search(item.plain_full):
+            case None:
+                return False
+            case _:
+                self.cnt += 1
+                return True
+
+
+@dataclass(kw_only=True, slots=True)
+class Blacklist(metaclass=Singleton):
+    """Blacklist represents a list of regex patterns to filter unwanted Items."""
+
+    log: logging.Logger = field(default_factory=lambda: common.get_logger("blacklist"))
+    lock: Lock = field(default_factory=Lock)
+    items: list[BlacklistItem] = field(init=False)
+
+    def __post_init__(self) -> None:
+        pass
+
 
 # Local Variables: #
 # python-indent: 4 #
