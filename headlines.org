@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-11-22 16:58:11 krylon>
+# Time-stamp: <2025-11-22 19:27:13 krylon>
 #
 #+TAGS: internals(i) ui(u) database(d) design(e)
 #+TAGS: meditation(m) optimize(o) refactor(r) cleanup(c)
@@ -15,17 +15,17 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2025-11-22 Sa 16:58]
+   #+CAPTION: Clock summary at [2025-11-22 Sa 19:27]
    | Headline                                        | Time       |           |         |         |       |      |
    |-------------------------------------------------+------------+-----------+---------+---------+-------+------|
-   | *Total time*                                    | *4d 16:12* |           |         |         |       |      |
+   | *Total time*                                    | *4d 17:52* |           |         |         |       |      |
    |-------------------------------------------------+------------+-----------+---------+---------+-------+------|
-   | *Headlines [32/36]*                             | *4d 16:12* |           |         |         |       |      |
-   | \_  /Components [18/18]/                        |            | /3d 7:52/ |         |         |       |      |
+   | *Headlines [32/36]*                             | *4d 17:52* |           |         |         |       |      |
+   | \_  /Components [18/18]/                        |            | /3d 9:32/ |         |         |       |      |
    | \_    Common [1/1]                              |            |           |    0:08 |         |       |      |
    | \_      Down the rabbit hole for pathlib        |            |           |         |    0:08 |       |      |
-   | \_    Model [1/1]                               |            |           |    0:38 |         |       |      |
-   | \_      Testing                                 |            |           |         |    0:27 |       |      |
+   | \_    Model [1/1]                               |            |           |    2:18 |         |       |      |
+   | \_      Testing                                 |            |           |         |    2:07 |       |      |
    | \_      Rating and Tagging [0/0]                |            |           |         |    0:10 |       |      |
    | \_    Classifier [0/0]                          |            |           |    1:09 |         |       |      |
    | \_    Database [3/3]                            |            |           |   12:01 |         |       |      |
@@ -90,6 +90,7 @@
     :END:
 **** Testing
      :LOGBOOK:
+     CLOCK: [2025-11-22 Sa 17:47]--[2025-11-22 Sa 19:27] =>  1:40
      CLOCK: [2025-10-16 Do 16:32]--[2025-10-16 Do 16:59] =>  0:27
      :END:
 **** DONE Rating and Tagging [0/0]                                     :tags:
