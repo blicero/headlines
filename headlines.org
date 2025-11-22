@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-11-20 18:34:03 krylon>
+# Time-stamp: <2025-11-22 16:58:11 krylon>
 #
 #+TAGS: internals(i) ui(u) database(d) design(e)
 #+TAGS: meditation(m) optimize(o) refactor(r) cleanup(c)
@@ -15,23 +15,23 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2025-11-20 Do 18:34]
+   #+CAPTION: Clock summary at [2025-11-22 Sa 16:58]
    | Headline                                        | Time       |           |         |         |       |      |
    |-------------------------------------------------+------------+-----------+---------+---------+-------+------|
-   | *Total time*                                    | *4d 15:04* |           |         |         |       |      |
+   | *Total time*                                    | *4d 16:12* |           |         |         |       |      |
    |-------------------------------------------------+------------+-----------+---------+---------+-------+------|
-   | *Headlines [32/36]*                             | *4d 15:04* |           |         |         |       |      |
-   | \_  /Components [18/18]/                        |            | /3d 6:44/ |         |         |       |      |
+   | *Headlines [32/36]*                             | *4d 16:12* |           |         |         |       |      |
+   | \_  /Components [18/18]/                        |            | /3d 7:52/ |         |         |       |      |
    | \_    Common [1/1]                              |            |           |    0:08 |         |       |      |
    | \_      Down the rabbit hole for pathlib        |            |           |         |    0:08 |       |      |
    | \_    Model [1/1]                               |            |           |    0:38 |         |       |      |
    | \_      Testing                                 |            |           |         |    0:27 |       |      |
    | \_      Rating and Tagging [0/0]                |            |           |         |    0:10 |       |      |
    | \_    Classifier [0/0]                          |            |           |    1:09 |         |       |      |
-   | \_    Database [3/3]                            |            |           |   10:53 |         |       |      |
+   | \_    Database [3/3]                            |            |           |   12:01 |         |       |      |
    | \_      Rating and Tagging [2/2]                |            |           |         |    1:21 |       |      |
    | \_        Tagging [0/0]                         |            |           |         |         |  0:46 |      |
-   | \_      Testing                                 |            |           |         |    0:50 |       |      |
+   | \_      Testing                                 |            |           |         |    1:58 |       |      |
    | \_    Engine [0/1]                              |            |           |   11:36 |         |       |      |
    | \_    Web UI [13/13]                            |            |           | 2d 4:27 |         |       |      |
    | \_      Manage feeds from WebUI [1/1]           |            |           |         |    3:27 |       |      |
@@ -149,6 +149,7 @@
       CLOSED: [2025-10-20 Mo 09:26]
 **** Testing
      :LOGBOOK:
+     CLOCK: [2025-11-22 Sa 15:50]--[2025-11-22 Sa 16:58] =>  1:08
      CLOCK: [2025-10-20 Mo 10:50]--[2025-10-20 Mo 11:20] =>  0:30
      CLOCK: [2025-10-20 Mo 10:13]--[2025-10-20 Mo 10:33] =>  0:20
      :END:
