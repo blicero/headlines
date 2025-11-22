@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-11 18:38:24 krylon>
+# Time-stamp: <2025-11-22 16:42:45 krylon>
 #
 # /data/code/python/headlines/tests/test_database.py
 # created on 08. 10. 2025
@@ -17,6 +17,8 @@ headlines.test_database
 """
 
 import os
+import random
+import re
 import shutil
 import unittest
 from datetime import datetime
@@ -24,7 +26,8 @@ from typing import Final, Optional
 
 from headlines import common
 from headlines.database import Database
-from headlines.model import Feed, Item, Later, Rating, Tag, TagLink
+from headlines.model import (Blacklist, BlacklistItem, Feed, Item, Later,
+                             Rating, Tag, TagLink)
 
 test_dir: Final[str] = os.path.join(
     "/tmp",
@@ -32,6 +35,7 @@ test_dir: Final[str] = os.path.join(
 
 item_cnt: Final[int] = 100
 tag_cnt: Final[int] = 10
+bl_cnt: Final[int] = 10
 
 
 class TestDatabase(unittest.TestCase):
@@ -215,6 +219,43 @@ class TestDatabase(unittest.TestCase):
         self.assertEqual(cnt, len(later))
         for lt in later:
             self.assertIsNotNone(lt.time_finished)
+
+    def test_11_blacklist_add(self) -> None:
+        """Test adding BlacklistItems to the database."""
+        db: Database = self.db()
+        patterns: list[BlacklistItem] = \
+            [BlacklistItem(
+                item_id=-1,
+                pattern=re.compile(f"^pattern{i:03d}", re.I))
+             for i in range(1, 11)]
+
+        with db:
+            for p in patterns:
+                db.blacklist_add(p)
+                self.assertGreater(p.item_id, 0)
+
+        bl: Final[Blacklist] = db.blacklist_get_all()
+        self.assertIsNotNone(bl)
+        self.assertIsInstance(bl, Blacklist)
+        self.assertEqual(len(patterns), len(bl.items))
+
+    def test_12_blacklist_save(self) -> None:
+        """Attempt updating and saving the Blacklist."""
+        db: Database = self.db()
+        bl: Final[Blacklist] = db.blacklist_get_all()
+
+        for i in bl.items:
+            i.cnt = random.randint(1, 10)
+
+        bl.sort()
+
+        with db:
+            db.blacklist_save(bl)
+
+        bl2: Final[Blacklist] = db.blacklist_get_all()
+        self.assertIsInstance(bl2, Blacklist)
+        self.assertEqual(bl, bl2)
+
 
 # Local Variables: #
 # python-indent: 4 #

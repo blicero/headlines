@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-20 18:33:47 krylon>
+# Time-stamp: <2025-11-21 20:35:14 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -19,6 +19,7 @@ headlines.database
 
 import logging
 import math
+import re
 import sqlite3
 from datetime import datetime
 from enum import Enum, auto
@@ -1282,7 +1283,31 @@ class Database:
             raise DatabaseError(msg) from err
 
     def blacklist_get_all(self) -> Blacklist:
-        """DOCUMENT ME"""
+        """Load all BlacklistItems from the database and fill them into the Blacklist."""
+        try:
+            bl: Blacklist = Blacklist()
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.BlacklistGetAll])
+            items: list[BlacklistItem] = []
+
+            for row in cur:
+                item: BlacklistItem = BlacklistItem(
+                    item_id=row[0],
+                    pattern=re.compile(row[1], re.I),
+                    cnt=row[2],
+                )
+                items.append(item)
+
+            with bl.lock:
+                bl.items = items
+
+            return bl
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to load Blacklist: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
 
 # Local Variables: #
 # python-indent: 4 #
