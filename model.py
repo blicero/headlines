@@ -242,7 +242,8 @@ class BlacklistItem:
 
     def matches(self, item: Item) -> bool:
         """Return True if the Item is matched by the BlacklistItem's pattern."""
-        match self.pattern.search(item.plain_full):
+        # WTF, pylint?
+        match self.pattern.search(item.plain_full):  # pylint: disable-msg=E1101
             case None:
                 return False
             case _:

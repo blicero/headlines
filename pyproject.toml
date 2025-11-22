@@ -1,4 +1,4 @@
-# Time-stamp: <2025-09-30 18:42:24 krylon>
+# Time-stamp: <2025-11-21 21:18:24 krylon>
 
 [project]
 name = "headlines"
@@ -116,7 +116,7 @@ py-version = "3.11"
 
 # When enabled, pylint would attempt to guess common misconfiguration and emit
 # user-friendly hints instead of false-positive error messages.
-suggestion-mode = true
+# suggestion-mode = true
 
 # Allow loading of arbitrary C extensions. Extensions are imported into the
 # active Python interpreter and may run arbitrary code.

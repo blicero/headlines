@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-18 14:35:20 krylon>
+# Time-stamp: <2025-11-21 21:45:38 krylon>
 #
 # /data/code/python/headlines/src/headlines/engine.py
 # created on 30. 09. 2025
@@ -68,9 +68,9 @@ class Engine:
         self.feedq = SimpleQueue()
         self.itemq = SimpleQueue()
         match interval:
-            case int(x):
+            case int() as x:
                 self.interval = timedelta(seconds=x)
-            case float(x):
+            case float() as x:
                 self.interval = timedelta(seconds=x)
             case x if isinstance(x, timedelta):
                 self.interval = x
