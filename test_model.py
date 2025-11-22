@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-10-16 16:56:31 krylon>
+# Time-stamp: <2025-11-22 19:17:00 krylon>
 #
 # /data/code/python/headlines/test_model.py
 # created on 16. 10. 2025
@@ -16,11 +16,20 @@ headlines.test_model
 (c) 2025 Benjamin Walkenhorst
 """
 
+import os
+import re
+import shutil
 import unittest
 from dataclasses import dataclass
-from typing import Final
+from datetime import datetime
+from typing import Final, NamedTuple, Optional
 
-from headlines.model import Rating
+from headlines import common
+from headlines.model import Blacklist, BlacklistItem, Rating
+
+test_dir: Final[str] = os.path.join(
+    "/tmp",
+    datetime.now().strftime(f"{common.AppName.lower()}_test_model_%Y%m%d_%H%M%S"))
 
 
 @dataclass(slots=True)
@@ -32,7 +41,7 @@ class RatingTestCase:
     err: bool = False
 
 
-class TestModel(unittest.TestCase):
+class TestRating(unittest.TestCase):
     """Test the model classes."""
 
     def test_rating_from_str(self) -> None:
@@ -60,6 +69,66 @@ class TestModel(unittest.TestCase):
                     self.assertIsNotNone(r)
                     self.assertIsInstance(r, Rating)
                     self.assertEqual(r, c.res)
+
+
+bl_patterns = (
+    "fußball",
+    r"\bAI\b",
+    r"\bllms?\b",
+)
+
+
+class BlacklistTestCase(NamedTuple):
+    """A test case for the Blacklist."""
+
+    txt: str
+    err: bool = False
+
+
+bl_cases: Final[list[BlacklistTestCase]] = [
+    BlacklistTestCase("Improve your workflow with AI!", True),
+    BlacklistTestCase("Physicists discover a new state of cheese"),
+    BlacklistTestCase("Hawaii experiences larger number of whales than usual")
+]
+
+
+class TestBlacklist(unittest.TestCase):
+    """Test the Blacklist."""
+
+    _bl: Optional[Blacklist] = None
+
+    @classmethod
+    def bl(cls, b: Optional[Blacklist] = None) -> Blacklist:
+        """Get or set the Blacklist instance."""
+        if b is not None:
+            cls._bl = b
+        if cls._bl is not None:
+            return cls._bl
+
+        raise ValueError("No Blacklist exists.")
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Prepare the testing environment."""
+        common.set_basedir(test_dir)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Clean up afterwards."""
+        shutil.rmtree(test_dir, ignore_errors=True)
+
+    def test_01_create_blacklist(self) -> None:
+        """Test creating the Blacklist."""
+        items: Final[list[BlacklistItem]] = []
+        for pat in bl_patterns:
+            item: BlacklistItem = BlacklistItem(item_id=0,
+                                                pattern=re.compile(pat, re.I))
+            items.append(item)
+
+        bl: Blacklist = Blacklist()
+        bl.items = items
+
+        self.bl(bl)
 
 # Local Variables: #
 # python-indent: 4 #
