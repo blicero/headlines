@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-22 19:17:00 krylon>
+# Time-stamp: <2025-11-22 21:16:13 krylon>
 #
 # /data/code/python/headlines/test_model.py
 # created on 16. 10. 2025
@@ -82,7 +82,7 @@ class BlacklistTestCase(NamedTuple):
     """A test case for the Blacklist."""
 
     txt: str
-    err: bool = False
+    res: bool = False
 
 
 bl_cases: Final[list[BlacklistTestCase]] = [
@@ -129,6 +129,15 @@ class TestBlacklist(unittest.TestCase):
         bl.items = items
 
         self.bl(bl)
+
+    def test_02_match(self) -> None:
+        """Test matching some Items."""
+        bl: Blacklist = self.bl()
+
+        for c in bl_cases:
+            mt: bool = bl.matches(c.txt)
+            self.assertEqual(mt, c.res)
+
 
 # Local Variables: #
 # python-indent: 4 #

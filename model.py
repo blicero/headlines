@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-22 16:40:31 krylon>
+# Time-stamp: <2025-11-22 20:35:27 krylon>
 #
 # /data/code/python/headlines/src/headlines/model.py
 # created on 30. 09. 2025
@@ -22,8 +22,8 @@ import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import IntEnum
-from threading import Lock
-from typing import Final, Optional
+from threading import RLock
+from typing import Final, Optional, Union
 
 import langdetect
 from bs4 import BeautifulSoup
@@ -240,10 +240,11 @@ class BlacklistItem:
     pattern: re.Pattern
     cnt: int = 0
 
-    def matches(self, item: Item) -> bool:
+    def matches(self, item: Union[str, Item]) -> bool:
         """Return True if the Item is matched by the BlacklistItem's pattern."""
         # WTF, pylint?
-        match self.pattern.search(item.plain_full):  # pylint: disable-msg=E1101
+        txt: Final[str] = item if isinstance(item, str) else item.plain_full
+        match self.pattern.search(txt):  # pylint: disable-msg=E1101
             case None:
                 return False
             case _:
@@ -256,7 +257,7 @@ class Blacklist(metaclass=Singleton):
     """Blacklist represents a list of regex patterns to filter unwanted Items."""
 
     log: logging.Logger = field(default_factory=lambda: common.get_logger("blacklist"))
-    lock: Lock = field(default_factory=Lock)
+    lock: RLock = field(default_factory=RLock)
     items: list[BlacklistItem] = field(init=False)
 
     def __post_init__(self) -> None:
@@ -264,8 +265,21 @@ class Blacklist(metaclass=Singleton):
 
     def sort(self) -> None:
         """Sort the Blacklist's Items according to their count."""
-        self.items.sort(key=lambda x: x.cnt, reverse=True)
+        with self.lock:
+            self.items.sort(key=lambda x: x.cnt, reverse=True)
 
+    def matches(self, txt: Union[str, Item]) -> bool:
+        """Attempt to match an Item against the blacklist."""
+        if isinstance(txt, Item):
+            txt = txt.plain_full
+
+        with self.lock:
+            for i in self.items:
+                if i.matches(txt):
+                    self.sort()
+                    return True
+
+        return False
 
 # Local Variables: #
 # python-indent: 4 #
