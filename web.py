@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-21 21:45:18 krylon>
+# Time-stamp: <2025-11-24 18:33:09 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -35,7 +35,7 @@ from jinja2 import Environment, FileSystemLoader
 from headlines import common
 from headlines.classy import Karl
 from headlines.database import Database, DatabaseError
-from headlines.model import Feed, Item, Later, Rating, Tag
+from headlines.model import Blacklist, Feed, Item, Later, Rating, Tag
 from headlines.tagging import Advisor
 
 mime_types: Final[dict[str, str]] = {
@@ -136,6 +136,7 @@ class WebUI:
         route("/tag/<tag_id:int>", callback=self._handle_tag_details)
         route("/later", callback=self._handle_later)
         route("/feed/all", callback=self._handle_feed_view)
+        route("/blacklist", callback=self._handle_blacklist_view)
 
         route("/ajax/beacon", callback=self._handle_beacon)
         route("/ajax/item_rate/<item_id:int>/<score:int>",
@@ -345,6 +346,21 @@ class WebUI:
             tmpl_vars["feeds"].sort(key=lambda x: x.name.lower())
 
             return tmpl.render(tmpl_vars)
+        finally:
+            db.close()
+
+    def _handle_blacklist_view(self) -> Union[bytes, str]:
+        """Display the Blacklist."""
+        db: Final[Database] = Database()
+        try:
+            bl: Final[Blacklist] = db.blacklist_get_all()
+            tmpl = self.env.get_template("blacklist.jinja")
+            tmpl_vars = self._tmpl_vars()
+            tmpl_vars["title"] = f"{common.AppName} {common.AppVersion} - Blacklist"
+            tmpl_vars["blacklist"] = bl
+
+            with bl:
+                return tmpl.render(tmpl_vars)
         finally:
             db.close()
 

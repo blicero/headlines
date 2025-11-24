@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-22 20:35:27 krylon>
+# Time-stamp: <2025-11-24 18:32:49 krylon>
 #
 # /data/code/python/headlines/src/headlines/model.py
 # created on 30. 09. 2025
@@ -262,6 +262,12 @@ class Blacklist(metaclass=Singleton):
 
     def __post_init__(self) -> None:
         pass
+
+    def __enter__(self):
+        self.lock.acquire()
+
+    def __exit__(self, _ex_type, _ex_val, _trace):
+        self.lock.release()
 
     def sort(self) -> None:
         """Sort the Blacklist's Items according to their count."""
