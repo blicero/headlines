@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-24 18:33:09 krylon>
+# Time-stamp: <2025-11-25 17:48:03 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -175,6 +175,9 @@ class WebUI:
         route("/ajax/feed/set_interval/<feed_id:int>/<interval:int>",
               method=["GET", "POST"],
               callback=self._handle_feed_set_interval)
+        route("/ajax/blacklist/check",
+              method=["GET", "POST"],
+              callback=self._handle_blacklist_check_pattern)
 
         route("/static/<path>", callback=self._handle_static)
         route("/favicon.ico", callback=self._handle_favicon)
@@ -788,6 +791,54 @@ class WebUI:
         response.set_header("Cache-Control", "no-store, max-age=0")
         response.set_header("Content-Type", "application/json")
         return json.dumps(res)
+
+    def _handle_blacklist_check_pattern(self) -> Union[bytes, str]:
+        """Check a blacklist pattern if it is a valid regex."""
+        res: dict = {
+            "status": False,
+            "timestamp": datetime.now().strftime(common.TimeFmt),
+            "message": "NOT IMPLEMENTED",
+            "payload": None,
+        }
+
+        txt: Final[str] = request.params["pattern"]
+        self.log.debug("Check blacklist pattern '%s'", txt)
+
+        try:
+            pat: Final[re.Pattern] = re.compile(txt, re.I)
+        except re.PatternError as err:
+            msg: Final[str] = f"Invalid regex pattern '{txt}': {err}"
+            self.log.error(msg)
+            res["message"] = msg
+        else:
+            if pat is None:
+                self.log.error("re.compile('%s') returned None, but raised no exception", txt)
+            else:
+                res["status"] = True
+                res["message"] = "Success"
+
+        response.set_header("Cache-Control", "no-store, max-age=0")
+        response.set_header("Content-Type", "application/json")
+        return json.dumps(res)
+
+    def _handle_blacklist_add(self) -> Union[str, bytes]:
+        """Handle a new Blacklist pattern."""
+        res: dict = {
+            "status": False,
+            "timestamp": datetime.now().strftime(common.TimeFmt),
+            "message": "NOT IMPLEMENTED",
+            "payload": None,
+        }
+
+        txt: Final[str] = request.params["pattern"]
+        try:
+            _pat: Final[re.Pattern] = re.compile(txt, re.I)
+        except re.PatternError as err:
+            msg: Final[str] = f"Invalid regex pattern '{txt}': {err}"
+            self.log.error(msg)
+            res["message"] = msg
+        else:
+            pass
 
     # Static files
 

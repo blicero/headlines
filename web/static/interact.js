@@ -1,4 +1,4 @@
-// Time-stamp: <2025-11-24 22:10:38 krylon>
+// Time-stamp: <2025-11-25 16:20:35 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -7,6 +7,8 @@
 // break this thing up into several smaller files.
 
 'use strict';
+
+const whitespace_pat = /^\s*$/
 
 function defined(x) {
     return undefined !== x && null !== x
@@ -131,18 +133,18 @@ function db_maintenance() {
         function (res) {
             if (!res.Status) {
                 console.log(res.Message)
-                msg_add(new Date(), 'ERROR', res.Message)
+                msg_add('ERROR', res.Message)
             } else {
                 const msg = 'Database Maintenance performed without errors'
                 console.log(msg)
-                msg_add(new Date(), 'INFO', msg)
+                msg_add('INFO', msg)
             }
         },
         'json'
     ).fail(function () {
         const msg = 'Error performing DB maintenance'
         console.log(msg)
-        msg_add(new Date(), 'ERROR', msg)
+        msg_add('ERROR', msg)
     })
 } // function db_maintenance()
 
@@ -346,7 +348,7 @@ function add_tag(item_id) {
     ).fail(function () {
         const msg = `Error adding Tag ${tag_id} to Item ${item_id}`
         console.error(msg)
-        msg_add(new Date(), 'ERROR', msg)
+        msg_add('ERROR', msg)
         alert(msg)
     })
 } // function add_tag(item_id)
@@ -382,7 +384,7 @@ function remove_tag_link(item_id, tag_id) {
     ).fail(function () {
         const msg = `Error adding Tag ${tag_id} to Item ${item_id}`
         console.error(msg)
-        msg_add(new Date(), 'ERROR', msg)
+        msg_add('ERROR', msg)
         alert(msg)
     })
 } // function remove_tag(item_id, tag_id)
@@ -425,7 +427,7 @@ function attach_tag_to_item(item_id, tag_id, elt_id, tag_name) {
     ).fail(function () {
         const msg = `Error adding Tag ${tag_id} to Item ${item_id}`
         console.error(msg)
-        msg_add(new Date(), 'ERROR', msg)
+        msg_add('ERROR', msg)
         alert(msg)
     })
 } // function attach_tag_to_item(item_id, tag_id, elt_id, tag_name)
@@ -449,7 +451,7 @@ function display_items_for_tag(tag_id) {
     ).fail(() => {
         const msg = `Error loading Items by Tag ${tag_id}`
         console.error(msg)
-        msg_add(new Date(), 'ERROR', msg)
+        msg_add('ERROR', msg)
         alert(msg)
     })
 } // function display_items_for_tag(tag_id)
@@ -494,7 +496,7 @@ function create_tag() {
     ).fail(() => {
         const msg = `Error adding Tag ${name}`
         console.error(msg)
-        msg_add(new Date(), 'ERROR', msg)
+        msg_add('ERROR', msg)
         alert(msg)
     })
 } // function create_tag()
@@ -519,14 +521,14 @@ Done?
                 div.innerHTML = content
             } else {
                 console.error(res.message)
-                msg_add(new Date(), 'ERROR', res.message)
+                msg_add('ERROR', res.message)
                 alert(res.message)
             }
         },
         'json'
     ).fail(() => {
         const msg = `Error marking Item ${item_id} as read-later`
-        msg_add(new Date(), 'ERROR', msg)
+        msg_add('ERROR', msg)
         alert(msg)
     })
 } // function mark_later_read(item_id)
@@ -544,14 +546,14 @@ function mark_later_done(item_id) {
                 div.innerHTML = '' // ???
             } else {
                 console.error(res.message)
-                msg_add(new Date(), 'ERROR', res.message)
+                msg_add('ERROR', res.message)
                 alert(res.message)
             }
         },
         'json'
     ).fail(() => {
         const msg = `Error marking Item ${item_id} as read`
-        msg_add(new Date(), 'ERROR', msg)
+        msg_add('ERROR', msg)
         alert(msg)
     })
 } // function mark_later_done(item_id)
@@ -565,7 +567,7 @@ function feed_toggle_active(feed_id) {
             if (res.status) {
                 // Okeli-dokeli
             } else {
-                msg_add(new Date(), 'ERROR', res.message)
+                msg_add('ERROR', res.message)
                 console.error(res.message)
                 alert(res.message)
             }
@@ -573,7 +575,7 @@ function feed_toggle_active(feed_id) {
         'json'
     ).fail(() => {
         const msg = `Error toggling subscription of Feed ${feed_id}`
-        msg_add(new Date(), 'ERROR', msg)
+        msg_add('ERROR', msg)
         alert(msg)
     })
 } // function feed_toggle_active(feed_id)
@@ -632,14 +634,14 @@ function feed_interval_submit(feed_id) {
 `
                 cell.innerHTML = cell_content
             } else {
-                msg_add(new Date(), 'ERROR', res.message)
+                msg_add('ERROR', res.message)
                 alert(res.message)
             }
         },
         'json'
     ).fail(() => {
         const msg = `Error setting interval for Feed ${feed_id}`
-        msg_add(new Date(), 'ERROR', msg)
+        msg_add('ERROR', msg)
         alert(msg)
     })
 
@@ -657,24 +659,75 @@ function feed_interval_cancel(feed_id, interval) {
 `
 } // function feed_interval_cancel(feed_id, interval)
 
+var bl_pat_valid_res = false
+
+function bl_pat_valid_notify() {
+    if (bl_pat_valid_res) {
+        const res_id = "#bl_pat_check_res"
+        $(res_id)[0].innerHTML = ""
+        bl_pat_valid_res = false
+    }
+} // function bl_pat_valid_notify()
+
+function bl_pat_input_clear() {
+    const res_id = "#bl_pat_check_res"
+    const input_id = "#bl_pat_input"
+
+    $(input_id)[0].value = ""
+    $(res_id)[0].innerHTML = ""
+    bl_pat_valid_res = false
+}
+
+
 function bl_pat_check() {
     const url = "/ajax/blacklist/check"
     const input_id = "#bl_pat_input"
     const res_id = "#bl_pat_check_res"
     const txt = $(input_id)[0].value
 
-    const req = $.post(
+    if (whitespace_pat.test(txt)) {
+        const msg = 'Blacklist pattern to test is only whitespace'
+        msg_add(msg, 'INFO')
+        console.log(msg)
+        return
+    }
+
+    $.post(
         url,
         { "pattern": txt },
         (res) => {
             if (res.status) {
+                bl_pat_valid_res = true
                 $(res_id)[0].innerHTML =
                     `<img src="/static/icon_ok.png" />`
             } else {
+                bl_pat_valid_res = true
                 $(res_id)[0].innerHTML =
-                    `<img src="/static/dialog-error.png`
+                    `<img src="/static/dialog-error.png" />`
             }
         },
         'json'
-    )
+    ).fail((reply, status_text, xhr) => {
+        const msg = `Error checking blacklist pattern: ${status_text} - ${reply}`
+        console.error(msg)
+        alert(msg)
+    })
+
+    
 } // function bl_pat_check()
+
+function bl_pat_save() {
+    const url = "/ajax/blacklist/add"
+    const input_id = "#bl_pat_input"
+    const pat = $(input_id)[0].value
+
+    $.post(
+        url,
+        {"pattern": pat},
+        (res) => {
+        },
+        'json'
+    ).fail((reply, status, xhr) => {
+    })
+        
+}

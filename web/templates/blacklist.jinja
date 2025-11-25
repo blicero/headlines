@@ -1,5 +1,5 @@
 {# -*- mode: jinja2; coding: utf-8; -*-
-Time-stamp: <2025-11-24 20:43:42 krylon>
+Time-stamp: <2025-11-25 15:57:37 krylon>
 /data/code/python/headlines/web/templates/blacklist.jinja
 created on 24. 11. 2025
 (c) 2025 Benjamin Walkenhorst
@@ -21,17 +21,30 @@ created on 24. 11. 2025
       <p>
       </p>
       Pattern:
-      <input type="text" id="bl_pat_input" />
+      <input type="text"
+             id="bl_pat_input"
+             oninput="bl_pat_valid_notify();"
+             />
       &nbsp;
       <span id="bl_pat_check_res">
       </span>
       <p>
       </p>
-      <button type="button" class="btn btn-sm btn-success">
+      <button type="button"
+              class="btn btn-sm btn-secondary"
+              onclick="bl_pat_input_clear();">
+              Reset
+      </button>
+      
+      <button type="button"
+              class="btn btn-sm btn-success"
+              onclick="bl_pat_check();">
         Check regex
       </button>
       
-      <button type="button" class="btn btn-sm btn-primary">
+      <button type="button"
+              class="btn btn-sm btn-primary"
+              onclick="bl_pat_save();">
         Save
       </button>
     </div>
