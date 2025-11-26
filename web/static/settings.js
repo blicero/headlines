@@ -1,4 +1,4 @@
-// Time-stamp: <2025-11-06 15:04:45 krylon>
+// Time-stamp: <2025-11-26 17:49:40 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2020 Benjamin Walkenhorst <krylon@gmx.net>
 
@@ -7,7 +7,7 @@
 let settings = {
     "beacon": {
         "active": false,
-        "interval": 1000,
+        "interval": 5000,
     },
 
     "messages": {
