@@ -1,4 +1,4 @@
-// Time-stamp: <2025-11-25 16:20:35 krylon>
+// Time-stamp: <2025-11-26 17:48:15 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -709,6 +709,7 @@ function bl_pat_check() {
         'json'
     ).fail((reply, status_text, xhr) => {
         const msg = `Error checking blacklist pattern: ${status_text} - ${reply}`
+        msg_add(msg, 'ERROR')
         console.error(msg)
         alert(msg)
     })
@@ -725,9 +726,27 @@ function bl_pat_save() {
         url,
         {"pattern": pat},
         (res) => {
+            if (res.status) {
+                const item_list_id = "#bl_items"
+                const item_list = $(item_list_id)[0]
+                const row = `<tr>
+    <td class="num">${res.payload}</td>
+    <td>${pat}</td>
+    <td class="num">0</td>
+    <td>&nbsp;</td>
+</tr>`
+                item_list.innerHTML += row
+            } else {
+                msg_add(res.message, 'ERROR')
+                alert(res.message)
+            }
         },
         'json'
     ).fail((reply, status, xhr) => {
+        const msg = `Error checking blacklist pattern: ${status_text} - ${reply}`
+        msg_add(msg, 'ERROR')
+        console.error(msg)
+        alert(msg)
     })
         
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-25 17:48:03 krylon>
+# Time-stamp: <2025-11-26 17:49:07 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -35,7 +35,8 @@ from jinja2 import Environment, FileSystemLoader
 from headlines import common
 from headlines.classy import Karl
 from headlines.database import Database, DatabaseError
-from headlines.model import Blacklist, Feed, Item, Later, Rating, Tag
+from headlines.model import (Blacklist, BlacklistItem, Feed, Item, Later,
+                             Rating, Tag)
 from headlines.tagging import Advisor
 
 mime_types: Final[dict[str, str]] = {
@@ -178,6 +179,9 @@ class WebUI:
         route("/ajax/blacklist/check",
               method=["GET", "POST"],
               callback=self._handle_blacklist_check_pattern)
+        route("/ajax/blacklist/add",
+              method=["GET", "POST"],
+              callback=self._handle_blacklist_add)
 
         route("/static/<path>", callback=self._handle_static)
         route("/favicon.ico", callback=self._handle_favicon)
@@ -832,13 +836,34 @@ class WebUI:
 
         txt: Final[str] = request.params["pattern"]
         try:
-            _pat: Final[re.Pattern] = re.compile(txt, re.I)
+            pat: Final[re.Pattern] = re.compile(txt, re.I)
+            if pat is None:
+                msg = f"Failed to compile pattern '{txt}', but not exception was raised."
+                res["message"] = msg
+                self.log.error(msg)
+            else:
+                item: Final[BlacklistItem] = BlacklistItem(pattern=pat)
+                db: Database = Database()
+                with db:
+                    db.blacklist_add(item)
         except re.PatternError as err:
-            msg: Final[str] = f"Invalid regex pattern '{txt}': {err}"
+            msg = f"Invalid regex pattern '{txt}': {err}"
+            self.log.error(msg)
+            res["message"] = msg
+        except DatabaseError as derr:
+            msg = f"Failed to add pattern '{txt}' to database: {derr}"
             self.log.error(msg)
             res["message"] = msg
         else:
-            pass
+            res["status"] = True
+            res["message"] = "Success"
+            res["payload"] = item.item_id
+        finally:
+            db.close()
+
+        response.set_header("Cache-Control", "no-store, max-age=0")
+        response.set_header("Content-Type", "application/json")
+        return json.dumps(res)
 
     # Static files
 

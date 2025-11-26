@@ -1,5 +1,5 @@
 {# -*- mode: jinja2; coding: utf-8; -*-
-Time-stamp: <2025-11-25 15:57:37 krylon>
+Time-stamp: <2025-11-26 17:44:59 krylon>
 /data/code/python/headlines/web/templates/blacklist.jinja
 created on 24. 11. 2025
 (c) 2025 Benjamin Walkenhorst
@@ -65,7 +65,7 @@ created on 24. 11. 2025
         </tr>
       </thead>
 
-      <tbody>
+      <tbody id="bl_items">
         {% for item in blacklist.items %}
           <tr>
             <td class="num">{{ item.item_id }}</td>
