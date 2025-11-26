@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-26 17:36:58 krylon>
+# Time-stamp: <2025-11-26 18:18:04 krylon>
 #
 # /data/code/python/headlines/src/headlines/model.py
 # created on 30. 09. 2025
@@ -108,6 +108,7 @@ class Item:
     time_added: datetime = field(default_factory=datetime.now)
     rating: Rating = Rating.Unrated
     _cached_rating: Optional[tuple[Rating, float]] = None
+    blacklisted: bool = False
 
     @property
     def is_rated(self) -> bool:
