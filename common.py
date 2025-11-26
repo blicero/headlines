@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-13 16:12:48 krylon>
+# Time-stamp: <2025-11-26 19:22:29 krylon>
 #
 # /data/code/python/headlines/src/headlines/common.py
 # created on 30. 09. 2025
@@ -25,7 +25,7 @@ from threading import Lock
 from typing import Final
 
 AppName: Final[str] = "Headlines"
-AppVersion: Final[str] = "0.5.0"
+AppVersion: Final[str] = "0.6.0"
 Debug: Final[bool] = True
 TimeFmt: Final[str] = "%Y-%m-%d %H:%M:%S"
 
