@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-11-26 17:53:26 krylon>
+# Time-stamp: <2025-11-26 19:20:25 krylon>
 #
 #+TAGS: internals(i) ui(u) database(d) design(e)
 #+TAGS: meditation(m) optimize(o) refactor(r) cleanup(c)
@@ -8,20 +8,20 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Headlines [32/37]
+* Headlines [33/40]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: children
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2025-11-26 Mi 17:53]
+   #+CAPTION: Clock summary at [2025-11-26 Mi 19:20]
    | Headline                                        | Time      |            |          |         |       |      |
    |-------------------------------------------------+-----------+------------+----------+---------+-------+------|
-   | *Total time*                                    | *5d 2:08* |            |          |         |       |      |
+   | *Total time*                                    | *5d 3:11* |            |          |         |       |      |
    |-------------------------------------------------+-----------+------------+----------+---------+-------+------|
-   | *Headlines [32/37]*                             | *5d 2:08* |            |          |         |       |      |
-   | \_  /Components [18/20]/                        |           | /3d 17:48/ |          |         |       |      |
+   | *Headlines [33/40]*                             | *5d 3:11* |            |          |         |       |      |
+   | \_  /Components [19/23]/                        |           | /3d 18:51/ |          |         |       |      |
    | \_    Common [1/1]                              |           |            |     0:08 |         |       |      |
    | \_      Down the rabbit hole for pathlib        |           |            |          |    0:08 |       |      |
    | \_    Model [1/1]                               |           |            |     3:20 |         |       |      |
@@ -32,9 +32,10 @@
    | \_      Rating and Tagging [2/2]                |           |            |          |    1:21 |       |      |
    | \_        Tagging [0/0]                         |           |            |          |         |  0:46 |      |
    | \_      Testing                                 |           |            |          |    1:58 |       |      |
-   | \_    Engine [0/1]                              |           |            |    11:36 |         |       |      |
-   | \_    Web UI [13/14]                            |           |            | 2d 11:41 |         |       |      |
-   | \_      Integrate Blacklist [0/0]               |           |            |          |    7:14 |       |      |
+   | \_    Engine [0/2]                              |           |            |    11:36 |         |       |      |
+   | \_    Web UI [14/17]                            |           |            | 2d 12:44 |         |       |      |
+   | \_      Integrate Blacklist [1/3]               |           |            |          |    8:17 |       |      |
+   | \_        Hide blacklisted News Items           |           |            |          |         |  1:03 |      |
    | \_      Manage feeds from WebUI [1/1]           |           |            |          |    3:27 |       |      |
    | \_        Edit refresh interval                 |           |            |          |         |  0:41 |      |
    | \_      Mark boring items visually [0/0]        |           |            |          |    0:25 |       |      |
@@ -66,7 +67,7 @@
    | \_  /Journal [1/1]/                             |           | /0:26/     |          |         |       |      |
    | \_    Wrestling with poetry                     |           |            |     0:26 |         |       |      |
    #+END:
-** Components [18/20]
+** Components [19/23]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: children
@@ -156,7 +157,7 @@
      CLOCK: [2025-10-20 Mo 10:50]--[2025-10-20 Mo 11:20] =>  0:30
      CLOCK: [2025-10-20 Mo 10:13]--[2025-10-20 Mo 10:33] =>  0:20
      :END:
-*** Engine [0/1]
+*** Engine [0/2]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: children
@@ -178,11 +179,11 @@
     asyncio under the hood these days anyway.
     (The Internet says Twisted does not use asyncio, but still.)
     So Twisted it is!
-**** TODO Back off if loading Feed fails
+**** TODO [#E] Back off if loading Feed fails
      When fetching a Feed fails, we basically retry over and over in
      relatively short intervals. Maybe I should adjust that so we wait for
      increasingly large intervals.
-*** Web UI [13/14]
+*** Web UI [14/17]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: children
@@ -195,12 +196,20 @@
     CLOCK: [2025-10-13 Mo 17:47]--[2025-10-13 Mo 23:41] =>  5:54
     CLOCK: [2025-10-11 Sa 19:31]--[2025-10-11 Sa 23:30] =>  3:59
     :END:
-**** TODO Integrate Blacklist [0/0]
+**** TODO Integrate Blacklist [1/3]
      :LOGBOOK:
      CLOCK: [2025-11-26 Mi 17:29]--[2025-11-26 Mi 17:53] =>  0:24
      CLOCK: [2025-11-25 Di 15:02]--[2025-11-25 Di 17:48] =>  2:46
      CLOCK: [2025-11-24 Mo 18:06]--[2025-11-24 Mo 22:10] =>  4:04
      :END:
+***** TODO Edit Items
+***** TODO Remove Items
+***** DONE Hide blacklisted News Items
+      CLOSED: [2025-11-26 Mi 19:20]
+      :LOGBOOK:
+      CLOCK: [2025-11-26 Mi 18:37]--[2025-11-26 Mi 19:20] =>  0:43
+      CLOCK: [2025-11-26 Mi 17:58]--[2025-11-26 Mi 18:18] =>  0:20
+      :END:
 **** DONE Manage feeds from WebUI [1/1]
      CLOSED: [2025-11-12 Mi 12:03]
      :PROPERTIES:
@@ -348,6 +357,8 @@
     Been there before - I want an editable list of regular expressions so that
     news Items matching those get discarded right away. E.g. to filter out
     article behind a paywall I have no interest in climbing.
+    One thing I am not certain of is /where/ I want to Blacklist to apply.
+    The most sensible place would be the Frontend.
 *** Sanitize [3/3]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
