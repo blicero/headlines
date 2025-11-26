@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-24 18:32:49 krylon>
+# Time-stamp: <2025-11-26 17:36:58 krylon>
 #
 # /data/code/python/headlines/src/headlines/model.py
 # created on 30. 09. 2025
@@ -236,7 +236,7 @@ class Later:
 class BlacklistItem:
     """An item in the Blacklist."""
 
-    item_id: int
+    item_id: int = -1
     pattern: re.Pattern
     cnt: int = 0
 
