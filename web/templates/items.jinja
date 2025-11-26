@@ -1,5 +1,5 @@
 {# -*- mode: jinja2; coding: utf-8; -*-
-Time-stamp: <2025-11-16 20:26:43 krylon>
+Time-stamp: <2025-11-26 18:45:51 krylon>
 /data/code/python/headlines/web/templates/items.jinja
 created on 01. 11. 2025
 (c) 2025 Benjamin Walkenhorst
@@ -20,7 +20,7 @@ created on 01. 11. 2025
   </thead>
 
   <tbody class="items" id="items">
-    {% for item in items %}
+    {% for item in items if not item.blacklisted %}
       <tr id="item_row_{{ item.item_id }}"
           {% if item.rating == 0 %}class="boring"{% endif %}>
         <td>

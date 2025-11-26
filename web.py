@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-26 17:49:07 krylon>
+# Time-stamp: <2025-11-26 18:39:05 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -79,6 +79,7 @@ class WebUI:
         "port",
         "karl",
         "advisor",
+        "bl",
     ]
 
     log: logging.Logger
@@ -90,6 +91,7 @@ class WebUI:
     port: int
     karl: Karl
     advisor: Advisor
+    bl: Blacklist
 
     def __init__(self,
                  root: Union[str, pathlib.Path] = "",
@@ -120,6 +122,8 @@ class WebUI:
         #     self.karl.train_bulk(items)
 
         self.advisor = Advisor()
+        db: Final[Database] = Database()
+        self.bl = db.blacklist_get_all()
 
         self.tmpl_root = self.root.joinpath("templates")
         self.env = Environment(loader=FileSystemLoader(str(self.tmpl_root)))
@@ -230,8 +234,12 @@ class WebUI:
             item_tags: dict[int, set[Tag]] = {}
             later: set[Later] = db.item_later_get_all()
             advice: dict[int, list[tuple[Tag, float]]] = {}
+            bl_needs_save: bool = False
 
             for item in items:
+                if self.bl.matches(item):
+                    item.blacklisted = True
+                    bl_needs_save = True
                 item_tags[item.item_id] = set(db.tag_link_get_by_item(item))
                 if not item.is_rated:
                     rating: Rating = self.karl.classify(item)
@@ -241,6 +249,10 @@ class WebUI:
                     item,
                     {t.name for t in item_tags[item.item_id]}
                 )
+
+            if bl_needs_save:
+                with db:
+                    db.blacklist_save(self.bl)
 
             response.set_header("Cache-Control", "no-store, max-age=0")
             tmpl = self.env.get_template("news.jinja")
