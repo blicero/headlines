@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-21 20:35:14 krylon>
+# Time-stamp: <2025-11-26 18:52:35 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -1259,8 +1259,9 @@ class Database:
         """Update the Blacklist's hit counts."""
         try:
             cur = self.db.cursor()
-            cur.executemany(qdb[Query.BlacklistUpdateCount],
-                            ((x.cnt, x.item_id) for x in bl.items))
+            with bl.lock:
+                cur.executemany(qdb[Query.BlacklistUpdateCount],
+                                ((x.cnt, x.item_id) for x in bl.items))
         except sqlite3.Error as err:
             cname: Final[str] = err.__class__.__name__
             msg: Final[str] = \
@@ -1271,10 +1272,11 @@ class Database:
     def blacklist_remove_item(self, bl: Blacklist, idx: int) -> None:
         """Remove an item from the Blacklist."""
         try:
-            assert 0 <= idx < len(bl.items)
-            cur = self.db.cursor()
-            cur.execute(qdb[Query.BlacklistRemove], (bl.items[idx].item_id, ))
-            bl.items.pop(idx)
+            with bl.lock:
+                assert 0 <= idx < len(bl.items)
+                cur = self.db.cursor()
+                cur.execute(qdb[Query.BlacklistRemove], (bl.items[idx].item_id, ))
+                bl.items.pop(idx)
         except sqlite3.Error as err:
             cname: Final[str] = err.__class__.__name__
             msg: Final[str] = \
