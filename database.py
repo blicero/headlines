@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-26 18:52:35 krylon>
+# Time-stamp: <2025-11-28 18:55:44 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -207,8 +207,10 @@ class Query(Enum):
     BlacklistAdd = auto()
     BlacklistCountHit = auto()
     BlacklistUpdateCount = auto()
+    BlacklistUpdatePattern = auto()
     BlacklistRemove = auto()
     BlacklistGetAll = auto()
+    BlacklistGetByID = auto()
 
 
 qdb: Final[dict[Query, str]] = {
@@ -474,8 +476,16 @@ WHERE item_id = ?
     Query.BlacklistAdd: "INSERT INTO blacklist (pattern) VALUES (?) RETURNING id",
     Query.BlacklistCountHit: "UPDATE blacklist SET cnt = cnt + 1 WHERE id = ?",
     Query.BlacklistUpdateCount: "UPDATE blacklist SET cnt = ? WHERE id = ?",
+    Query.BlacklistUpdatePattern: "UPDATE blacklist SET pattern = ? WHERE id = ?",
     Query.BlacklistRemove: "DELETE FROM blacklist WHERE id = ?",
     Query.BlacklistGetAll: "SELECT id, pattern, cnt FROM blacklist ORDER BY cnt DESC",
+    Query.BlacklistGetByID: """
+SELECT
+    pattern,
+    cnt
+FROM blacklist
+WHERE id = ?
+    """,
 }
 
 
@@ -1269,18 +1279,39 @@ class Database:
             self.log.error(msg)
             raise DatabaseError(msg) from err
 
-    def blacklist_remove_item(self, bl: Blacklist, idx: int) -> None:
-        """Remove an item from the Blacklist."""
+    def blacklist_update_pattern(self, item: BlacklistItem, pat: re.Pattern) -> None:
+        """Update a BlacklistItem's pattern."""
         try:
-            with bl.lock:
-                assert 0 <= idx < len(bl.items)
-                cur = self.db.cursor()
-                cur.execute(qdb[Query.BlacklistRemove], (bl.items[idx].item_id, ))
-                bl.items.pop(idx)
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.BlacklistUpdatePattern], (pat.pattern, item.item_id))
         except sqlite3.Error as err:
             cname: Final[str] = err.__class__.__name__
             msg: Final[str] = \
-                f"{cname} trying to remove Item {idx} from Blacklist: {err}"
+                f"{cname} trying to update BlacklistItem's pattern to {pat.pattern}: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
+        item.pattern = pat
+
+    def blacklist_remove_item(self, item: Union[BlacklistItem, int]) -> None:
+        """Remove an item from the Blacklist."""
+        try:
+            item_id: int = 0
+            if isinstance(item, int):
+                item_id = item
+            else:
+                item_id = item.item_id
+
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.BlacklistRemove], (item_id, ))
+
+            bl: Blacklist = Blacklist()
+            with bl.lock:
+                bl.items = [x for x in bl.items if x.item_id != item_id]
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to remove Item {item_id} from Blacklist: {err}"
             self.log.error(msg)
             raise DatabaseError(msg) from err
 
@@ -1310,6 +1341,29 @@ class Database:
                 f"{cname} trying to load Blacklist: {err}"
             self.log.error(msg)
             raise DatabaseError(msg) from err
+
+    def blacklist_get_by_id(self, item_id) -> Optional[BlacklistItem]:
+        """Load a BlacklistItem by its ID."""
+        try:
+            cur = self.db.cursor()
+            cur.execute(qdb[Query.BlacklistGetByID], (item_id, ))
+            row = cur.fetchone()
+
+            if row is None:
+                return None
+
+            item = BlacklistItem(item_id=item_id, pattern=re.compile(row[0], re.I), cnt=row[1])
+            return item
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to load BlacklistItem {item_id}: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+        except re.PatternError as perr:
+            self.log.error("CANTHAPPEN - regex returned from database was invalid: %s",
+                           row[0])
+            raise perr
 
 # Local Variables: #
 # python-indent: 4 #
