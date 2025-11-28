@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-26 18:39:05 krylon>
+# Time-stamp: <2025-11-28 19:29:47 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -186,6 +186,12 @@ class WebUI:
         route("/ajax/blacklist/add",
               method=["GET", "POST"],
               callback=self._handle_blacklist_add)
+        route("/ajax/blacklist/update/<item_id:int>",
+              method="POST",
+              callback=self._handle_blacklist_update)
+        route("/ajax/blacklist/delete/<item_id:int>",
+              method="POST",
+              callback=self._handle_blacklist_remove)
 
         route("/static/<path>", callback=self._handle_static)
         route("/favicon.ico", callback=self._handle_favicon)
@@ -870,6 +876,60 @@ class WebUI:
             res["status"] = True
             res["message"] = "Success"
             res["payload"] = item.item_id
+        finally:
+            db.close()
+
+        response.set_header("Cache-Control", "no-store, max-age=0")
+        response.set_header("Content-Type", "application/json")
+        return json.dumps(res)
+
+    def _handle_blacklist_update(self, item_id: int) -> Union[str, bytes]:
+        """Update a BlacklistItem's pattern."""
+        res: dict = {
+            "status": False,
+            "timestamp": datetime.now().strftime(common.TimeFmt),
+            "message": "NOT IMPLEMENTED",
+            "payload": None,
+        }
+        txt: Final[str] = request.params["pattern"]
+
+        db: Database = Database()
+        try:
+            pat: Final[re.Pattern] = re.compile(txt, re.I)
+
+            with db:
+                item: Optional[BlacklistItem] = db.blacklist_get_by_id(item_id)
+                if item is None:
+                    msg = f"Item {item_id} was not found in database."
+                    self.log.debug(msg)
+                    res["message"] = msg
+                else:
+                    db.blacklist_update_pattern(item, pat)
+                    res["status"] = True
+        except re.PatternError as perr:
+            msg = f"Cannot compile pattern {txt} to regex: {perr}"
+            res["message"] = msg
+            self.log.error(msg)
+        finally:
+            db.close()
+
+        response.set_header("Cache-Control", "no-store, max-age=0")
+        response.set_header("Content-Type", "application/json")
+        return json.dumps(res)
+
+    def _handle_blacklist_remove(self, item_id: int) -> Union[str, bytes]:
+        """Delete a BlacklistItem."""
+        res: dict = {
+            "status": False,
+            "timestamp": datetime.now().strftime(common.TimeFmt),
+            "message": "NOT IMPLEMENTED",
+            "payload": None,
+        }
+        try:
+            db: Final[Database] = Database()
+            with db:
+                db.blacklist_remove_item(item_id)
+                res["status"] = True
         finally:
             db.close()
 

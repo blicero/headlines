@@ -1,5 +1,5 @@
 {# -*- mode: jinja2; coding: utf-8; -*-
-Time-stamp: <2025-11-26 17:44:59 krylon>
+Time-stamp: <2025-11-28 19:38:50 krylon>
 /data/code/python/headlines/web/templates/blacklist.jinja
 created on 24. 11. 2025
 (c) 2025 Benjamin Walkenhorst
@@ -55,7 +55,7 @@ created on 24. 11. 2025
   </p>
 
   <div>
-    <table class="table table-striped table-secondary">
+    <table class="table table-striped table-secondary" id="bl_pat_tbl">
       <thead>
         <tr>
           <th>ID</th>
@@ -67,11 +67,25 @@ created on 24. 11. 2025
 
       <tbody id="bl_items">
         {% for item in blacklist.items %}
-          <tr>
+          <tr id="bl_pat_row_{{ item.item_id }}">
             <td class="num">{{ item.item_id }}</td>
-            <td>{{ item.pattern.pattern }}</td>
+            <td id="bl_pat_{{ item.item_id }}">
+              {{ item.pattern.pattern }}
+            </td>
             <td class="num">{{ item.cnt }}</td>
-            <td>&nbsp;</td>
+            <td>
+              <button type="button"
+                      class="btn btn-sm"
+                      onclick="bl_pat_edit({{ item.item_id }}, `{{ item.pattern.pattern }}`);"
+                      >
+                Edit
+              </button>
+              &nbsp;
+              <a href="#"
+                 onclick="bl_item_delete({{ item.item_id }});">
+                 <img src="/static/delete.png" />
+              </a>
+            </td>
           </tr>
         {% endfor %}
       </tbody>

@@ -1,4 +1,4 @@
-// Time-stamp: <2025-11-26 17:48:15 krylon>
+// Time-stamp: <2025-11-28 20:01:41 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -729,13 +729,25 @@ function bl_pat_save() {
             if (res.status) {
                 const item_list_id = "#bl_items"
                 const item_list = $(item_list_id)[0]
+                const dpat = "`" + pat + "`"
+                const item_id = res.payload
                 const row = `<tr>
-    <td class="num">${res.payload}</td>
-    <td>${pat}</td>
+    <td class="num">${item_id}</td>
+    <td id="bl_pat_${item_id}">${pat}</td>
     <td class="num">0</td>
-    <td>&nbsp;</td>
+    <td>
+      <button type="button"
+              class="btn btn-sm"
+              onclick="bl_pat_edit(${item_id}, ${dpat});">Edit</button>
+      &nbsp;
+      <a href="#"
+         onclick="bl_item_delete(${item_id});">
+        <img src="/static/delete.png" />
+      </a>
+    </td>
 </tr>`
                 item_list.innerHTML += row
+                $(input_id)[0].value = ""
             } else {
                 msg_add(res.message, 'ERROR')
                 alert(res.message)
@@ -748,5 +760,76 @@ function bl_pat_save() {
         console.error(msg)
         alert(msg)
     })
-        
-}
+} // function bl_pat_save()
+
+var bl_pat_restore = {}
+
+function bl_pat_edit(item_id, pat) {
+    const bl_pat_cell_id = `#bl_pat_${item_id}`
+    const bl_pat_cell = $(bl_pat_cell_id)[0]
+
+    bl_pat_restore[item_id] = pat
+    bl_pat_cell.innerHTML = `
+<input type="text" id="bl_pat_input_${item_id}" value="${pat}" />
+<button type="button" class="btn btn-sm btn-success" onclick="bl_pat_update(${item_id});">Save</button>
+<button type="button" class="btn btn-sm btn-danger" onclick="bl_pat_edit_cancel(${item_id})">Cancel</button>
+`
+} // function bl_pat_edit(item_id, pat)
+
+function bl_pat_update(item_id) {
+    const url = `/ajax/blacklist/update/${item_id}`
+    const cell_id = `#bl_pat_${item_id}`
+    const cell = $(cell_id)[0]
+    const input_id = `#bl_pat_input_${item_id}`
+    const input = $(input_id)[0]
+
+    const new_pat = input.value
+
+    $.post(
+        url,
+        { "pattern": new_pat },
+        (res) => {
+            if (res.status) {
+                cell.innerHTML = new_pat
+                delete bl_pat_restore[item_id]
+            } else {
+                msg_add(res.message, 'ERROR')
+                alert(msg)
+            }
+        },
+        'json'
+    ).fail((reply, status, xhr) => {
+        const msg = `Error updating blacklist pattern: ${status_text} - ${reply}`
+        msg_add(msg, 'ERROR')
+        console.error(msg)
+        alert(msg)
+    })
+} // function bl_pat_update(item_id)
+
+function bl_pat_edit_cancel(item_id) {
+    const cell_id = `#bl_pat_${item_id}`
+    const cell = $(cell_id)[0]
+
+    cell.innerHTML = bl_pat_restore[item_id]
+    delete bl_pat_restore[item_id]
+} // function bl_pat_edit_cancel(item_id)
+
+function bl_item_delete(item_id) {
+    const url = `/ajax/blacklist/delete/${item_id}`
+    $.post(
+        url,
+        {},
+        (res) => {
+            if (res.status) {
+                const row_id = `#bl_pat_row_${item_id}`
+                $(row_id).remove()
+            }
+        },
+        'json'
+    ).fail((reply, status, xhr) => {
+        const msg = `Error deleting blacklist pattern: ${status_text} - ${reply}`
+        msg_add(msg, 'ERROR')
+        console.error(msg)
+        alert(msg)
+    })
+} // function bl_item_delete(item_id)
