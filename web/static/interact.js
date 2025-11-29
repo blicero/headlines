@@ -1,4 +1,4 @@
-// Time-stamp: <2025-11-28 20:01:41 krylon>
+// Time-stamp: <2025-11-29 15:48:05 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -823,6 +823,9 @@ function bl_item_delete(item_id) {
             if (res.status) {
                 const row_id = `#bl_pat_row_${item_id}`
                 $(row_id).remove()
+            } else {
+                msg_add(res.message, 'ERROR')
+                alert(res.message)
             }
         },
         'json'
