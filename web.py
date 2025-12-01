@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-28 19:29:47 krylon>
+# Time-stamp: <2025-12-01 15:52:07 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -142,6 +142,7 @@ class WebUI:
         route("/later", callback=self._handle_later)
         route("/feed/all", callback=self._handle_feed_view)
         route("/blacklist", callback=self._handle_blacklist_view)
+        route("/search", callback=self._handle_search_form)
 
         route("/ajax/beacon", callback=self._handle_beacon)
         route("/ajax/item_rate/<item_id:int>/<score:int>",
@@ -386,6 +387,18 @@ class WebUI:
 
             with bl:
                 return tmpl.render(tmpl_vars)
+        finally:
+            db.close()
+
+    def _handle_search_form(self) -> Union[str, bytes]:
+        """Display the search form."""
+        db: Final[Database] = Database()
+        try:
+            tmpl = self.env.get_template("search.jinja")
+            tmpl_vars = self._tmpl_vars()
+            tmpl_vars["tags"] = db.tag_get_all()
+
+            return tmpl.render(tmpl_vars)
         finally:
             db.close()
 

@@ -1,0 +1,38 @@
+{# -*- mode: jinja2; coding: utf-8; -*-
+Time-stamp: <2025-12-01 15:38:46 krylon>
+/data/code/python/headlines/web/templates/search.jinja
+created on 29. 11. 2025
+(c) 2025 Benjamin Walkenhorst
+ #}
+
+{% extends "main.jinja" %}
+
+{% block content %}
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <div id="search_form" class="content">
+          <input type="search"
+                 placeholder="Search..."
+                 id="search_txt" />
+        </div> <!-- search_form -->
+      </div> <!-- col 0 -->
+      <div class="col">
+        <button type="button"
+                class="btn">
+                Go!
+        </button>
+      </div> <!-- col 1 -->
+    </div> <!-- row 0 -->
+    <div class="row">
+      {% for tag in tags %}
+        <span>
+          {{ tag.name }}
+          <input type="checkbox" id="check_{{ tag.tag_id }}" />
+        </span>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}
+
+
