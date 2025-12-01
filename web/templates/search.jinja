@@ -1,5 +1,5 @@
 {# -*- mode: jinja2; coding: utf-8; -*-
-Time-stamp: <2025-12-01 15:38:46 krylon>
+Time-stamp: <2025-12-01 19:53:20 krylon>
 /data/code/python/headlines/web/templates/search.jinja
 created on 29. 11. 2025
 (c) 2025 Benjamin Walkenhorst
@@ -7,32 +7,50 @@ created on 29. 11. 2025
 
 {% extends "main.jinja" %}
 
+{% import "macros.jinja" as lib %}
+
 {% block content %}
-  <div class="container">
+  <div class="container content">
     <div class="row">
       <div class="col">
-        <div id="search_form" class="content">
-          <input type="search"
-                 placeholder="Search..."
-                 id="search_txt" />
-        </div> <!-- search_form -->
-      </div> <!-- col 0 -->
-      <div class="col">
+        <input type="search" placeholder="Search..." id="search_text" />
         <button type="button"
-                class="btn">
-                Go!
+                class="btn btn-sm btn-primary"
+                onclick="do_search();">
+                Find
         </button>
-      </div> <!-- col 1 -->
+      </div>
+
+      <div class="col">
+        <fieldset>
+          <label for="tag_and">AND</label>
+          <input type="radio" id="and" name="link" value="and" checked />
+          &nbsp;
+          <label for="tag_or">OR</label>
+          <input type="radio" id="or" name="link" value="or" />
+        </fieldset>
+        <select id="search_tag_menu" class="btn btn-sm btn-secondary">
+          {% for tag in tags %}
+            <option value="{{ tag.tag_id }}" 
+                    id="{{ tag.tag_id }}">
+                    {{- lib.nbsp(tag.lvl*2) -}}
+                    {{- tag.name -}}
+            </option>
+          {% endfor %}
+        </select>
+        <button class="btn btn-sm btn-success" onclick="add_tag_to_search_bin();">
+          Add Tag
+        </button>
+      </div> <!-- col 0 -->
+      <div class="col" id="tag_bin">
+        
+      </div>
     </div> <!-- row 0 -->
-    <div class="row">
-      {% for tag in tags %}
-        <span>
-          {{ tag.name }}
-          <input type="checkbox" id="check_{{ tag.tag_id }}" />
-        </span>
-      {% endfor %}
+
+    <div class="row"> {# Results go here #}
+      
     </div>
-  </div>
+  </div> <!-- container/content -->
 {% endblock %}
 
 

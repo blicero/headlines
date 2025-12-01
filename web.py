@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-12-01 15:52:07 krylon>
+# Time-stamp: <2025-12-01 20:48:52 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -949,6 +949,19 @@ class WebUI:
         response.set_header("Cache-Control", "no-store, max-age=0")
         response.set_header("Content-Type", "application/json")
         return json.dumps(res)
+
+    def _handle_search_query(self) -> Union[str, bytes]:
+        """Handle an incoming search query."""
+        res: dict = {
+            "status": False,
+            "timestamp": datetime.now().strftime(common.TimeFmt),
+            "message": "NOT IMPLEMENTED",
+            "payload": None,
+        }
+        try:
+            db: Final[Database] = Database()
+        finally:
+            db.close()
 
     # Static files
 

@@ -1,4 +1,4 @@
-// Time-stamp: <2025-11-29 15:48:05 krylon>
+// Time-stamp: <2025-12-01 20:19:03 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -836,3 +836,63 @@ function bl_item_delete(item_id) {
         alert(msg)
     })
 } // function bl_item_delete(item_id)
+
+var search_tags = {}
+
+function add_tag_to_search_bin() {
+    const bin_id = "#tag_bin"
+    const menu_id = "#search_tag_menu"
+    const selected_tag_item = $(menu_id)[0].selectedOptions[0]
+    const tag_id = selected_tag_item.value
+    const tag_name = selected_tag_item.label.trim()
+
+    search_tags[tag_id] = true
+
+    const tag_label = `<span id="tag_${tag_id}">
+${tag_name} <img src="/static/delete.png"
+                 onclick="remove_tag_from_bin(${tag_id});" />
+            </span> &nbsp;
+`
+    $(bin_id)[0].innerHTML += tag_label
+} // function add_tag_to_search_bin()
+
+function remove_tag_from_bin(tag_id) {
+    const label_id = `#tag_${tag_id}`
+    const label = $(label_id)[0]
+
+    delete search_tags[tag_id]
+
+    label.remove()
+} // function remove_tag_from_bin(tag_id)
+
+function do_search() {
+    const url = "/ajax/search"
+    const input_id = "#search_text"
+    const txt = $(input_id)[0].value
+
+    const mode = $("#and")[0].checked
+    const tags = []
+
+    for (t in search_tags) {
+        tags.push(t)
+    }
+
+    $.post(
+        url,
+        {
+            "txt": txt,
+            "mode": mode ? "and" : "or",
+            "tags": tags,
+        },
+        (res) => {
+            if (res.status) {
+            }
+        },
+        'json'
+    ).fail((reply, status, xhr) => {
+        const msg = `Error performing search - ${reply} - ${status} - ${xhr}`
+        msg_add(msg, 'ERROR')
+        console.error(msg)
+        alert(msg)
+    })
+} // function do_search()
