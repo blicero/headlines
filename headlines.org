@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-11-29 15:59:01 krylon>
+# Time-stamp: <2025-12-01 15:54:44 krylon>
 #
 #+TAGS: internals(i) ui(u) database(d) design(e)
 #+TAGS: meditation(m) optimize(o) refactor(r) cleanup(c)
@@ -15,12 +15,12 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2025-11-29 Sa 15:58]
+   #+CAPTION: Clock summary at [2025-12-01 Mo 15:54]
    | Headline                                        | Time       |           |          |         |       |      |
    |-------------------------------------------------+------------+-----------+----------+---------+-------+------|
-   | *Total time*                                    | *5d 12:24* |           |          |         |       |      |
+   | *Total time*                                    | *5d 17:02* |           |          |         |       |      |
    |-------------------------------------------------+------------+-----------+----------+---------+-------+------|
-   | *Headlines [37/40]*                             | *5d 12:24* |           |          |         |       |      |
+   | *Headlines [37/40]*                             | *5d 17:02* |           |          |         |       |      |
    | \_  /Components [22/23]/                        |            | /4d 4:04/ |          |         |       |      |
    | \_    Common [1/1]                              |            |           |     0:08 |         |       |      |
    | \_      Down the rabbit hole for pathlib        |            |           |          |    0:08 |       |      |
@@ -51,8 +51,9 @@
    | \_        Recommendation [1/1]                  |            |           |          |         | 13:11 |      |
    | \_          Don't recommend Tags already linked |            |           |          |         |       | 0:26 |
    | \_    Main [0/0]                                |            |           |     1:53 |         |       |      |
-   | \_  /Features [8/10]/                           |            | /1d 4:25/ |          |         |       |      |
+   | \_  /Features [8/10]/                           |            | /1d 9:03/ |          |         |       |      |
    | \_    Later, B_tches [0/0]                      |            |           |     7:45 |         |       |      |
+   | \_    Searching [0/0]                           |            |           |     4:38 |         |       |      |
    | \_    Blacklist [0/0]                           |            |           |     3:27 |         |       |      |
    | \_    Sanitize [3/3]                            |            |           |     4:19 |         |       |      |
    | \_    Tagging [0/0]                             |            |           |     2:49 |         |       |      |
@@ -356,8 +357,16 @@
     and even cooler if that could be done automatically. I don't think it's
     possible but worth a try.
 *** TODO Searching [0/0]
+    :LOGBOOK:
+    CLOCK: [2025-12-01 Mo 15:22]--[2025-12-01 Mo 15:54] =>  0:32
+    CLOCK: [2025-11-29 Sa 16:14]--[2025-11-29 Sa 20:20] =>  4:06
+    :END:
     I want to be able to search the database by text, but also by time and
     tags, respecting the tag hierarchy.
+    In earlier attempts, I used a trigger to add Items into the search index,
+    but with the preprocessing I do this time around, that is not going to
+    work. And I already have a significant number if Items in the database, so
+    first I need to fill the search index.
 *** DONE Blacklist [0/0]
     CLOSED: [2025-11-29 Sa 15:52]
     :PROPERTIES:
