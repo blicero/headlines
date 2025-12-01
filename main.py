@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-15 16:13:06 krylon>
+# Time-stamp: <2025-11-29 17:50:52 krylon>
 #
 # /data/code/python/headlines/main.py
 # created on 11. 10. 2025
@@ -18,13 +18,29 @@ headlines.main
 
 
 import argparse
+import logging
 import pathlib
 import signal
+import sys
 from threading import Thread
 
 from headlines import common
+from headlines.database import Database
 from headlines.engine import Engine
+from headlines.model import Item
 from headlines.web import WebUI
+
+
+def prepare_search_index() -> None:
+    """Make sure all news Items are present in the search index."""
+    try:
+        db: Database = Database()
+        with db:
+            items: list[Item] = db.search_find_missing()
+            for item in items:
+                db.search_add(item)
+    finally:
+        db.close()
 
 
 def main() -> None:
@@ -47,10 +63,21 @@ def main() -> None:
                       type=pathlib.Path,
                       default=common.path.base(),
                       help="The directory to store application-specific files in")
+    argp.add_argument("-s", "--search",
+                      action="store_true",
+                      help="Check and if necessary fill the search index.")
 
     args = argp.parse_args()
 
     common.set_basedir(args.basedir)
+
+    if args.search:
+        lg: logging.Logger = common.get_logger("main")
+        lg.info("Making sure search index is up to date.")
+        prepare_search_index()
+        lg.info("Done. Bye.")
+        sys.exit(0)
+
     eng: Engine = Engine(10)
 
     threads: list[Thread] = []
