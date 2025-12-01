@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-28 18:55:44 krylon>
+# Time-stamp: <2025-11-29 17:50:34 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -158,6 +158,7 @@ CREATE TABLE blacklist (
 ) STRICT
     """,
     "CREATE INDEX bl_cnt_idx ON blacklist (cnt)",
+    "CREATE VIRTUAL TABLE search USING fts5(id, body)",
 ]
 
 
@@ -211,6 +212,11 @@ class Query(Enum):
     BlacklistRemove = auto()
     BlacklistGetAll = auto()
     BlacklistGetByID = auto()
+
+    SearchAdd = auto()
+    SearchDelete = auto()
+    SearchMatch = auto()
+    SearchFindMissing = auto()
 
 
 qdb: Final[dict[Query, str]] = {
@@ -485,6 +491,37 @@ SELECT
     cnt
 FROM blacklist
 WHERE id = ?
+    """,
+    Query.SearchAdd: "INSERT INTO search (id, body) VALUES (?, ?)",
+    Query.SearchDelete: "DELETE FROM search WHERE id = ?",
+    # ???
+    Query.SearchFindMissing: """
+    SELECT
+        i.id,
+        i.feed_id,
+        i.url,
+        i.headline,
+        i.body,
+        i.timestamp,
+        i.time_added,
+        i.rating
+FROM item i
+LEFT OUTER JOIN search s ON i.id = s.id
+WHERE s.id IS NULL
+    """,
+    Query.SearchMatch: """
+    SELECT
+        i.id,
+        i.feed_id,
+        i.url,
+        i.headline,
+        i.body,
+        i.timestamp,
+        i.time_added,
+        i.rating
+FROM item i
+INNER JOIN search s ON i.id = s.id
+WHERE search MATCH ? ORDER BY rank;
     """,
 }
 
@@ -1364,6 +1401,58 @@ class Database:
             self.log.error("CANTHAPPEN - regex returned from database was invalid: %s",
                            row[0])
             raise perr
+
+    def search_add(self, item: Item) -> None:
+        """Add an Item's processed text to the search index."""
+        try:
+            cur: Final[sqlite3.Cursor] = self.db.cursor()
+            cur.execute(qdb[Query.SearchAdd], (item.item_id, item.plain_full))
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to add Item {item.item_id} to search index : {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
+    def search_delete(self, item: Union[Item, int]) -> None:
+        """Remove an Item from the search index."""
+        try:
+            item_id: Final[int] = item if isinstance(item, int) else item.item_id
+            cur: Final[sqlite3.Cursor] = self.db.cursor()
+            cur.execute(qdb[Query.SearchDelete], (item_id, ))
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to delete Item {item_id} from search index: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
+    def search_find_missing(self) -> list[Item]:
+        """Find Items that are not present in the search index."""
+        try:
+            cur: Final[sqlite3.Cursor] = self.db.cursor()
+            cur.execute(qdb[Query.SearchFindMissing])
+            items: list[Item] = []
+
+            for row in cur:
+                item: Item = Item(
+                    item_id=row[0],
+                    feed_id=row[1],
+                    url=row[2],
+                    headline=row[3],
+                    body=row[4],
+                    timestamp=datetime.fromtimestamp(row[5]),
+                    time_added=datetime.fromtimestamp(row[6]),
+                    rating=Rating(row[7]),
+                )
+                items.append(item)
+            return items
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to load items missing from search index: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
 
 # Local Variables: #
 # python-indent: 4 #
