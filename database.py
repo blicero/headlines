@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-29 17:50:34 krylon>
+# Time-stamp: <2025-12-02 09:39:48 krylon>
 #
 # /data/code/python/headlines/src/headlines/database.py
 # created on 30. 09. 2025
@@ -521,7 +521,8 @@ WHERE s.id IS NULL
         i.rating
 FROM item i
 INNER JOIN search s ON i.id = s.id
-WHERE search MATCH ? ORDER BY rank;
+WHERE search MATCH ?
+ORDER BY rank;
     """,
 }
 
@@ -1451,6 +1452,34 @@ class Database:
             cname: Final[str] = err.__class__.__name__
             msg: Final[str] = \
                 f"{cname} trying to load items missing from search index: {err}"
+            self.log.error(msg)
+            raise DatabaseError(msg) from err
+
+    def search_match(self, txt: str) -> list[Item]:
+        """Search the Database for Items matching <txt>."""
+        try:
+            cur: Final[sqlite3.Cursor] = self.db.cursor()
+            cur.execute(qdb[Query.SearchMatch], (txt, ))
+            items: list[Item] = []
+
+            for row in cur:
+                item: Item = Item(
+                    item_id=row[0],
+                    feed_id=row[1],
+                    url=row[2],
+                    headline=row[3],
+                    body=row[4],
+                    timestamp=datetime.fromtimestamp(row[5]),
+                    time_added=datetime.fromtimestamp(row[6]),
+                    rating=Rating(row[7]),
+                )
+                items.append(item)
+
+            return items
+        except sqlite3.Error as err:
+            cname: Final[str] = err.__class__.__name__
+            msg: Final[str] = \
+                f"{cname} trying to search for '{txt}': {err}"
             self.log.error(msg)
             raise DatabaseError(msg) from err
 
