@@ -1,4 +1,4 @@
-// Time-stamp: <2025-12-01 20:19:03 krylon>
+// Time-stamp: <2025-12-02 19:29:43 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -865,15 +865,15 @@ function remove_tag_from_bin(tag_id) {
     label.remove()
 } // function remove_tag_from_bin(tag_id)
 
-function do_search() {
+function search_do() {
     const url = "/ajax/search"
     const input_id = "#search_text"
     const txt = $(input_id)[0].value
 
     const mode = $("#and")[0].checked
-    const tags = []
+    let tags = []
 
-    for (t in search_tags) {
+    for (var t in search_tags) {
         tags.push(t)
     }
 
@@ -882,10 +882,14 @@ function do_search() {
         {
             "txt": txt,
             "mode": mode ? "and" : "or",
-            "tags": tags,
+            "tags": tags.join("/"),
         },
         (res) => {
             if (res.status) {
+                $("#result_bin")[0].innerHTML = res.payload
+            } else {
+                msg_add(res.message, 'ERROR')
+                alert(res.message)
             }
         },
         'json'
@@ -895,4 +899,10 @@ function do_search() {
         console.error(msg)
         alert(msg)
     })
-} // function do_search()
+} // function search_do()
+
+function search_reset() {
+    $("#result_bin")[0].innerHTML = ""
+    $("#tag_bin")[0].innerHTML = ""
+    $("#search_text")[0].value = ""
+} // function search_reset()

@@ -1,5 +1,5 @@
 {# -*- mode: jinja2; coding: utf-8; -*-
-Time-stamp: <2025-12-01 19:53:20 krylon>
+Time-stamp: <2025-12-02 19:15:21 krylon>
 /data/code/python/headlines/web/templates/search.jinja
 created on 29. 11. 2025
 (c) 2025 Benjamin Walkenhorst
@@ -16,8 +16,13 @@ created on 29. 11. 2025
         <input type="search" placeholder="Search..." id="search_text" />
         <button type="button"
                 class="btn btn-sm btn-primary"
-                onclick="do_search();">
+                onclick="search_do();">
                 Find
+        </button>
+        <button type="button"
+                class="btn btn-sm btn-danger"
+                onclick="search_reset();">
+                Reset
         </button>
       </div>
 
@@ -47,7 +52,7 @@ created on 29. 11. 2025
       </div>
     </div> <!-- row 0 -->
 
-    <div class="row"> {# Results go here #}
+    <div class="row" id="result_bin"> {# Results go here #}
       
     </div>
   </div> <!-- container/content -->

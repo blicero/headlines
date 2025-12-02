@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-12-01 20:48:52 krylon>
+# Time-stamp: <2025-12-02 19:33:32 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -23,6 +23,7 @@ import os
 import pathlib
 import re
 import socket
+import traceback
 from datetime import datetime
 from threading import Lock
 from typing import Any, Final, Optional, Union
@@ -193,6 +194,9 @@ class WebUI:
         route("/ajax/blacklist/delete/<item_id:int>",
               method="POST",
               callback=self._handle_blacklist_remove)
+        route("/ajax/search",
+              method="POST",
+              callback=self._handle_search_query)
 
         route("/static/<path>", callback=self._handle_static)
         route("/favicon.ico", callback=self._handle_favicon)
@@ -950,7 +954,7 @@ class WebUI:
         response.set_header("Content-Type", "application/json")
         return json.dumps(res)
 
-    def _handle_search_query(self) -> Union[str, bytes]:
+    def _handle_search_query(self) -> Union[str, bytes]:  # pylint: disable-msg=R0914,R0912
         """Handle an incoming search query."""
         res: dict = {
             "status": False,
@@ -960,8 +964,83 @@ class WebUI:
         }
         try:
             db: Final[Database] = Database()
+            qtxt: Final[str] = request.params["txt"]
+            mode: Final[str] = request.params["mode"]
+            try:
+                tag_ids: list[int] = [int(x) for x in request.params["tags"].split("/") if x != ""]
+            except KeyError:
+                tag_ids = []
+            stags: Final[set[Tag]] = set()
+
+            self.log.debug("Tag list: %s", tag_ids)
+
+            for tid in tag_ids:
+                tag = db.tag_get_by_id(tid)
+                if tag is not None:
+                    stags.add(tag)
+
+            self.log.debug("Search for '%s', tags (%s %s)",
+                           qtxt,
+                           mode,
+                           " ".join([str(x) for x in tag_ids]))
+
+            ritems: list[Item] = db.search_match(qtxt)
+            titems: list[Item] = []
+            item_tags: dict[int, set[Tag]] = {}
+
+            if len(tag_ids) > 0:
+                for item in ritems:
+                    itags: set[Tag] = set(db.tag_link_get_by_item(item))
+                    item_tags[item.item_id] = itags
+                    match mode:
+                        case "and":
+                            if all(x in itags for x in stags):
+                                titems.append(item)
+                        case "or":
+                            if any(x in itags for x in stags):
+                                titems.append(item)
+            else:
+                titems = ritems
+                item_tags = {x.item_id: set(db.tag_link_get_by_item(x)) for x in titems}
+
+            feeds = db.feed_get_all()
+            tags = db.tag_get_all()
+            advice: dict[int, list[tuple[Tag, float]]] = {}
+
+            for item in titems:
+                if not item.is_rated:
+                    rating: Rating = self.karl.classify(item)
+                    item.cache_rating(rating, 0.75)
+
+                advice[item.item_id] = self.advisor.advise(item)
+
+            tmpl = self.env.get_template("items.jinja")
+            tmpl_vars = self._tmpl_vars()
+            tmpl_vars["title"] = f"{common.AppName} {common.AppVersion} - News"
+            tmpl_vars["year"] = datetime.now().year
+            tmpl_vars["feeds"] = {f.fid: f for f in feeds}
+            tmpl_vars["items"] = titems
+            tmpl_vars["tags"] = tags
+            tmpl_vars["item_tags"] = item_tags
+            tmpl_vars["advice"] = advice
+            tmpl_vars["uuid"] = uuid4
+
+            res["message"] = "ACK"
+            res["payload"] = tmpl.render(tmpl_vars)
+            res["status"] = True
+        except Exception as err:  # pylint: disable-msg=W0718
+            cname: Final[str] = err.__class__.__name__
+            tb: Final[str] = "\n".join(traceback.format_exception(err))
+            msg: Final[str] = f"{cname} while performing search: {err}\n{tb}"
+            self.log.error(msg)
+            res["message"] = msg
+            res["status"] = False
         finally:
             db.close()
+
+        response.set_header("Cache-Control", "no-store, max-age=0")
+        response.set_header("Content-Type", "application/json")
+        return json.dumps(res)
 
     # Static files
 
