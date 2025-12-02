@@ -1,5 +1,5 @@
 {# -*- mode: jinja2; coding: utf-8; -*-
-Time-stamp: <2025-11-26 18:45:51 krylon>
+Time-stamp: <2025-12-02 19:42:27 krylon>
 /data/code/python/headlines/web/templates/items.jinja
 created on 01. 11. 2025
 (c) 2025 Benjamin Walkenhorst
@@ -61,12 +61,12 @@ created on 01. 11. 2025
             <small>({{ item.effective_rating.name }})</small>
           <p>
             <button type="button"
-                    class="btn btn-primary"
+                    class="btn btn-primary btn-sm"
                     onclick="rate_item({{ item.item_id }}, 1);">
                     Interesting
             </button>
             <button type="button"
-                    class="btn btn-secondary"
+                    class="btn btn-secondary btn-sm"
                     onclick="rate_item({{ item.item_id }}, 0);">
                     Boring
             </button>
@@ -97,7 +97,7 @@ created on 01. 11. 2025
           </div>
           <div id="tag_form_{{ item.item_id }}">
             {% set id_root = "tag_menu_item_{}".format(item.item_id) %}
-            <select id="item_tag_sel_{{ item.item_id }}" class="btn btn-secondary">
+            <select id="item_tag_sel_{{ item.item_id }}" class="btn btn-secondary btn-sm">
               {% for tag in tags %}
                 <option value="{{ tag.tag_id }}"
                         id="{{ id_root }}_opt_{{ tag.tag_id }}"
@@ -108,7 +108,7 @@ created on 01. 11. 2025
                 </option>
               {% endfor %}
             </select>
-            <button class="btn btn-success" onclick="add_tag({{ item.item_id }});">
+            <button class="btn btn-success btn-sm" onclick="add_tag({{ item.item_id }});">
               Add Tag
             </button>
           </div>
