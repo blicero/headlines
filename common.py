@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-12-02 19:59:47 krylon>
+# Time-stamp: <2025-12-04 15:53:32 krylon>
 #
 # /data/code/python/headlines/src/headlines/common.py
 # created on 30. 09. 2025
@@ -21,13 +21,25 @@ import logging.handlers
 import os
 import pathlib
 import sys
+from datetime import datetime, timedelta
 from threading import Lock
-from typing import Final
+from typing import Final, Optional
 
 AppName: Final[str] = "Headlines"
 AppVersion: Final[str] = "0.7.0"
 Debug: Final[bool] = True
 TimeFmt: Final[str] = "%Y-%m-%d %H:%M:%S"
+
+
+def parse_iso_date(s: str, end: bool = False) -> Optional[datetime]:
+    """Attempt to parse <s> as a ISO8601 date string (i.e. YYYY-MM-DD)"""
+    try:
+        t: datetime = datetime.strptime(s, "%Y-%m-%d")
+        if end:
+            t += timedelta(hours=23, minutes=59, seconds=59)
+        return t
+    except ValueError:
+        return None
 
 
 class HeadlineError(Exception):

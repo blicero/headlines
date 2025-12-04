@@ -1,4 +1,4 @@
-// Time-stamp: <2025-12-02 19:29:43 krylon>
+// Time-stamp: <2025-12-04 15:50:37 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -869,6 +869,31 @@ function search_do() {
     const url = "/ajax/search"
     const input_id = "#search_text"
     const txt = $(input_id)[0].value
+    const date_p_id = "#search_by_date_p"
+    const date_p = $(date_p_id)[0].checked
+    const by_date = { "from": "", "to": "" }
+
+    if (txt == "") {
+        const msg = "No search text was given"
+        msg_add(msg, 'ERROR')
+        alert(msg)
+        return
+    } else if (date_p) {
+        by_date["from"] = $("#date_from")[0].value
+        by_date["to"] = $("#date_to")[0].value
+
+        if (by_date.from == "" || by_date.to == "") {
+            const msg = "You need to specify a valid period to filter by!"
+            msg_add(msg, 'ERROR')
+            alert(msg)
+            return
+        } else if (by_date.from > by_date.to) {
+            const msg = `Invalid search period: ${by_date.from} -- ${by_date.to}`
+            msg_add(msg, 'ERROR')
+            alert(msg)
+            return
+        }
+    }
 
     const mode = $("#and")[0].checked
     let tags = []
@@ -883,6 +908,8 @@ function search_do() {
             "txt": txt,
             "mode": mode ? "and" : "or",
             "tags": tags.join("/"),
+            "date_p": date_p,
+            "period": `${by_date.from}--${by_date.to}`,
         },
         (res) => {
             if (res.status) {

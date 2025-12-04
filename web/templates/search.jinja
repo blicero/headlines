@@ -1,5 +1,5 @@
 {# -*- mode: jinja2; coding: utf-8; -*-
-Time-stamp: <2025-12-02 19:15:21 krylon>
+Time-stamp: <2025-12-03 14:08:54 krylon>
 /data/code/python/headlines/web/templates/search.jinja
 created on 29. 11. 2025
 (c) 2025 Benjamin Walkenhorst
@@ -13,17 +13,54 @@ created on 29. 11. 2025
   <div class="container content">
     <div class="row">
       <div class="col">
-        <input type="search" placeholder="Search..." id="search_text" />
-        <button type="button"
-                class="btn btn-sm btn-primary"
-                onclick="search_do();">
-                Find
-        </button>
-        <button type="button"
-                class="btn btn-sm btn-danger"
-                onclick="search_reset();">
-                Reset
-        </button>
+        <div class="row">
+          <input type="search" placeholder="Search..." id="search_text" />
+          <button type="button"
+                  class="btn btn-sm btn-primary"
+                  onclick="search_do();">
+                  Find
+          </button>
+          <button type="button"
+                  class="btn btn-sm btn-danger"
+                  onclick="search_reset();">
+                  Reset
+          </button>
+        </div>
+
+        <div class="row">
+          &nbsp;
+        </div>
+
+        <div class="row"> {# Filter by date #}
+          <fieldset>
+            <table class="horizontal">
+              <tr>
+                <th>
+                  <label for="search_by_date_p">Filter by Date?</label>
+                </th>
+                <td>
+                  <input type="checkbox" id="search_by_date_p" name="search_by_date_p" />
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  <label for="date_from">From:</label>
+                </th>
+                <td>
+                  <input type="date" name="date_from" id="date_from" />
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  <label for="date_to">To:</label>
+                </th>
+                <td>
+                  <input type="date" name="date_to" id="date_to" />
+                </td>
+              </tr>
+            </table>
+          </fieldset>
+        </div>
       </div>
 
       <div class="col">
@@ -46,10 +83,11 @@ created on 29. 11. 2025
         <button class="btn btn-sm btn-success" onclick="add_tag_to_search_bin();">
           Add Tag
         </button>
-      </div> <!-- col 0 -->
+      </div> <!-- col 1 -->
+
       <div class="col" id="tag_bin">
         
-      </div>
+      </div> <!-- col 2 -->
     </div> <!-- row 0 -->
 
     <div class="row" id="result_bin"> {# Results go here #}

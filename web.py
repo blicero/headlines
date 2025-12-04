@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-12-02 19:33:32 krylon>
+# Time-stamp: <2025-12-04 15:53:17 krylon>
 #
 # /data/code/python/headlines/web.py
 # created on 11. 10. 2025
@@ -35,6 +35,7 @@ from jinja2 import Environment, FileSystemLoader
 
 from headlines import common
 from headlines.classy import Karl
+from headlines.common import parse_iso_date
 from headlines.database import Database, DatabaseError
 from headlines.model import (Blacklist, BlacklistItem, Feed, Item, Later,
                              Rating, Tag)
@@ -954,6 +955,9 @@ class WebUI:
         response.set_header("Content-Type", "application/json")
         return json.dumps(res)
 
+    # FIXME This methods is getting uncomfortably long, and the flow control is getting
+    #       very unwieldy. I should really see if I can break this up into more manageable
+    #       pieces.
     def _handle_search_query(self) -> Union[str, bytes]:  # pylint: disable-msg=R0914,R0912
         """Handle an incoming search query."""
         res: dict = {
@@ -965,7 +969,7 @@ class WebUI:
         try:
             db: Final[Database] = Database()
             qtxt: Final[str] = request.params["txt"]
-            mode: Final[str] = request.params["mode"]
+            mode: Final[str] = request.params["mode"].lower()
             try:
                 tag_ids: list[int] = [int(x) for x in request.params["tags"].split("/") if x != ""]
             except KeyError:
@@ -987,6 +991,27 @@ class WebUI:
             ritems: list[Item] = db.search_match(qtxt)
             titems: list[Item] = []
             item_tags: dict[int, set[Tag]] = {}
+
+            # date_p - <class 'str'> - true // period - <class 'str'> - 2025-08-01--2025-08-14
+            date_p: Final[str] = request.params["date_p"]
+            period_s: Final[str] = request.params["period"]
+
+            self.log.debug("date_p - %s // period - %s",
+                           date_p,
+                           period_s)
+
+            # yeah, I know. But converting it to a bool first would be even more convoluted
+            if date_p == "true":
+                d1, d2 = period_s.split("--")
+                begin: Final[Optional[datetime]] = parse_iso_date(d1)
+                end: Final[Optional[datetime]] = parse_iso_date(d2, True)
+
+                if begin is None or end is None:
+                    msg = "Filtering by period needs a beginning and and end!"
+                    res["message"] = msg
+                    self.log.error(msg)
+                else:
+                    ritems = [i for i in ritems if begin <= i.timestamp <= end]
 
             if len(tag_ids) > 0:
                 for item in ritems:
@@ -1031,7 +1056,7 @@ class WebUI:
         except Exception as err:  # pylint: disable-msg=W0718
             cname: Final[str] = err.__class__.__name__
             tb: Final[str] = "\n".join(traceback.format_exception(err))
-            msg: Final[str] = f"{cname} while performing search: {err}\n{tb}"
+            msg = f"{cname} while performing search: {err}\n{tb}"
             self.log.error(msg)
             res["message"] = msg
             res["status"] = False
