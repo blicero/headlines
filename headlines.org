@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-12-04 15:55:00 krylon>
+# Time-stamp: <2025-12-04 16:10:09 krylon>
 #
 #+TAGS: internals(i) ui(u) database(d) design(e)
 #+TAGS: meditation(m) optimize(o) refactor(r) cleanup(c)
@@ -164,7 +164,7 @@
      CLOCK: [2025-10-20 Mo 10:50]--[2025-10-20 Mo 11:20] =>  0:30
      CLOCK: [2025-10-20 Mo 10:13]--[2025-10-20 Mo 10:33] =>  0:20
      :END:
-*** Engine [0/2]
+*** Engine [0/1]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: children
