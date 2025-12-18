@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-12-18 21:15:07 krylon>
+# Time-stamp: <2025-12-18 21:38:22 krylon>
 #
 # /data/code/python/headlines/src/headlines/engine.py
 # created on 30. 09. 2025
@@ -35,9 +35,11 @@ from headlines import common
 from headlines.database import Database
 from headlines.model import Feed, Item
 
+# time data '2025-12-18T20:23:38' does not match format '%Y-%m-%dT%H:%M:%S%z'
+# '2025-12-17T21:35:00.117000+00:00'
 time_plus_pat: Final[re.Pattern] = \
-    re.compile(r"[+]\d+:\d+$")
-timepat: Final[str] = "%Y-%m-%dT%H:%M:%S%z"
+    re.compile(r"[.]\d+(?:[+]\d+:\d+)?$")
+timepat: Final[str] = "%Y-%m-%dT%H:%M:%S"
 qtimeout: Final[int] = 5
 worker_count: int = 8
 
