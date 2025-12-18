@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-12-04 16:10:09 krylon>
+# Time-stamp: <2025-12-18 21:23:31 krylon>
 #
 #+TAGS: internals(i) ui(u) database(d) design(e)
 #+TAGS: meditation(m) optimize(o) refactor(r) cleanup(c)
@@ -8,19 +8,19 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Headlines [39/42]
+* Headlines [39/43]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: children
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2025-12-04 Do 15:54]
+   #+CAPTION: Clock summary at [2025-12-18 Do 21:23]
    | Headline                                        | Time      |            |          |         |       |      |
    |-------------------------------------------------+-----------+------------+----------+---------+-------+------|
-   | *Total time*                                    | *6d 6:41* |            |          |         |       |      |
+   | *Total time*                                    | *6d 6:55* |            |          |         |       |      |
    |-------------------------------------------------+-----------+------------+----------+---------+-------+------|
-   | *Headlines [39/42]*                             | *6d 6:41* |            |          |         |       |      |
+   | *Headlines [39/43]*                             | *6d 6:55* |            |          |         |       |      |
    | \_  /Components [22/24]/                        |           | /4d 4:04/  |          |         |       |      |
    | \_    Common [1/1]                              |           |            |     0:08 |         |       |      |
    | \_      Down the rabbit hole for pathlib        |           |            |          |    0:08 |       |      |
@@ -32,7 +32,7 @@
    | \_      Rating and Tagging [2/2]                |           |            |          |    1:21 |       |      |
    | \_        Tagging [0/0]                         |           |            |          |         |  0:46 |      |
    | \_      Testing                                 |           |            |          |    1:58 |       |      |
-   | \_    Engine [0/2]                              |           |            |    11:41 |         |       |      |
+   | \_    Engine [0/1]                              |           |            |    11:41 |         |       |      |
    | \_      Back off if loading Feed fails          |           |            |          |    0:05 |       |      |
    | \_    Web UI [17/17]                            |           |            | 2d 21:52 |         |       |      |
    | \_      Integrate Blacklist [3/3]               |           |            |          |   17:25 |       |      |
@@ -62,12 +62,13 @@
    | \_      Tokenizer                               |           |            |          |    3:03 |       |      |
    | \_    Caching [1/1]                             |           |            |     5:05 |         |       |      |
    | \_      Expiration!                             |           |            |          |    0:44 |       |      |
-   | \_  /Bugs [6/6]/                                |           | /3:29/     |          |         |       |      |
+   | \_  /Bugs [6/7]/                                |           | /3:43/     |          |         |       |      |
    | \_    Missing text in Advisor                   |           |            |     0:14 |         |       |      |
    | \_    The mysterious case of the missing link   |           |            |     1:19 |         |       |      |
    | \_    Missing pubDate                           |           |            |     1:11 |         |       |      |
    | \_    The case of the failing refresh           |           |            |     0:20 |         |       |      |
    | \_    Deadlock in Cache layer                   |           |            |     0:25 |         |       |      |
+   | \_    More trouble with timestamps.             |           |            |     0:14 |         |       |      |
    | \_  /Journal [1/1]/                             |           | /0:26/     |          |         |       |      |
    | \_    Wrestling with poetry                     |           |            |     0:26 |         |       |      |
    #+END:
@@ -500,7 +501,7 @@
      Tokenization is not as much of an issue, but caching ratings and advice
      without an expiration date is a questionable idea, because as I rate and
      tag more Items, that affects future classifications and advice.
-** Bugs [6/6]
+** Bugs [6/7]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: children
@@ -550,6 +551,15 @@
     :LOGBOOK:
     CLOCK: [2025-11-08 Sa 14:18]--[2025-11-08 Sa 14:43] =>  0:25
     :END:
+*** TODO More trouble with timestamps.
+    :LOGBOOK:
+    CLOCK: [2025-12-18 Do 21:09]--[2025-12-18 Do 21:23] =>  0:14
+    :END:
+    Says the log file:
+    ValueError: time data '2025-12-17T21:35:00.117000+00:00' does not match
+    format '%Y-%m-%dT%H:%M:%S%z'
+    ...
+    I think I need to snip off the "+00:00" at the end.
 ** Journal [1/1]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
