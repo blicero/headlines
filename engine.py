@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-11-21 21:45:38 krylon>
+# Time-stamp: <2025-12-18 21:15:07 krylon>
 #
 # /data/code/python/headlines/src/headlines/engine.py
 # created on 30. 09. 2025
@@ -21,6 +21,7 @@ Engine implements the downloading and processing of RSS feeds.
 
 import inspect
 import logging
+import re
 import time
 from datetime import datetime, timedelta
 from queue import Empty, SimpleQueue
@@ -34,6 +35,8 @@ from headlines import common
 from headlines.database import Database
 from headlines.model import Feed, Item
 
+time_plus_pat: Final[re.Pattern] = \
+    re.compile(r"[+]\d+:\d+$")
 timepat: Final[str] = "%Y-%m-%dT%H:%M:%S%z"
 qtimeout: Final[int] = 5
 worker_count: int = 8
@@ -173,7 +176,11 @@ class Engine:
                     try:
                         # timestamp: datetime = datetime.strptime(art.pubDate,
                         #                                         "%b %d, %Y %I:%M%p")
-                        timestamp: datetime = datetime.strptime(art.published, timepat)
+                        # Error message:
+                        # ValueError: time data '2025-12-17T21:35:00.117000+00:00' does not match
+                        # format '%Y-%m-%dT%H:%M:%S%z'
+                        timestr: str = time_plus_pat.sub("", art.published)
+                        timestamp: datetime = datetime.strptime(timestr, timepat)
 
                         # if not isinstance(art.content, str):
                         #     self.log.info("Content of article '%s' is not a string, but %s\n%s",
