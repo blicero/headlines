@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-12-18 21:23:31 krylon>
+# Time-stamp: <2025-12-18 22:06:26 krylon>
 #
 #+TAGS: internals(i) ui(u) database(d) design(e)
 #+TAGS: meditation(m) optimize(o) refactor(r) cleanup(c)
@@ -15,12 +15,12 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2025-12-18 Do 21:23]
+   #+CAPTION: Clock summary at [2025-12-18 Do 22:06]
    | Headline                                        | Time      |            |          |         |       |      |
    |-------------------------------------------------+-----------+------------+----------+---------+-------+------|
-   | *Total time*                                    | *6d 6:55* |            |          |         |       |      |
+   | *Total time*                                    | *6d 7:23* |            |          |         |       |      |
    |-------------------------------------------------+-----------+------------+----------+---------+-------+------|
-   | *Headlines [39/43]*                             | *6d 6:55* |            |          |         |       |      |
+   | *Headlines [39/43]*                             | *6d 7:23* |            |          |         |       |      |
    | \_  /Components [22/24]/                        |           | /4d 4:04/  |          |         |       |      |
    | \_    Common [1/1]                              |           |            |     0:08 |         |       |      |
    | \_      Down the rabbit hole for pathlib        |           |            |          |    0:08 |       |      |
@@ -62,13 +62,13 @@
    | \_      Tokenizer                               |           |            |          |    3:03 |       |      |
    | \_    Caching [1/1]                             |           |            |     5:05 |         |       |      |
    | \_      Expiration!                             |           |            |          |    0:44 |       |      |
-   | \_  /Bugs [6/7]/                                |           | /3:43/     |          |         |       |      |
+   | \_  /Bugs [6/7]/                                |           | /4:11/     |          |         |       |      |
    | \_    Missing text in Advisor                   |           |            |     0:14 |         |       |      |
    | \_    The mysterious case of the missing link   |           |            |     1:19 |         |       |      |
    | \_    Missing pubDate                           |           |            |     1:11 |         |       |      |
    | \_    The case of the failing refresh           |           |            |     0:20 |         |       |      |
    | \_    Deadlock in Cache layer                   |           |            |     0:25 |         |       |      |
-   | \_    More trouble with timestamps.             |           |            |     0:14 |         |       |      |
+   | \_    More trouble with timestamps.             |           |            |     0:42 |         |       |      |
    | \_  /Journal [1/1]/                             |           | /0:26/     |          |         |       |      |
    | \_    Wrestling with poetry                     |           |            |     0:26 |         |       |      |
    #+END:
@@ -553,6 +553,7 @@
     :END:
 *** TODO More trouble with timestamps.
     :LOGBOOK:
+    CLOCK: [2025-12-18 Do 21:35]--[2025-12-18 Do 22:03] =>  0:28
     CLOCK: [2025-12-18 Do 21:09]--[2025-12-18 Do 21:23] =>  0:14
     :END:
     Says the log file:
@@ -560,6 +561,9 @@
     format '%Y-%m-%dT%H:%M:%S%z'
     ...
     I think I need to snip off the "+00:00" at the end.
+    ...
+    Oh, we got another one:
+    "time data '2025-12-18T20:23:38' does not match format '%Y-%m-%dT%H:%M:%S%z'"
 ** Journal [1/1]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
