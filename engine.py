@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Time-stamp: <2025-12-18 21:38:22 krylon>
+# Time-stamp: <2025-12-19 11:18:22 krylon>
 #
 # /data/code/python/headlines/src/headlines/engine.py
 # created on 30. 09. 2025
@@ -23,6 +23,7 @@ import inspect
 import logging
 import re
 import time
+import traceback
 from datetime import datetime, timedelta
 from queue import Empty, SimpleQueue
 from threading import Lock, Thread
@@ -38,7 +39,7 @@ from headlines.model import Feed, Item
 # time data '2025-12-18T20:23:38' does not match format '%Y-%m-%dT%H:%M:%S%z'
 # '2025-12-17T21:35:00.117000+00:00'
 time_plus_pat: Final[re.Pattern] = \
-    re.compile(r"[.]\d+(?:[+]\d+:\d+)?$")
+    re.compile(r"(?:[.,]\d+)?(?:[+]\d+:\d+)?$")
 timepat: Final[str] = "%Y-%m-%dT%H:%M:%S"
 qtimeout: Final[int] = 5
 worker_count: int = 8
@@ -137,7 +138,7 @@ class Engine:
             self.log.debug("Feeder loop is quitting.")
             db.close()
 
-    def _fetch_loop(self, num: int) -> None:
+    def _fetch_loop(self, num: int) -> None:  # pylint: disable-msg=R0914
         """Fetch pending Feeds as they come in through the Feed queue."""
         self.log.debug("Fetch worker %02d is starting up.", num)
         while self.active:
@@ -155,6 +156,11 @@ class Engine:
                     self.log.error("Error fetching feed %s: %s",
                                    feed.name,
                                    herr)
+                    continue
+                except TimeoutError as terr:
+                    self.log.error("TimeoutError fetching feed %s: %s",
+                                   feed.name,
+                                   terr)
                     continue
 
                 db: Database = Database()
@@ -183,7 +189,15 @@ class Engine:
                         # format '%Y-%m-%dT%H:%M:%S%z'
                         timestr: str = time_plus_pat.sub("", art.published)
                         timestamp: datetime = datetime.strptime(timestr, timepat)
+                    except ValueError as verr:
+                        tb: str = "\n".join(traceback.format_exception(verr))
+                        self.log.error("Failed to parse timestamp from article '%s': %s\n%s\n",
+                                       art.published,
+                                       verr,
+                                       tb)
+                        timestamp = datetime.now()
 
+                    try:
                         # if not isinstance(art.content, str):
                         #     self.log.info("Content of article '%s' is not a string, but %s\n%s",
                         #                   art.title,
