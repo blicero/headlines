@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2025-12-18 22:06:26 krylon>
+# Time-stamp: <2025-12-19 15:01:46 krylon>
 #
 #+TAGS: internals(i) ui(u) database(d) design(e)
 #+TAGS: meditation(m) optimize(o) refactor(r) cleanup(c)
@@ -8,19 +8,19 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Headlines [39/43]
+* Headlines [40/43]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: children
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2025-12-18 Do 22:06]
+   #+CAPTION: Clock summary at [2025-12-19 Fr 15:01]
    | Headline                                        | Time      |            |          |         |       |      |
    |-------------------------------------------------+-----------+------------+----------+---------+-------+------|
    | *Total time*                                    | *6d 7:23* |            |          |         |       |      |
    |-------------------------------------------------+-----------+------------+----------+---------+-------+------|
-   | *Headlines [39/43]*                             | *6d 7:23* |            |          |         |       |      |
+   | *Headlines [40/43]*                             | *6d 7:23* |            |          |         |       |      |
    | \_  /Components [22/24]/                        |           | /4d 4:04/  |          |         |       |      |
    | \_    Common [1/1]                              |           |            |     0:08 |         |       |      |
    | \_      Down the rabbit hole for pathlib        |           |            |          |    0:08 |       |      |
@@ -62,7 +62,7 @@
    | \_      Tokenizer                               |           |            |          |    3:03 |       |      |
    | \_    Caching [1/1]                             |           |            |     5:05 |         |       |      |
    | \_      Expiration!                             |           |            |          |    0:44 |       |      |
-   | \_  /Bugs [6/7]/                                |           | /4:11/     |          |         |       |      |
+   | \_  /Bugs [7/7]/                                |           | /4:11/     |          |         |       |      |
    | \_    Missing text in Advisor                   |           |            |     0:14 |         |       |      |
    | \_    The mysterious case of the missing link   |           |            |     1:19 |         |       |      |
    | \_    Missing pubDate                           |           |            |     1:11 |         |       |      |
@@ -501,7 +501,7 @@
      Tokenization is not as much of an issue, but caching ratings and advice
      without an expiration date is a questionable idea, because as I rate and
      tag more Items, that affects future classifications and advice.
-** Bugs [6/7]
+** Bugs [7/7]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: children
@@ -551,7 +551,8 @@
     :LOGBOOK:
     CLOCK: [2025-11-08 Sa 14:18]--[2025-11-08 Sa 14:43] =>  0:25
     :END:
-*** TODO More trouble with timestamps.
+*** DONE More trouble with timestamps.
+    CLOSED: [2025-12-19 Fr 15:01]
     :LOGBOOK:
     CLOCK: [2025-12-18 Do 21:35]--[2025-12-18 Do 22:03] =>  0:28
     CLOCK: [2025-12-18 Do 21:09]--[2025-12-18 Do 21:23] =>  0:14
